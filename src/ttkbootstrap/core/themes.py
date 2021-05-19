@@ -4,10 +4,9 @@ import json
 import importlib.resources
 import colorsys
 
-STYLE_PATTERN = re.compile(r'outline|link')
-COLOR_PATTERN = re.compile(r'primary|secondary|success|info|warning|danger')
-COLORMAP = json.loads(importlib.resources.read_text(
-    'ttkbootstrap.core', 'colormap.json'))
+STYLE_PATTERN = re.compile(r"outline|link")
+COLOR_PATTERN = re.compile(r"primary|secondary|success|info|warning|danger")
+COLORMAP = json.loads(importlib.resources.read_text("ttkbootstrap.core.files", "colormap.json"))
 
 
 class ThemeColors:
@@ -43,23 +42,37 @@ class ThemeColors:
             print(color_label, color)
     """
 
-    def __init__(self, primary, secondary, success, info, warning, danger, bg, fg, selectbg, selectfg,
-                 border, inputfg, inputbg):
+    def __init__(
+        self,
+        primary,
+        secondary,
+        success,
+        info,
+        warning,
+        danger,
+        bg,
+        fg,
+        selectbg,
+        selectfg,
+        border,
+        inputfg,
+        inputbg,
+    ):
         """
-            Args:
-                primary (str): the primary theme color; used by default for all widgets.
-                secondary (str): an accent color; commonly of a `grey` hue.
-                success (str): an accent color; commonly of a `green` hue.
-                info (str): an accent color; commonly of a `blue` hue.
-                warning (str): an accent color; commonly of an `orange` hue.
-                danger (str): an accent color; commonly of a `red` hue.
-                bg (str): background color.
-                fg (str): default text color.
-                selectfg (str): the color of selected text.
-                selectbg (str): the background color of selected text.
-                border (str): the color used for widget borders.
-                inputfg (str): the text color for input widgets: ie. ``Entry``, ``Combobox``, etc...
-                inputbg (str): the text background color for input widgets.
+        Args:
+            primary (str): the primary theme color; used by default for all widgets.
+            secondary (str): an accent color; commonly of a `grey` hue.
+            success (str): an accent color; commonly of a `green` hue.
+            info (str): an accent color; commonly of a `blue` hue.
+            warning (str): an accent color; commonly of an `orange` hue.
+            danger (str): an accent color; commonly of a `red` hue.
+            bg (str): background color.
+            fg (str): default text color.
+            selectfg (str): the color of selected text.
+            selectbg (str): the background color of selected text.
+            border (str): the color used for widget borders.
+            inputfg (str): the text color for input widgets: ie. ``Entry``, ``Combobox``, etc...
+            inputbg (str): the text background color for input widgets.
         """
         self.primary = primary
         self.secondary = secondary
@@ -101,7 +114,7 @@ class ThemeColors:
         self.__dict__[color_label] = color_value
 
     def __iter__(self):
-        return iter(['primary', 'secondary', 'success', 'info', 'warning', 'danger'])
+        return iter(["primary", "secondary", "success", "info", "warning", "danger"])
 
     def __repr__(self):
         return str((tuple(zip(self.__dict__.keys(), self.__dict__.values()))))
@@ -110,11 +123,26 @@ class ThemeColors:
     def label_iter():
         """Iterate over all color label properties in the Color class
 
-            Returns:
-                iter: an iterator representing the name of the color properties
+        Returns:
+            iter: an iterator representing the name of the color properties
         """
-        return iter(['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'bg', 'fg', 'selectbg', 'selectfg',
-                     'border', 'inputfg', 'inputbg'])
+        return iter(
+            [
+                "primary",
+                "secondary",
+                "success",
+                "info",
+                "warning",
+                "danger",
+                "bg",
+                "fg",
+                "selectbg",
+                "selectfg",
+                "border",
+                "inputfg",
+                "inputbg",
+            ]
+        )
 
     @staticmethod
     def hex_to_rgb(color):
@@ -153,7 +181,7 @@ class ThemeColors:
         r_ = int(r * 255)
         g_ = int(g * 255)
         b_ = int(b * 255)
-        return '#{:02x}{:02x}{:02x}'.format(r_, g_, b_)
+        return "#{:02x}{:02x}{:02x}".format(r_, g_, b_)
 
     @staticmethod
     def standardize(color):
@@ -165,7 +193,7 @@ class ThemeColors:
         Returns:
             tuple[int, int, int]: rgb color value.
         """
-        if '#' not in color and color is not None:
+        if "#" not in color and color is not None:
             return ThemeColors.hex_to_rgb(COLORMAP.get(color))
 
     @staticmethod
@@ -181,7 +209,7 @@ class ThemeColors:
         Returns:
             str: a new hexadecimal color value that results from the hsv arguments passed into the function
         """
-        if '#' not in str(color):
+        if "#" not in str(color):
             r, g, b = ThemeColors.standardize(color)
         else:
             r, g, b = ThemeColors.hex_to_rgb(color)
@@ -194,7 +222,7 @@ class ThemeColors:
         elif h * (1 + hd) < 0:
             h = 0
         else:
-            h *= (1 + hd)
+            h *= 1 + hd
 
         # saturation
         if s * (1 + sd) > 1:
@@ -202,7 +230,7 @@ class ThemeColors:
         elif s * (1 + sd) < 0:
             s = 0
         else:
-            s *= (1 + sd)
+            s *= 1 + sd
 
         # value
         if v * (1 + vd) > 1:
@@ -210,7 +238,7 @@ class ThemeColors:
         elif v * (1 + vd) < 0.05:
             v = 0.05
         else:
-            v *= (1 + vd)
+            v *= 1 + vd
 
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         return ThemeColors.rgb_to_hex(r, g, b)
@@ -219,7 +247,7 @@ class ThemeColors:
 class ThemeDefinition:
     """A class to provide defined name, colors, and font settings for a ttkbootstrap theme."""
 
-    def __init__(self, name='default', themetype='light', font='helvetica', colors=None):
+    def __init__(self, name="default", themetype="light", font="helvetica", colors=None):
         """
         Args:
             name (str): the name of the theme; default is 'default'.
@@ -233,7 +261,7 @@ class ThemeDefinition:
         self.colors = colors if colors else ThemeColors()
 
     def __repr__(self):
-        return f'name={self.name}, type={self.type}, font={self.font}, colors={self.colors}'
+        return f"name={self.name}, type={self.type}, font={self.font}, colors={self.colors}"
 
     @staticmethod
     def load_themes(themes_file=None):
@@ -246,36 +274,35 @@ class ThemeDefinition:
             dict: theme defintions for all ttkbootstrap themes
         """
         # pre-defined themes
-        json_data = importlib.resources.read_text(
-            'ttkbootstrap', 'themes.json')
+        json_data = importlib.resources.read_text("ttkbootstrap.core.files", "themes.json")
         builtin_themes = json.loads(json_data)
 
         # application-defined or user-defined themes
         if themes_file is None:
-            themes_file = builtin_themes['userpath']
+            themes_file = builtin_themes["userpath"]
         user_path = Path(themes_file)
         if user_path.exists():
-            with user_path.open(encoding='utf-8') as f:
+            with user_path.open(encoding="utf-8") as f:
                 user_themes = json.load(f)
         else:
-            user_themes = {'themes': []}
+            user_themes = {"themes": []}
 
         # create a theme definition object for each theme, this will be used to generate
         #  the theme in tkinter along with any assets at run-time
-        theme_settings = {
-            'themes': builtin_themes['themes'] + user_themes['themes']}
+        theme_settings = {"themes": builtin_themes["themes"] + user_themes["themes"]}
 
         # save all theme definitions into a dictionary and return
         theme_definitions = {}
-        for theme in theme_settings['themes']:
-            theme_definitions[theme['name']] = ThemeDefinition(
-                name=theme['name'],
-                themetype=theme['type'],
-                font=theme['font'],
-                colors=ThemeColors(**theme['colors']))
+        for theme in theme_settings["themes"]:
+            theme_definitions[theme["name"]] = ThemeDefinition(
+                name=theme["name"],
+                themetype=theme["type"],
+                font=theme["font"],
+                colors=ThemeColors(**theme["colors"]),
+            )
         return theme_definitions
 
 
 DEFINITIONS = ThemeDefinition.load_themes()
-DEFAULT_COLORS = DEFINITIONS['flatly'].colors
-DEFAULT_FONT = DEFINITIONS['flatly'].font
+DEFAULT_COLORS = DEFINITIONS["flatly"].colors
+DEFAULT_FONT = DEFINITIONS["flatly"].font

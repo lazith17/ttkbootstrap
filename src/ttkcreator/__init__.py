@@ -210,7 +210,7 @@ class CreatorDesignWindow(tk.Toplevel):
         """Save the current settings as a new theme. Warn using if saving will overwrite existing theme."""
         name = self.getvar("name").lower().replace(" ", "")
 
-        raw_json = importlib.resources.read_text("ttkbootstrap", "themes.json")
+        raw_json = importlib.resources.read_text("ttkbootstrap.core.files", "themes.json")
         settings = json.loads(raw_json)
 
         with open(settings["userpath"], encoding="utf-8") as f:
@@ -536,7 +536,7 @@ class CreatorBaseChooser(tk.Tk):
         :returns: is there a valid path for themes or not?
         :rtype: bool
         """
-        json_string = importlib.resources.read_text("ttkbootstrap", "themes.json")
+        json_string = importlib.resources.read_text("ttkbootstrap.core.files", "themes.json")
         settings = json.loads(json_string)
 
         if settings["userpath"] and Path(settings["userpath"]).exists():
