@@ -1,6 +1,6 @@
 """
     A ``ttkbootstrap`` abstract base class widgets.
-    
+
     Created: 2021-05-12
     Author: Israel Dryer, israel.dryer@gmail.com
 
@@ -15,9 +15,7 @@ from tkinter.ttk import _script_from_settings as script_from_settings
 from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
 
-WIDGET_PATTERN = re.compile(
-    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl"
-)
+WIDGET_PATTERN = re.compile(r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl")
 
 WIDGET_LOOKUP = {
     "button": "TButton",
@@ -36,6 +34,14 @@ class Widget(Widget, ABC):
     """An abstract base class for all **ttkbootstrap** widgets."""
 
     def __init__(self, widgetclass, master=None, bootstyle=None, style=None, **kw):
+        """
+        Args:
+            widgetclass (str): The base ``ttk`` style class, which can be found with the ``.winfo_class`` method.
+            master (Widget, optional): The parent widget.
+            bootstyle (str, optional): A string of **ttkbootstrap** style keywords.
+            style (str, optional): A ``ttk`` style; will override ``bootstyle`` options.
+            **kw (optional): Other widget options.
+        """
         self.widgetclass = widgetclass
         self.master = setup_master(master)
         self.bootstyle = bootstyle.lower()
@@ -49,13 +55,14 @@ class Widget(Widget, ABC):
         self.set_ttk_style()
 
     def update_ttk_style(self, settings):
-        """Temporarily sets the current theme to themename, apply specified
-        settings and then restore the previous theme.
+        """Temporarily sets the current theme to themename, apply specified settings and then restore the previous
+        theme.
 
-        Each key in settings is a style and each value may contain the
-        keys 'configure', 'map', 'layout' and 'element create' and they
-        are expected to have the same format as specified by the methods
-        configure, map, layout and element_create respectively."""
+        Args:
+            settings (dict): Each key in settings is a style and each value may contain the keys `configure`, `map`,
+                `layout` and `element create` and they are expected to have the same format as specified by the methods
+                configure, map, layout and element_create respectively.
+        """
         script = script_from_settings(settings)
         theme_name = self.tk.call("ttk::style", "theme", "use")
         self.theme = DEFINITIONS.get(theme_name)
@@ -65,7 +72,7 @@ class Widget(Widget, ABC):
         """Identity themed color in the style name. Returns the matched name if found, otherwise None.
 
         Returns:
-            str: The themed color found in the style name.
+            str: The themed color found in the style name; ie. `primary`, `secondary`, etc...
         """
         if not self.bootstyle:
             return
@@ -93,7 +100,7 @@ class Widget(Widget, ABC):
         """Identity themed style in the style name. Returns the matched name if found, otherwise None.
 
         Returns:
-            str: The themed style found in the style name; ie. `outline`, `link`, etc...
+            str: The themed style found in the style name; ie. `TButton`, `TLabel`, etc...
         """
         if not self.bootstyle:
             return
@@ -104,8 +111,9 @@ class Widget(Widget, ABC):
             return None
 
     def set_ttk_style(self):
-        """Set the ``ttk`` style based on the ``style`` option if given, otherwise, build the ``style``
-        options from the ``bootstyle``"""
+        """Set the ``ttk`` style based on the ``style`` option if given, otherwise, build the ``style`` options from
+        the ``bootstyle``
+        """
         # use the ttk style
         if self.style:
             return
