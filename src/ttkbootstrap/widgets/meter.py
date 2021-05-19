@@ -13,7 +13,7 @@ from tkinter.font import Font
 from tkinter.ttk import Frame, Widget
 
 from PIL import Image, ImageTk, ImageDraw
-from ttkbootstrap import Style, Colors
+from ..core.style import Style
 
 
 class Meter(Frame):
@@ -112,14 +112,16 @@ class Meter(Frame):
 
         # translate system colors if a ttkbootstrap style is not used
         if 'system' in self.lookup(meterstyle, 'foreground').lower():
-            self.meterforeground = self.convert_system_color(self.lookup(meterstyle, 'foreground'))
+            self.meterforeground = self.convert_system_color(
+                self.lookup(meterstyle, 'foreground'))
         else:
             self.meterforeground = self.lookup(meterstyle, 'foreground')
         if 'system' in self.lookup(meterstyle, 'background').lower():
             self.meterbackground = Colors.update_hsv(self.convert_system_color(
                 self.lookup(meterstyle, 'background')), vd=-0.1)
         else:
-            self.meterbackground = Colors.update_hsv(self.lookup(meterstyle, 'background'), vd=-0.1)
+            self.meterbackground = Colors.update_hsv(
+                self.lookup(meterstyle, 'background'), vd=-0.1)
 
         # meter image
         self.meter = ttk.Label(self.box)
@@ -128,12 +130,16 @@ class Meter(Frame):
 
         # text & label widgets
         self.textcontainer = ttk.Frame(self.box)
-        self.textprepend = ttk.Label(self.textcontainer, text=textprepend, font=labelfont, style=labelstyle)
+        self.textprepend = ttk.Label(
+            self.textcontainer, text=textprepend, font=labelfont, style=labelstyle)
         self.textprepend.configure(anchor='s', padding=(0, 5))
-        self.text = ttk.Label(self.textcontainer, textvariable=self.amountusedvariable, style=meterstyle, font=textfont)
-        self.textappend = ttk.Label(self.textcontainer, text=textappend, font=labelfont, style=labelstyle)
+        self.text = ttk.Label(
+            self.textcontainer, textvariable=self.amountusedvariable, style=meterstyle, font=textfont)
+        self.textappend = ttk.Label(
+            self.textcontainer, text=textappend, font=labelfont, style=labelstyle)
         self.textappend.configure(anchor='s', padding=(0, 5))
-        self.label = ttk.Label(self.box, text=labeltext, style=labelstyle, font=labelfont)
+        self.label = ttk.Label(self.box, text=labeltext,
+                               style=labelstyle, font=labelfont)
 
         # set interactive mode
         if interactive:
@@ -182,7 +188,8 @@ class Meter(Frame):
 
     def draw_base_image(self):
         """Draw the base image to be used for subsequent updates"""
-        self.base_image = Image.new('RGBA', (self.metersize * 5, self.metersize * 5))
+        self.base_image = Image.new(
+            'RGBA', (self.metersize * 5, self.metersize * 5))
         draw = ImageDraw.Draw(self.base_image)
 
         # striped meter
@@ -208,7 +215,8 @@ class Meter(Frame):
             self.draw_striped_meter(draw)
         else:
             self.draw_solid_meter(draw)
-        self.meterimage = ImageTk.PhotoImage(im.resize((self.metersize, self.metersize), Image.CUBIC))
+        self.meterimage = ImageTk.PhotoImage(
+            im.resize((self.metersize, self.metersize), Image.CUBIC))
         self.meter.configure(image=self.meterimage)
 
     def draw_solid_meter(self, draw):

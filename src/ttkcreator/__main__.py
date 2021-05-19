@@ -1,5 +1,4 @@
-from . import CreatorBaseChooser
+from ttkcreator import CreatorBaseChooser
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     CreatorBaseChooser().mainloop()

@@ -76,7 +76,8 @@ class Floodgauge(Progressbar):
 
         # set the label font
         if font:
-            self.tk.call("ttk::style", "configure", self._widgetstyle, '-%s' % 'font', font, None)
+            self.tk.call("ttk::style", "configure",
+                         self._widgetstyle, '-%s' % 'font', font, None)
 
         # progress bar text variable
         self.textvariable = StringVar(value=text or '')
@@ -105,7 +106,8 @@ class Floodgauge(Progressbar):
         Args:
             *args: if triggered by a trace, will be `variable`, `index`, `mode`.
         """
-        self.tk.call("ttk::style", "configure", self._widgetstyle, '-%s' % 'text', self.textvariable.get(), None)
+        self.tk.call("ttk::style", "configure", self._widgetstyle,
+                     '-%s' % 'text', self.textvariable.get(), None)
 
 
 if __name__ == '__main__':
@@ -115,12 +117,10 @@ if __name__ == '__main__':
     s = Style()
     p = Floodgauge(orient='vertical', style='danger.Vertical.TFloodgauge')
 
-
     def auto(progress):
         p.text = f'Memory\n{p.value}%'
         p.step(1)
         p.after(50, auto, p)
-
 
     p.pack(fill='both', expand='yes')
     auto(p)
