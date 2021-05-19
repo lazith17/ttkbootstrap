@@ -16,18 +16,19 @@ from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
 
 WIDGET_PATTERN = re.compile(
-    r'btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl')
+    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl"
+)
 
 WIDGET_LOOKUP = {
-    'button': 'TButton',
-    'btn': 'TButton',
-    'progressbar': 'TProgressbar',
-    'checkbutton': 'TCheckbutton',
-    'checkbtn': 'TCheckbutton',
-    'radiobutton': 'TRadiobutton',
-    'radiobtn': 'TRadiobutton',
-    'toggle': 'TCheckbutton',
-    'label': 'TLabel',
+    "button": "TButton",
+    "btn": "TButton",
+    "progressbar": "TProgressbar",
+    "checkbutton": "TCheckbutton",
+    "checkbtn": "TCheckbutton",
+    "radiobutton": "TRadiobutton",
+    "radiobtn": "TRadiobutton",
+    "toggle": "TCheckbutton",
+    "label": "TLabel",
 }
 
 
@@ -42,8 +43,7 @@ class Widget(Widget, ABC):
         self.tk = self.master.tk
         self.settings = {}
         self.images = {}
-        self.theme = DEFINITIONS.get(
-            self.tk.call("ttk::style", "theme", "use"))
+        self.theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
         self.colors = self.theme.colors
         self.themed_color = self.get_style_color()
         self.set_ttk_style()
@@ -57,8 +57,9 @@ class Widget(Widget, ABC):
         are expected to have the same format as specified by the methods
         configure, map, layout and element_create respectively."""
         script = script_from_settings(settings)
-        self.tk.call("ttk::style", "theme", "settings",
-                     self.theme.name, script)
+        theme_name = self.tk.call("ttk::style", "theme", "use")
+        self.theme = DEFINITIONS.get(theme_name)
+        self.tk.call("ttk::style", "theme", "settings", self.theme.name, script)
 
     def get_style_color(self):
         """Identity themed color in the style name. Returns the matched name if found, otherwise None.
@@ -112,8 +113,7 @@ class Widget(Widget, ABC):
         # build ttk style from bootstyle parameters
         themed_style = self.get_style_type()
         widget_type = self.get_widget_type()
-        c = '' if not self.themed_color else self.themed_color + '.'
-        s = '' if not themed_style else themed_style.title() + '.'
-        t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(
-            widget_type) or self.widgetclass
-        self.style = f'{c}{s}{t}'
+        c = "" if not self.themed_color else self.themed_color + "."
+        s = "" if not themed_style else themed_style.title() + "."
+        t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(widget_type) or self.widgetclass
+        self.style = f"{c}{s}{t}"
