@@ -178,23 +178,34 @@ class ThemeColors:
         Returns:
             str: a hexadecimal colorl value
         """
-        r_ = int(r * 255)
-        g_ = int(g * 255)
-        b_ = int(b * 255)
+        r_ = max(0, min(int(r * 255), 255))
+        g_ = max(0, min(int(g * 255), 255))
+        b_ = max(0, min(int(b * 255), 255))
         return "#{:02x}{:02x}{:02x}".format(r_, g_, b_)
 
     @staticmethod
-    def standardize(color):
+    def normalize(color, fallback, theme_colors=None):
         """Standard colors by converting named color to rgb value.
 
         Args:
-            color (str): The color to standardize.
+            color (str): The color to normalize.
+            fallback (str): The fallback color if the conversion fails.
+            theme_colors (dict, optional): The color dictionary for a theme.
 
         Returns:
-            tuple[int, int, int]: rgb color value.
+            str: a hexadecimal color value.
         """
-        if "#" not in color and color is not None:
-            return ThemeColors.hex_to_rgb(COLORMAP.get(color))
+        if not color:
+            return fallback
+        
+        bootscolor = re.search(COLOR_PATTERN, color)
+        if bootscolor and theme_colors:
+            return theme_colors.get(color)
+        
+        if '#' not in color and color in COLORMAP:
+            return COLORMAP.get(color)
+
+        return fallback
 
     @staticmethod
     def update_hsv(color, hd=0, sd=0, vd=0):
@@ -210,7 +221,7 @@ class ThemeColors:
             str: a new hexadecimal color value that results from the hsv arguments passed into the function
         """
         if "#" not in str(color):
-            r, g, b = ThemeColors.standardize(color)
+            r, g, b = ThemeColors.normalize(color)
         else:
             r, g, b = ThemeColors.hex_to_rgb(color)
 
