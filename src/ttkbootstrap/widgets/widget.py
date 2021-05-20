@@ -6,7 +6,7 @@
 
 """
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from tkinter.ttk import setup_master
 from tkinter.ttk import Widget
@@ -27,6 +27,7 @@ WIDGET_LOOKUP = {
     "radiobtn": "TRadiobutton",
     "toggle": "TCheckbutton",
     "label": "TLabel",
+    "lbl": "TLabel"
 }
 
 
@@ -53,6 +54,17 @@ class Widget(Widget, ABC):
         self.colors = self.theme.colors
         self.themed_color = self.get_style_color()
         self.set_ttk_style()
+
+    @abstractmethod
+    def customize_widget(self):
+        """Apply color customizations"""
+        return NotImplementedError
+
+    def on_theme_change(self, event):
+        """Callback for <<ThemeChanged>> virtual event"""
+        theme_name = self.tk.call("ttk::style", "theme", "use")
+        self.theme = DEFINITIONS.get(theme_name)
+        self.customize_widget()
 
     def update_ttk_style(self, settings):
         """Temporarily sets the current theme to themename, apply specified settings and then restore the previous
@@ -92,7 +104,7 @@ class Widget(Widget, ABC):
             return
         result = re.search(STYLE_PATTERN, self.bootstyle)
         if result:
-            return result.group(0)
+            return result.group(0).title()
         else:
             return None
 
@@ -118,7 +130,7 @@ class Widget(Widget, ABC):
         if self.style:
             return
 
-        # build ttk style from bootstyle parameters
+        # build ttk style from bootstyle keywords
         themed_style = self.get_style_type()
         widget_type = self.get_widget_type()
         c = "" if not self.themed_color else self.themed_color + "."
