@@ -3,9 +3,9 @@ import importlib.resources
 from tkinter import ttk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
-from .themes import DEFAULT_FONT, ThemeColors
-from .themes import ThemeDefinition
-from .themes import COLORMAP
+from ttkbootstrap.core.themes import DEFAULT_FONT, ThemeColors
+from ttkbootstrap.core.themes import ThemeDefinition
+from ttkbootstrap.core.themes import COLORMAP
 
 
 class Style(ttk.Style):
@@ -333,7 +333,6 @@ class StylerTTK:
         self._style_label()
         self._style_meter()
         self._style_notebook()
-        self._style_outline_buttons()
         self._style_outline_menubutton()
         self._style_outline_toolbutton()
         self._style_progressbar()
@@ -341,7 +340,7 @@ class StylerTTK:
         self._style_floodgauge()
         self._style_radiobutton()
 
-        self._style_link_buttons()
+        # self._style_link_buttons()
         self._style_solid_menubutton()
         self._style_solid_toolbutton()
         self._style_treeview()
@@ -353,12 +352,16 @@ class StylerTTK:
 
         # themed style
         for color in self.theme.colors:
+            self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
+            self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(
-                self.style_solid_buttons(theme=self.theme, background=color, style=f"{color}.TButton")
+                self.style_outline_buttons(self.theme, foreground=color, style=f"{color}.Outline.TButton")
             )
 
         # default style
-        self.settings.update(self.style_solid_buttons(theme=self.theme, style="TButton"))
+        self.settings.update(self.style_solid_buttons(self.theme, style="TButton"))
+        self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
+        self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
 
         self._style_defaults()
 
@@ -524,9 +527,7 @@ class StylerTTK:
 
         self.settings.update(
             {
-                "Horizontal.Separator.separator": {
-                    "element create": ("image", self.theme_images["hseparator"])
-                },
+                "Horizontal.Separator.separator": {"element create": ("image", self.theme_images["hseparator"])},
                 "Horizontal.TSeparator": {"layout": [("Horizontal.Separator.separator", {"sticky": "ew"})]},
             }
         )
@@ -558,9 +559,7 @@ class StylerTTK:
 
         self.settings.update(
             {
-                "Vertical.Separator.separator": {
-                    "element create": ("image", self.theme_images["vseparator"])
-                },
+                "Vertical.Separator.separator": {"element create": ("image", self.theme_images["vseparator"])},
                 "Vertical.TSeparator": {"layout": [("Vertical.Separator.separator", {"sticky": "ns"})]},
             }
         )
@@ -601,9 +600,7 @@ class StylerTTK:
                             "Horizontal.Progressbar.trough",
                             {
                                 "sticky": "nswe",
-                                "children": [
-                                    ("Striped.Horizontal.Progressbar.pbar", {"side": "left", "sticky": "ns"})
-                                ],
+                                "children": [("Striped.Horizontal.Progressbar.pbar", {"side": "left", "sticky": "ns"})],
                             },
                         )
                     ],
@@ -722,12 +719,8 @@ class StylerTTK:
         for color in self.theme.colors:
             self.settings.update(
                 {
-                    f"{color}.Horizontal.TProgressbar": {
-                        "configure": {"background": self.theme.colors.get(color)}
-                    },
-                    f"{color}.Vertical.TProgressbar": {
-                        "configure": {"background": self.theme.colors.get(color)}
-                    },
+                    f"{color}.Horizontal.TProgressbar": {"configure": {"background": self.theme.colors.get(color)}},
+                    f"{color}.Vertical.TProgressbar": {"configure": {"background": self.theme.colors.get(color)}},
                 }
             )
 
@@ -1031,9 +1024,7 @@ class StylerTTK:
                             "bordercolor": self.theme.colors.get(color),
                             "lightcolor": self.theme.colors.get(color),
                             "pbarrelief": "flat",
-                            "troughcolor": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=-0.3, vd=0.8
-                            ),
+                            "troughcolor": ThemeColors.update_hsv(self.theme.colors.get(color), sd=-0.3, vd=0.8),
                             "background": self.theme.colors.get(color),
                             "foreground": self.theme.colors.selectfg,
                             "justify": "center",
@@ -1048,9 +1039,7 @@ class StylerTTK:
                             "bordercolor": self.theme.colors.get(color),
                             "lightcolor": self.theme.colors.get(color),
                             "pbarrelief": "flat",
-                            "troughcolor": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=-0.3, vd=0.8
-                            ),
+                            "troughcolor": ThemeColors.update_hsv(self.theme.colors.get(color), sd=-0.3, vd=0.8),
                             "background": self.theme.colors.get(color),
                             "foreground": self.theme.colors.selectfg,
                             "justify": "center",
@@ -1083,9 +1072,7 @@ class StylerTTK:
                 "Horizontal.Scrollbar.trough": {"element create": ("from", "alt")},
                 "Horizontal.Scrollbar.thumb": {"element create": ("from", "alt")},
                 "Horizontal.Scrollbar.leftarrow": {"element create": ("image", self.theme_images["hsleft"])},
-                "Horizontal.Scrollbar.rightarrow": {
-                    "element create": ("image", self.theme_images["hsright"])
-                },
+                "Horizontal.Scrollbar.rightarrow": {"element create": ("image", self.theme_images["hsright"])},
                 "TScrollbar": {
                     "configure": {
                         "troughrelief": "flat",
@@ -1344,9 +1331,7 @@ class StylerTTK:
         self.settings.update({"TFrame": {"configure": {"background": self.theme.colors.bg}}})
 
         for color in self.theme.colors:
-            self.settings.update(
-                {f"{color}.TFrame": {"configure": {"background": self.theme.colors.get(color)}}}
-            )
+            self.settings.update({f"{color}.TFrame": {"configure": {"background": self.theme.colors.get(color)}}})
 
     @staticmethod
     def style_solid_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
@@ -1359,18 +1344,15 @@ class StylerTTK:
             font (str, optional): The font used to render the button text.
             foreground (str, optional): The color of the button text.
             style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # default to primary if there is no background color
-        if background in theme.colors:
-            background = theme.colors.get(background)
-        elif COLORMAP.get(background):
-            background = COLORMAP.get(background)
-        else:
-            background = theme.colors.get("primary")
+        # fallback colors
+        background = ThemeColors.normalize(color=background, fallback=theme.colors.primary, theme_colors=theme.colors)
+        foreground = ThemeColors.normalize(color=foreground, fallback=theme.colors.selectfg, theme_colors=theme.colors)
 
-        foreground = theme.colors.selectfg if not foreground else foreground
-
-        # disabled settings
+        # disabled color settings
         disabled_fg = theme.colors.inputfg
         disabled_bg = (
             ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
@@ -1378,7 +1360,7 @@ class StylerTTK:
             else ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
         )
 
-        # pressed and hover settings
+        # pressed and hover color settings
         pressed_vd = -0.2
         hover_vd = -0.1
 
@@ -1388,7 +1370,7 @@ class StylerTTK:
                 f"{style}": {
                     "configure": {
                         "anchor": anchor or "center",
-                        "foreground": foreground or theme.colors.selectfg,
+                        "foreground": foreground,
                         "background": background,
                         "bordercolor": background,
                         "darkcolor": background,
@@ -1426,38 +1408,116 @@ class StylerTTK:
         )
         return settings
 
-    def _style_outline_buttons(self):
-        """Apply an outline style to ttk button: *ttk.Button*. This button has a solid button look on focus and hover.
+    @staticmethod
+    def style_outline_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+        """Apply an outline style to ttk button: *ttk.Button*.
 
-        The options available in this widget include:
+        The outline and text are colored with the ``foreground``, and the remaining fill is set with the ``background``
+        color. When hovered, the widget inverts ``foreground`` and ``background`` colors.
 
-            - Button.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Button.focus: focuscolor, focusthickness
-            - Button.padding: padding, relief, shiftrelief
-            - Button.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Args:
+            theme (str): The theme name.
+            anchor (str, optional): The position of the text inside of the button.
+            background (str, optional): The color of the button background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the outline and button text.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # disabled settings
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
 
-        # pressed and hover settings
-        pressed_vd = -0.10
+        # disabled color settings
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
-        self.settings.update(
+        # pressed color settings
+        pressed_vd = -0.1
+
+        settings = dict()
+        settings.update(
             {
-                "Outline.TButton": {
+                f"{style}": {
                     "configure": {
-                        "foreground": self.theme.colors.primary,
-                        "background": self.theme.colors.bg,
-                        "bordercolor": self.theme.colors.primary,
-                        "darkcolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.bg,
+                        "anchor": anchor or "center",
+                        "foreground": foreground,
+                        "background": background,
+                        "bordercolor": foreground,
+                        "darkcolor": background,
+                        "lightcolor": background,
                         "relief": "raised",
-                        "font": self.theme.font,
+                        "font": font or DEFAULT_FONT,
+                        "focusthickness": 0,
+                        "focuscolor": "",
+                        "padding": (10, 5),
+                    },
+                    "map": {
+                        "foreground": [("disabled", disabled_fg), ("pressed", background), ("hover", background)],
+                        "background": [
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", foreground),
+                        ],
+                        "bordercolor": [
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", foreground),
+                        ],
+                        "darkcolor": [
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", foreground),
+                        ],
+                        "lightcolor": [
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", foreground),
+                        ],
+                    },
+                }
+            }
+        )
+        return settings
+
+    @staticmethod
+    def style_link_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+        """Apply a hyperlink style to ttk button: *ttk.Button*
+
+        Args:
+            theme (str): The theme name.
+            anchor (str, optional): The position of the text inside of the button.
+            background (str, optional): The color of the button background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the button text.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+
+        # disabled color settings
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        settings = dict()
+        settings.update(
+            {
+                f"{style}": {
+                    "configure": {
+                        "anchor": anchor or "center",
+                        "foreground": foreground,
+                        "background": background,
+                        "bordercolor": background,
+                        "darkcolor": background,
+                        "lightcolor": background,
+                        "relief": "raised",
+                        "font": font or DEFAULT_FONT,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1465,97 +1525,19 @@ class StylerTTK:
                     "map": {
                         "foreground": [
                             ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.selectfg),
-                            ("hover !disabled", self.theme.colors.selectfg),
+                            ("pressed !disabled", theme.colors.info),
+                            ("hover !disabled", theme.colors.info),
                         ],
-                        "background": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
-                        ],
-                        "bordercolor": [
-                            ("disabled", disabled_fg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
-                        ],
-                        "darkcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
-                        ],
-                        "lightcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
-                        ],
+                        "shiftrelief": [("pressed !disabled", -1)],
+                        "background": [],
+                        "bordercolor": [],
+                        "darkcolor": [],
+                        "lightcolor": [],
                     },
                 }
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Outline.TButton": {
-                        "configure": {
-                            "foreground": self.theme.colors.get(color),
-                            "background": self.theme.colors.bg,
-                            "bordercolor": self.theme.colors.get(color),
-                            "darkcolor": self.theme.colors.bg,
-                            "lightcolor": self.theme.colors.bg,
-                            "relief": "raised",
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.selectfg),
-                                ("hover !disabled", self.theme.colors.selectfg),
-                            ],
-                            "background": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_fg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "darkcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "lightcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                        },
-                    }
-                }
-            )
+        return settings
 
     def _style_link_buttons(self):
         """Apply a solid color style to ttk button: *ttk.Button*
@@ -1691,9 +1673,7 @@ class StylerTTK:
         on_indicator = prime_color
         on_fill = self.theme.colors.bg
         off_border = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_indicator = (
-            self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        )
+        off_indicator = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
         off_fill = self.theme.colors.bg
         disabled_fill = self.theme.colors.bg
         disabled_fg = (
@@ -1720,9 +1700,7 @@ class StylerTTK:
 
         images = {}
         images[f"{colorname}_squaretoggle_on"] = ImageTk.PhotoImage(toggle_on.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_squaretoggle_off"] = ImageTk.PhotoImage(
-            toggle_off.resize((24, 15), Image.LANCZOS)
-        )
+        images[f"{colorname}_squaretoggle_off"] = ImageTk.PhotoImage(toggle_off.resize((24, 15), Image.LANCZOS))
         images[f"{colorname}_squaretoggle_disabled"] = ImageTk.PhotoImage(
             toggle_disabled.resize((24, 15), Image.LANCZOS)
         )
@@ -1742,9 +1720,7 @@ class StylerTTK:
         on_indicator = self.theme.colors.selectfg
         on_fill = prime_color
         off_border = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_indicator = (
-            self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        )
+        off_indicator = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
         off_fill = self.theme.colors.bg
         disabled_fill = self.theme.colors.bg
         disabled_fg = (
@@ -1771,9 +1747,7 @@ class StylerTTK:
 
         images = {}
         images[f"{colorname}_roundtoggle_on"] = ImageTk.PhotoImage(toggle_on.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_roundtoggle_off"] = ImageTk.PhotoImage(
-            toggle_off.resize((24, 15), Image.LANCZOS)
-        )
+        images[f"{colorname}_roundtoggle_off"] = ImageTk.PhotoImage(toggle_off.resize((24, 15), Image.LANCZOS))
         images[f"{colorname}_roundtoggle_disabled"] = ImageTk.PhotoImage(
             toggle_disabled.resize((24, 15), Image.LANCZOS)
         )
@@ -2032,18 +2006,10 @@ class StylerTTK:
                 "Toolbutton": {
                     "configure": {
                         "foreground": self.theme.colors.selectfg,
-                        "background": ThemeColors.update_hsv(
-                            self.theme.colors.primary, sd=normal_sd, vd=normal_vd
-                        ),
-                        "bordercolor": ThemeColors.update_hsv(
-                            self.theme.colors.primary, sd=normal_sd, vd=normal_vd
-                        ),
-                        "darkcolor": ThemeColors.update_hsv(
-                            self.theme.colors.primary, sd=normal_sd, vd=normal_vd
-                        ),
-                        "lightcolor": ThemeColors.update_hsv(
-                            self.theme.colors.primary, sd=normal_sd, vd=normal_vd
-                        ),
+                        "background": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
+                        "bordercolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
+                        "darkcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
+                        "lightcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
                         "font": self.theme.font,
                         "anchor": "center",
                         "relief": "raised",
@@ -2520,9 +2486,7 @@ class StylerTTK:
         # radio on
         radio_on = Image.new("RGBA", (134, 134))
         draw = ImageDraw.Draw(radio_on)
-        draw.ellipse(
-            [2, 2, 132, 132], outline=on_border, width=12 if self.theme.type == "light" else 6, fill=on_fill
-        )
+        draw.ellipse([2, 2, 132, 132], outline=on_border, width=12 if self.theme.type == "light" else 6, fill=on_fill)
         if self.theme.type == "light":
             # small indicator for light theme
             draw.ellipse([40, 40, 94, 94], fill=on_indicator)
@@ -2811,9 +2775,7 @@ class StylerTTK:
         )
 
         for color in self.theme.colors:
-            self.settings.update(
-                {f"{color}.TMeter": {"configure": {"foreground": self.theme.colors.get(color)}}}
-            )
+            self.settings.update({f"{color}.TMeter": {"configure": {"foreground": self.theme.colors.get(color)}}})
 
     def _style_label(self):
         """Create style configuration for ttk label: *ttk.Label*
@@ -2827,9 +2789,7 @@ class StylerTTK:
         """
         self.settings.update(
             {
-                "TLabel": {
-                    "configure": {"foreground": self.theme.colors.fg, "background": self.theme.colors.bg}
-                },
+                "TLabel": {"configure": {"foreground": self.theme.colors.fg, "background": self.theme.colors.bg}},
                 "Inverse.TLabel": {
                     "configure": {"foreground": self.theme.colors.bg, "background": self.theme.colors.fg}
                 },
@@ -2871,9 +2831,7 @@ class StylerTTK:
                 "Label.fill": {"element create": ("from", "clam")},
                 "Label.text": {"element create": ("from", "clam")},
                 "TLabelframe.Label": {
-                    "layout": [
-                        ("Label.fill", {"sticky": "nswe", "children": [("Label.text", {"sticky": "nswe"})]})
-                    ],
+                    "layout": [("Label.fill", {"sticky": "nswe", "children": [("Label.text", {"sticky": "nswe"})]})],
                     "configure": {"foreground": self.theme.colors.fg},
                 },
                 "TLabelframe": {
@@ -2882,9 +2840,7 @@ class StylerTTK:
                         "relief": "raised",
                         "borderwidth": "1",
                         "bordercolor": (
-                            self.theme.colors.border
-                            if self.theme.type == "light"
-                            else self.theme.colors.selectbg
+                            self.theme.colors.border if self.theme.type == "light" else self.theme.colors.selectbg
                         ),
                         "lightcolor": self.theme.colors.bg,
                         "darkcolor": self.theme.colors.bg,
@@ -3068,9 +3024,7 @@ class StylerTTK:
         draw.rounded_rectangle([2, 2, 132, 132], radius=16, outline=disabled_fg, width=3, fill=disabled_bg)
 
         return {
-            f"{colorname}_checkbutton_off": ImageTk.PhotoImage(
-                checkbutton_off.resize((14, 14), Image.LANCZOS)
-            ),
+            f"{colorname}_checkbutton_off": ImageTk.PhotoImage(checkbutton_off.resize((14, 14), Image.LANCZOS)),
             f"{colorname}_checkbutton_on": ImageTk.PhotoImage(checkbutton_on.resize((14, 14), Image.LANCZOS)),
             f"{colorname}_checkbutton_disabled": ImageTk.PhotoImage(
                 checkbutton_disabled.resize((14, 14), Image.LANCZOS)
@@ -3497,9 +3451,7 @@ class StylerTTK:
         self._create_sizegrip_images(default_color)
         self.settings.update(
             {
-                "Sizegrip.sizegrip": {
-                    "element create": ("image", self.theme_images[f"{default_color}_sizegrip"])
-                },
+                "Sizegrip.sizegrip": {"element create": ("image", self.theme_images[f"{default_color}_sizegrip"])},
                 "TSizegrip": {"layout": [("Sizegrip.sizegrip", {"side": "bottom", "sticky": "se"})]},
             }
         )
@@ -3508,9 +3460,7 @@ class StylerTTK:
             self._create_sizegrip_images(color)
             self.settings.update(
                 {
-                    f"{color}.Sizegrip.sizegrip": {
-                        "element create": ("image", self.theme_images[f"{color}_sizegrip"])
-                    },
+                    f"{color}.Sizegrip.sizegrip": {"element create": ("image", self.theme_images[f"{color}_sizegrip"])},
                     f"{color}.TSizegrip": {
                         "layout": [(f"{color}.Sizegrip.sizegrip", {"side": "bottom", "sticky": "se"})]
                     },

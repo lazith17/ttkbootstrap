@@ -5,6 +5,7 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
+from uuid import uuid4
 from tkinter import ttk
 from ttkbootstrap.core import StylerTTK, Style
 from ttkbootstrap.widgets import Widget
@@ -21,12 +22,15 @@ class Button(Widget, ttk.Button):
 
     def __init__(
         self,
-        # widget options
         master=None,
+        anchor=None,
+        background=None,
         bootstyle="default",
         command=None,
         compound=None,
         cursor=None,
+        font=None,
+        foreground=None,
         image=None,
         state="normal",
         style=None,
@@ -34,12 +38,7 @@ class Button(Widget, ttk.Button):
         textvariable=None,
         text=None,
         underline=None,
-        # custom style options
-        anchor=None,
-        background=None,
-        font=None,
-        foreground=None,
-        **kw
+        **kw,
     ):
         """
         Args:
@@ -105,6 +104,7 @@ class Button(Widget, ttk.Button):
         self.background = background
         self.font = font
         self.foreground = foreground
+        self.widget_id = None
 
         self.customized = False
         self.customize_widget()
@@ -122,61 +122,55 @@ class Button(Widget, ttk.Button):
             text=text,
             textvariable=textvariable,
             underline=underline,
-            **kw
+            **kw,
         )
-        self.bind("<<ThemeChanged>>", self.customize_widget)
+        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def style_exists(self):
-        """Check if a ttk style exists and return a boolean
+    def customize_widget(self):
 
-        Returns:
-            bool: ``True`` if the style exists, else ``False``
-        """
-        return True if self.tk.call("ttk::style", "configure", self.style) else False
-
-    def customize_widget(self, *args):
         if any([self.background != None, self.foreground != None, self.anchor != None, self.font != None]):
-            self.style = "custom.TButton"
-            settings = StylerTTK.style_solid_buttons(
-                self.theme,
-                anchor=self.anchor,
-                background=self.background,
-                font=self.font,
-                foreground=self.foreground,
-                style=self.style,
-            )
+            self.customized = True
+
+            if not self.widget_id:
+                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
+                self.style = f"{self.widget_id}.{self.style}"
+
+        if self.customized:
+            options = {
+                "theme": self.theme,
+                "anchor": self.anchor,
+                "background": self.background,
+                "foreground": self.foreground,
+                "font": self.font,
+                "style": self.style,
+            }
+
+            if "Outline" in self.style:
+                settings = StylerTTK.style_outline_buttons(**options)
+            elif "Link" in self.style:
+                settings = StylerTTK.style_link_buttons(**options)
+            else:
+                settings = StylerTTK.style_solid_buttons(**options)
+
             self.update_ttk_style(settings)
 
 
 if __name__ == "__main__":
 
-    style = Style()
+    style = Style('superhero')
     root = style.master
     root.configure(background=style.colors.bg)
+    pack_settings = {'padx': 2, 'pady': 2, 'fill': 'x'}
 
     # smart keyword based style builder
-    Button(root, text="darkly", bootstyle="btn-primary-outline").pack(padx=1, pady=1)
-    Button(root, text="flatly", bootstyle="INFO").pack(padx=1, pady=1)
-    Button(root, text="superhero", bootstyle="link danger").pack(padx=1, pady=1)
-    Button(root, text="Push", bootstyle="secondary").pack(padx=1, pady=1)
-    Button(root, text="Push", bootstyle="success----label").pack(padx=1, pady=1)
+    Button(root, text='default').pack(**pack_settings)
+    Button(root, text='secondary', bootstyle='secondary').pack(**pack_settings)
+    Button(root, text='info outline', bootstyle='info-outline').pack(**pack_settings)
+    Button(root, text='danger link', bootstyle='danger-link').pack(**pack_settings)
 
-    Button(root, text="Push").pack(padx=1, pady=1, fill="x")
-
-    # backwards compatible with ttk widgets
-    ttk.Button(root, text="Push", style="danger.TButton").pack(padx=1, pady=1, fill="x")
-
-    # can be customized in the constructor
-    Button(
-        root,
-        text="Push",
-        anchor="e",
-        font="helvetica 20",
-        foreground="yellow",
-        background="green",
-        underline=1,
-        cursor="pencil",
-        padding=20,
-    ).pack(padx=1, pady=1, fill="x")
+    # customizable colors
+    Button(root, text='custom solid', background='purple', foreground='pink').pack(**pack_settings)
+    Button(root, text='custom outline', foreground='yellow', bootstyle='outline').pack(**pack_settings)
+    Button(root, text='custom link', foreground='orange', bootstyle='link').pack(**pack_settings)
 
     root.mainloop()
