@@ -764,8 +764,15 @@ COLORS = ["alice blue",
 
 
 def name_to_hex(name, root):
+    """Convert a color name to a hexadecimal color value
+    
+    Args:
+        name (str): The color name.
+        root (Widget): The root widget.
+    """
+
     result = root.winfo_rgb(name)
-    r, g, b = tuple(map(lambda x: int(x)//255, result))
+    r, g, b = tuple(map(lambda x: max(0, min(int(x/255.0), 255)), result))
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 
@@ -777,7 +784,7 @@ for color in COLORS:
     colormap[color] = name_to_hex(color, root)
 
 # save colors dictionary
-filename = Path(".") / "colormap.json"
+filename = Path("src/ttkbootstrap/core/files") / "colormap.json"
 with open(filename, 'w') as f:
     json.dump(colormap, f)
 root.destroy()
