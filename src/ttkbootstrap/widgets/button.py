@@ -146,10 +146,13 @@ class Button(Widget, ttk.Button):
             }
 
             if "Outline" in self.style:
+                self.foreground = self.foreground or self.themed_color
                 settings = StylerTTK.style_outline_buttons(**options)
             elif "Link" in self.style:
+                self.foreground = self.foreground or self.themed_color
                 settings = StylerTTK.style_link_buttons(**options)
             else:
+                self.background = self.background or self.themed_color
                 settings = StylerTTK.style_solid_buttons(**options)
 
             self.update_ttk_style(settings)
@@ -165,7 +168,7 @@ if __name__ == "__main__":
     # smart keyword based style builder
     Button(root, text='default').pack(**pack_settings)
     Button(root, text='secondary', bootstyle='secondary').pack(**pack_settings)
-    Button(root, text='info outline', bootstyle='info-outline').pack(**pack_settings)
+    Button(root, text='info outline', background='blue', bootstyle='info-outline').pack(**pack_settings)
     Button(root, text='danger link', bootstyle='danger-link').pack(**pack_settings)
 
     # customizable colors
