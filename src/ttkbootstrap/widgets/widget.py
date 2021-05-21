@@ -15,7 +15,9 @@ from tkinter.ttk import _script_from_settings as script_from_settings
 from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
 
-WIDGET_PATTERN = re.compile(r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl")
+WIDGET_PATTERN = re.compile(
+    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl|sizegrip"
+)
 
 WIDGET_LOOKUP = {
     "button": "TButton",
@@ -27,7 +29,8 @@ WIDGET_LOOKUP = {
     "radiobtn": "TRadiobutton",
     "toggle": "TCheckbutton",
     "label": "TLabel",
-    "lbl": "TLabel"
+    "lbl": "TLabel",
+    "sizegrip": "TSizegrip"
 }
 
 
