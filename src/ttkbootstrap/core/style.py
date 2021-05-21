@@ -1,6 +1,7 @@
 import colorsys
 import importlib.resources
 from tkinter import ttk
+from uuid import uuid4
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
 from ttkbootstrap.core.themes import DEFAULT_FONT, ThemeColors
@@ -298,6 +299,8 @@ class StylerTTK:
         theme (ThemeDefinition): the theme settings defined in the `themes.json` file.
     """
 
+    theme_images = dict()
+
     def __init__(self, style, definition):
         """
         Args:
@@ -306,7 +309,7 @@ class StylerTTK:
         """
         self.style = style
         self.theme = definition
-        self.theme_images = {}
+        self.theme_images = StylerTTK.theme_images
         self.settings = {}
         self.styler_tk = StylerTK(self)
         self.create_theme()
@@ -339,8 +342,6 @@ class StylerTTK:
         self._style_striped_progressbar()
         self._style_floodgauge()
         self._style_radiobutton()
-
-        # self._style_link_buttons()
         self._style_solid_menubutton()
         self._style_solid_toolbutton()
         self._style_treeview()
@@ -348,12 +349,12 @@ class StylerTTK:
         self._style_panedwindow()
         self._style_roundtoggle_toolbutton()
         self._style_squaretoggle_toolbutton()
-        self._style_sizegrip()
 
         # themed style
         for color in self.theme.colors:
             self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
+            self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
             self.settings.update(
                 self.style_outline_buttons(self.theme, foreground=color, style=f"{color}.Outline.TButton")
             )
@@ -362,6 +363,7 @@ class StylerTTK:
         self.settings.update(self.style_solid_buttons(self.theme, style="TButton"))
         self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
+        self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
 
         self._style_defaults()
 
@@ -1349,8 +1351,8 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        background = ThemeColors.normalize(color=background, fallback=theme.colors.primary, theme_colors=theme.colors)
-        foreground = ThemeColors.normalize(color=foreground, fallback=theme.colors.selectfg, theme_colors=theme.colors)
+        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
 
         # disabled color settings
         disabled_fg = theme.colors.inputfg
@@ -3440,46 +3442,56 @@ class StylerTTK:
             }
         )
 
-    def _style_sizegrip(self):
-        """Create style configuration for ttk sizegrip: *ttk.Sizegrip*
-
-        The options available in this widget include:
-
-            - Sizegrip.sizegrip: background
-        """
-        default_color = "border" if self.theme.type == "light" else "inputbg"
-        self._create_sizegrip_images(default_color)
-        self.settings.update(
-            {
-                "Sizegrip.sizegrip": {"element create": ("image", self.theme_images[f"{default_color}_sizegrip"])},
-                "TSizegrip": {"layout": [("Sizegrip.sizegrip", {"side": "bottom", "sticky": "se"})]},
-            }
-        )
-
-        for color in self.theme.colors:
-            self._create_sizegrip_images(color)
-            self.settings.update(
-                {
-                    f"{color}.Sizegrip.sizegrip": {"element create": ("image", self.theme_images[f"{color}_sizegrip"])},
-                    f"{color}.TSizegrip": {
-                        "layout": [(f"{color}.Sizegrip.sizegrip", {"side": "bottom", "sticky": "se"})]
-                    },
-                }
-            )
-
-    def _create_sizegrip_images(self, colorname):
-        """Create assets for size grip
+    @staticmethod
+    def style_sizegrip(theme, background=None, foreground=None, style=None):
+        """Create an image-based ``Sizegrip`` style.
 
         Args:
-            colorname (str): the name of the color to use for the sizegrip images
+            theme (str): The theme name.
+            background (str, optional): The color of the sizegrip background.
+            foreground (str, optional): The color of the grip.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        if theme.type == "light":
+            foreground = ThemeColors.normalize(foreground, theme.colors.border, theme.colors)
+        else:
+            foreground = ThemeColors.normalize(foreground, theme.colors.inputbg, theme.colors)
+
+        settings = dict()
+        element_id = uuid4()
+        StylerTTK.theme_images.update({element_id: StylerTTK.style_sizegrip_images(foreground)})
+
+        settings.update(
+            {
+                f"{style}": {
+                    "configure": {"background": background},
+                    "layout": [(f"{element_id}.Sizegrip.sizegrip", {"side": "bottom", "sticky": "se"})],
+                },
+                f"{element_id}.Sizegrip.sizegrip": {"element create": ("image", StylerTTK.theme_images[element_id])},
+            }
+        )
+        return settings
+
+    def style_sizegrip_images(color):
+        """Create assets for sizegrip layout
+        Args:
+            color (str): The grip color.
+        Returns:
+            PhotoImage: The tkinter photoimage used for the sizegrip layout.
         """
         im = Image.new("RGBA", (14, 14))
         draw = ImageDraw.Draw(im)
-        color = self.theme.colors.get(colorname)
-        draw.rectangle((9, 3, 10, 4), fill=color)  # top
-        draw.rectangle((6, 6, 7, 7), fill=color)  # middle
+        # top row
+        draw.rectangle((9, 3, 10, 4), fill=color)
+        # middle row
+        draw.rectangle((6, 6, 7, 7), fill=color)  # middle row
         draw.rectangle((9, 6, 10, 7), fill=color)
-        draw.rectangle((3, 9, 4, 10), fill=color)  # bottom
+        # bottom row
+        draw.rectangle((3, 9, 4, 10), fill=color)  # bottom row
         draw.rectangle((6, 9, 7, 10), fill=color)
         draw.rectangle((9, 9, 10, 10), fill=color)
-        self.theme_images[f"{colorname}_sizegrip"] = ImageTk.PhotoImage(im)
+        return ImageTk.PhotoImage(im)
