@@ -345,7 +345,6 @@ class StylerTTK:
         self._style_solid_menubutton()
         self._style_solid_toolbutton()
         self._style_treeview()
-        self._style_separator()
         self._style_panedwindow()
         self._style_roundtoggle_toolbutton()
         self._style_squaretoggle_toolbutton()
@@ -356,6 +355,13 @@ class StylerTTK:
             self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
             self.settings.update(
+                self.style_separator(self.theme, background=color, style=f"{color}.Horizontal.TSeparator")
+            )
+            self.settings.update(
+                self.style_separator(
+                    self.theme, background=color, orient="vertical", style=f"{color}.Vertical.TSeparator")
+            )
+            self.settings.update(
                 self.style_outline_buttons(self.theme, foreground=color, style=f"{color}.Outline.TButton")
             )
 
@@ -364,6 +370,8 @@ class StylerTTK:
         self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
+        self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
+        self.settings.update(self.style_separator(self.theme))
 
         self._style_defaults()
 
@@ -511,78 +519,56 @@ class StylerTTK:
                 }
             )
 
-    def _style_separator(self):
+    @staticmethod
+    def style_separator(theme, background=None, orient="horizontal", style="Horizontal.TSeparator"):
         """Create style configuration for ttk separator: *ttk.Separator*. The default style for light will be border,
         but dark will be primary, as this makes the most sense for general use. However, all other colors will be
         available as well through styling.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the sizegrip background.
+            orient (str, optional): One of 'horizontal' or 'vertical'
+            style (str, optional): The style used to render the widget.
 
-            - Separator.separator: orient, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # horizontal separator default
-        default_color = self.theme.colors.border if self.theme.type == "light" else self.theme.colors.selectbg
-        h_im = Image.new("RGB", (40, 1))
-        draw = ImageDraw.Draw(h_im)
-        draw.rectangle([0, 0, 40, 1], fill=default_color)
-        self.theme_images["hseparator"] = ImageTk.PhotoImage(h_im)
+        if theme.type == "light":
+            background = ThemeColors.normalize(background, theme.colors.border, theme.colors)
+        else:
+            background = ThemeColors.normalize(background, theme.colors.selectbg, theme.colors)
 
-        self.settings.update(
-            {
-                "Horizontal.Separator.separator": {"element create": ("image", self.theme_images["hseparator"])},
-                "Horizontal.TSeparator": {"layout": [("Horizontal.Separator.separator", {"sticky": "ew"})]},
-            }
-        )
+        # create separator images
+        hs_image_id = uuid4()
+        hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, 1), background))
+        StylerTTK.theme_images[hs_image_id] = hs_im
 
-        # horizontal separator variations
-        for color in self.theme.colors:
-            h_im = Image.new("RGB", (40, 1))
-            draw = ImageDraw.Draw(h_im)
-            draw.rectangle([0, 0, 40, 1], fill=self.theme.colors.get(color))
-            self.theme_images[f"{color}_hseparator"] = ImageTk.PhotoImage(h_im)
+        vs_image_id = uuid4()
+        vs_im = ImageTk.PhotoImage(Image.new("RGB", (1, 40), background))
+        StylerTTK.theme_images[vs_image_id] = vs_im
 
-            self.settings.update(
+        settings = dict()
+
+        if orient.lower() == "horizontal":
+            settings.update(
                 {
-                    f"{color}.Horizontal.Separator.separator": {
-                        "element create": ("image", self.theme_images[f"{color}_hseparator"])
+                    f"{hs_image_id}.Horizontal.Separator.separator": {
+                        "element create": ("image", StylerTTK.theme_images[hs_image_id])
                     },
-                    f"{color}.Horizontal.TSeparator": {
-                        "layout": [(f"{color}.Horizontal.Separator.separator", {"sticky": "ew"})]
-                    },
+                    f"{style}": {"layout": [(f"{hs_image_id}.Horizontal.Separator.separator", {"sticky": "we"})]},
                 }
             )
-
-        # vertical separator default
-        default_color = self.theme.colors.border if self.theme.type == "light" else self.theme.colors.selectbg
-        v_im = Image.new("RGB", (1, 40))
-        draw = ImageDraw.Draw(v_im)
-        draw.rectangle([0, 0, 1, 40], fill=default_color)
-        self.theme_images["vseparator"] = ImageTk.PhotoImage(v_im)
-
-        self.settings.update(
-            {
-                "Vertical.Separator.separator": {"element create": ("image", self.theme_images["vseparator"])},
-                "Vertical.TSeparator": {"layout": [("Vertical.Separator.separator", {"sticky": "ns"})]},
-            }
-        )
-
-        # vertical separator variations
-        for color in self.theme.colors:
-            v_im = Image.new("RGB", (1, 40))
-            draw = ImageDraw.Draw(v_im)
-            draw.rectangle([0, 0, 1, 40], fill=self.theme.colors.get(color))
-            self.theme_images[f"{color}_vseparator"] = ImageTk.PhotoImage(v_im)
-
-            self.settings.update(
+        else:
+            settings.update(
                 {
-                    f"{color}.Vertical.Separator.separator": {
-                        "element create": ("image", self.theme_images[f"{color}_vseparator"])
+                    f"{vs_image_id}.Vertical.Separator.separator": {
+                        "element create": ("image", StylerTTK.theme_images[vs_image_id])
                     },
-                    f"{color}.Vertical.TSeparator": {
-                        "layout": [(f"{color}.Vertical.Separator.separator", {"sticky": "ns"})]
-                    },
+                    f"{style}": {"layout": [(f"{vs_image_id}.Vertical.Separator.separator", {"sticky": "ns"})]},
                 }
             )
+        return settings
 
     def _style_striped_progressbar(self):
         """Apply a striped theme to the progressbar"""
@@ -3443,7 +3429,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_sizegrip(theme, background=None, foreground=None, style=None):
+    def style_sizegrip(theme, background=None, foreground=None, style="TSizegrip"):
         """Create an image-based ``Sizegrip`` style.
 
         Args:

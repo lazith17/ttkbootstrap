@@ -16,8 +16,10 @@ from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
 
 WIDGET_PATTERN = re.compile(
-    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl|sizegrip"
+    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl|sizegrip|separator"
 )
+
+WIDGET_ORIENT = re.compile(r'horizontal|vertical')
 
 WIDGET_LOOKUP = {
     "button": "TButton",
@@ -30,14 +32,15 @@ WIDGET_LOOKUP = {
     "toggle": "TCheckbutton",
     "label": "TLabel",
     "lbl": "TLabel",
-    "sizegrip": "TSizegrip"
+    "sizegrip": "TSizegrip",
+    "separator": "TSeparator"
 }
 
 
 class Widget(Widget, ABC):
     """An abstract base class for all **ttkbootstrap** widgets."""
 
-    def __init__(self, widgetclass, master=None, bootstyle=None, style=None, **kw):
+    def __init__(self, widgetclass, master=None, bootstyle=None, orient=None, style=None, **kw):
         """
         Args:
             widgetclass (str): The base ``ttk`` style class, which can be found with the ``.winfo_class`` method.
@@ -49,6 +52,7 @@ class Widget(Widget, ABC):
         self.widgetclass = widgetclass
         self.master = setup_master(master)
         self.bootstyle = bootstyle.lower()
+        self.orient = orient
         self.style = style
         self.tk = self.master.tk
         self.settings = {}
@@ -111,8 +115,23 @@ class Widget(Widget, ABC):
         else:
             return None
 
+    def get_widget_orientation(self):
+        """Identify the widget orientation for widgets with such settings
+        
+        Returns:
+            str: The widget orientation if existing.
+
+        """
+        result = re.search(WIDGET_ORIENT, self.orient.lower())
+        if result:
+            return result.group(0)
+        else:
+            return None
+
+
+
     def get_widget_type(self):
-        """Identity themed style in the style name. Returns the matched name if found, otherwise None.
+        """Identity widget type in the style name. Returns the matched name if found, otherwise None.
 
         Returns:
             str: The themed style found in the style name; ie. `TButton`, `TLabel`, etc...
@@ -136,7 +155,9 @@ class Widget(Widget, ABC):
         # build ttk style from bootstyle keywords
         themed_style = self.get_style_type()
         widget_type = self.get_widget_type()
+        widget_orient = self.get_widget_orientation()
         c = "" if not self.themed_color else self.themed_color + "."
         s = "" if not themed_style else themed_style.title() + "."
+        o = "" if not widget_orient else widget_orient.title() + "."
         t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(widget_type) or self.widgetclass
-        self.style = f"{c}{s}{t}"
+        self.style = f"{c}{s}{o}{t}"
