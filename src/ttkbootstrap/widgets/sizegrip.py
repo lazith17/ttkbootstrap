@@ -26,6 +26,24 @@ class Sizegrip(Widget, ttk.Sizegrip):
         takefocus=True,
         **kw,
     ):
+        """
+        Args:
+            master: The parent widget.
+            background (str, optional): The normal background color to use when displaying the widget. Setting this
+                option will override all other style-based background settings.
+            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
+                API for setting the widget style. You may also use the ``style`` option directly using the standard
+                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
+            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
+                vary according to your operating system.
+            foreground (str, optional): The color used to render the grip when displaying the widget. Setting this
+                option will override all other style based foreground settings.
+            style (str, optional): May be used to specify a style using the ``ttk`` style api.
+            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
+                (e.g., Tab and Shift-Tab). To remove the widget from focus traversal, use ``takefocus=False``.
+
+        .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html                
+        """
 
         Widget.__init__(self, "TSizegrip", master=master, bootstyle=bootstyle, style=style)
 
