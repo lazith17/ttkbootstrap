@@ -122,8 +122,8 @@ class Widget(Widget, ABC):
             str: The widget orientation if existing.
 
         """
-        result = re.search(WIDGET_ORIENT, self.orient.lower())
-        if result:
+        if self.orient:
+            result = re.search(WIDGET_ORIENT, self.orient.lower())
             return result.group(0)
         else:
             return None
