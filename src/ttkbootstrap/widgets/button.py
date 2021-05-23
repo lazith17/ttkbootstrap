@@ -32,12 +32,14 @@ class Button(Widget, ttk.Button):
         font=None,
         foreground=None,
         image=None,
+        padding=None,
         state="normal",
         style=None,
         takefocus=True,
         textvariable=None,
         text=None,
         underline=None,
+        width=None,
         **kw,
     ):
         """
@@ -91,9 +93,6 @@ class Button(Widget, ttk.Button):
                 the button, as a number of characters; the actual width is that number multiplied by the average width
                 of a character in the current font. For image labels, this option is ignored. The option may also be
                 configured in a style.
-            wraplength (int, optional): Specifies the maximum line length (in pixels). If this option is less than or
-                equal to zero, then automatic wrapping is not performed; otherwise the text is split into lines such
-                that no line is longer than the specified value.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
@@ -116,12 +115,14 @@ class Button(Widget, ttk.Button):
             compound=compound,
             cursor=cursor,
             image=image,
+            padding=padding,
             state=state,
             style=self.style,
             takefocus=takefocus,
             text=text,
             textvariable=textvariable,
             underline=underline,
+            width=width,
             **kw,
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
