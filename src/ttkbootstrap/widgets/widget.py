@@ -16,7 +16,7 @@ from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
 
 WIDGET_PATTERN = re.compile(
-    r"btn|button|progressbar|checkbutton|radiobutton|toggle|checkbtn|radiobtn|label|lbl|sizegrip|separator"
+    r"btn|button|progressbar|checkbutton|radiobutton|toggle|roundtoggle|squaretoggle|checkbtn|radiobtn|label|lbl|sizegrip|separator|toolbutton"
 )
 
 WIDGET_ORIENT = re.compile(r'horizontal|vertical')
@@ -29,7 +29,11 @@ WIDGET_LOOKUP = {
     "checkbtn": "TCheckbutton",
     "radiobutton": "TRadiobutton",
     "radiobtn": "TRadiobutton",
-    "toggle": "TCheckbutton",
+    "toggle": "Roundtoggle.Toolbutton",
+    "roundtoggle": "Roundtoggle.Toolbutton",
+    "squaretoggle": "Squaretoggle.Toolbutton",
+    "toolbutton": "Toolbutton",
+    "toggle": "Roundtoggle.Toolbutton",
     "label": "TLabel",
     "lbl": "TLabel",
     "sizegrip": "TSizegrip",

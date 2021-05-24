@@ -5,8 +5,10 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
+from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
+from tkinter import Variable
 from ttkbootstrap.core import StylerTTK, Style
 from ttkbootstrap.widgets import Widget
 
@@ -19,7 +21,6 @@ class Checkbutton(Widget, ttk.Checkbutton):
     def __init__(
         self,
         master=None,
-        anchor=None,
         background=None,
         bootstyle="default",
         command=None,
@@ -38,16 +39,15 @@ class Checkbutton(Widget, ttk.Checkbutton):
         textvariable=None,
         text=None,
         underline=None,
+        variable=None,
         width=None,
         **kw,
     ):
         """
         Args:
             master (Widget, optional): The parent widget.
-            anchor (str, optional): Specifies how the information in the widget is positioned relative to the inner
-                margins. Legal values are `n`, `ne`, `e`, `se`, `s`, `sw`, `w`, `nw`, and `center`.
             background (str, optional): The normal background color to use when displaying the widget. Setting this
-                option will override all other style based background settings.
+                option will override all other style-based background settings.
             bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
                 API for setting the widget style. You may also use the ``style`` option directly using the standard
                 ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
@@ -60,8 +60,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 the value **center** specifies  that the bitmap or image should be displayed `underneath` the text.
             cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
                 vary according to your operating system.
-            font (str, Font, optional): The font to use when drawing text inside the widget. The value may have any of
-                the forms described in the `font manual page`_ under FONT DESCRIPTION.
+            font (str, Font, optional): The font to use when drawing text inside the widget.
             foreground (str, optional): The text color. Setting this option will override all other style based 
                 foreground settings.
             image (PhotoImage, optional): Specifies an image to display in the widget, which must have been created
@@ -72,6 +71,10 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 option may be reset to an empty string to re-enable a bitmap or text display.
             indicatorcolor (str, optional): The normal color to use for the widget indicator. Setting this option will
                 override all other styled based indicatorcolor options.
+            offvalue (Any, optional): By default, when a checkbutton is in the off (unchecked) state, the value of the 
+                variable is 0. You can use the ``offvalue`` option to specify a different value for the off state.
+            onvalue (Any, optional): By default, when a checkbutton is in the on (checked) state, the value of the 
+                variable is 1. You can use the ``onvalue`` option to specify a different value for the on state.
             padding (str, optional): Specifies the internal padding for the widget. The padding is a list of up to four
                 length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
                 to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
@@ -90,6 +93,9 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 option is used by the default bindings to implement keyboard traversal for menu buttons and menu
                 entries. 0 corresponds to the first character of the text displayed in the widget, 1 to the next
                 character, and so on.
+            variable (Variable, optional): A control variable that tracks the current state of the checkbutton. If a 
+                variable is not provided, one is created by default and can be set and accessed directly or via the 
+                ``value`` property.
             width (int, optional): If the label is text, this option specifies the absolute width of the text area on
                 the button, as a number of characters; the actual width is that number multiplied by the average width
                 of a character in the current font. For image labels, this option is ignored. The option may also be
@@ -100,12 +106,12 @@ class Checkbutton(Widget, ttk.Checkbutton):
         Widget.__init__(self, "TCheckbutton", master=master, bootstyle=bootstyle, style=style)
 
         self.tk = master.tk
-        self.anchor = anchor
         self.background = background
         self.font = font
         self.foreground = foreground
         self.indicatorcolor = indicatorcolor
         self.widget_id = None
+        self.variable = variable or Variable(value=onvalue)
 
         self.customized = False
         self.customize_widget()
@@ -126,10 +132,21 @@ class Checkbutton(Widget, ttk.Checkbutton):
             text=text,
             textvariable=textvariable,
             underline=underline,
+            variable=self.variable,
             width=width,
             **kw,
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
+
+    @property
+    def value(self):
+        """Get the current value specified by the ``onvalue`` or ``offvalue``."""
+        return self.variable.get()
+
+    @value.setter
+    def value(self, value):
+        """Set the current value of the ``variable``"""
+        self.variable.set(value)
 
     def customize_widget(self):
 
@@ -146,42 +163,43 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 "background": self.background,
                 "foreground": self.foreground,
                 "indicatorcolor": self.indicatorcolor,
-                "font": self.font,
+                "font": self.font or DEFAULT_FONT,
                 "style": self.style,
             }
 
-            # if "Outline" in self.style:
-            #     self.foreground = self.foreground or self.themed_color
-            #     settings = StylerTTK.style_outline_buttons(**options)
-            # elif "Link" in self.style:
-            #     self.foreground = self.foreground or self.themed_color
-            #     settings = StylerTTK.style_link_buttons(**options)
-            # else:
-            #     self.background = self.background or self.themed_color
-            #     settings = StylerTTK.style_solid_buttons(**options)
-
-            self.background = self.background or self.themed_color
-            settings = StylerTTK.style_checkbutton(**options)            
+            if "Roundtoggle" in self.style:
+                settings = StylerTTK.style_roundtoggle(**options)
+            elif "Squaretoggle" in self.style:
+                settings = StylerTTK.style_squaretoggle(**options)                
+            else:
+                settings = StylerTTK.style_checkbutton(**options)
 
             self.update_ttk_style(settings)
 
 
 if __name__ == "__main__":
 
-    style = Style('superhero')
+    style = Style()
     root = style.master
     #root.configure(background=style.colors.bg)
-    pack_settings = {'padx': 10, 'pady': 10, 'fill': 'x'}
+    pack_settings = {'padx': 10, 'pady': 10, 'fill': 'x', 'expand': 'yes'}
 
     # smart keyword based style builder
-    Checkbutton(root, text='default', padding=10).pack(**pack_settings)
+    Checkbutton(root, text='default').pack(**pack_settings)
     Checkbutton(root, text='secondary', bootstyle='secondary').pack(**pack_settings)
     Checkbutton(root, text='info outline', indicatorcolor='blue', bootstyle='info').pack(**pack_settings)
-    Checkbutton(root, text='danger link', bootstyle='danger-link').pack(**pack_settings)
+    Checkbutton(root, text='danger link', state='disabled', bootstyle='danger-link').pack(**pack_settings)
 
     # customizable colors
     Checkbutton(root, text='custom solid', indicatorcolor='purple', foreground='pink').pack(**pack_settings)
     Checkbutton(root, text='custom outline', foreground='yellow').pack(**pack_settings)
     Checkbutton(root, text='custom link', foreground='orange').pack(**pack_settings)
+
+    Checkbutton(root, text='default toggle', bootstyle='info toggle').pack(**pack_settings)
+    Checkbutton(root, font='Consolas 10', text='custom toggle', indicatorcolor='purple', bootstyle='toggle').pack(**pack_settings)
+
+    Checkbutton(root, text='info square toggle', bootstyle='info squaretoggle').pack(**pack_settings)
+    Checkbutton(root, text='square toggle', indicatorcolor='pink', bootstyle='squaretoggle').pack(**pack_settings)    
+    Checkbutton(root, text='square toggle', state='disabled', bootstyle='squaretoggle').pack(**pack_settings)
 
     root.mainloop()

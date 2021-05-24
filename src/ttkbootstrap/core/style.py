@@ -345,15 +345,32 @@ class StylerTTK:
         self._style_solid_toolbutton()
         self._style_treeview()
         self._style_panedwindow()
-        self._style_roundtoggle_toolbutton()
-        self._style_squaretoggle_toolbutton()
+
+        # default style
+        self.settings.update(self.style_solid_buttons(self.theme, style="TButton"))
+        self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
+        self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
+        self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
+        self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
+        self.settings.update(self.style_separator(self.theme))
+        self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
+        self.settings.update(self.style_roundtoggle(self.theme, style="Roundtoggle.Toolbutton"))
+        self.settings.update(self.style_squaretoggle(self.theme, style="Squaretoggle.Toolbutton"))
 
         # themed style
         for color in self.theme.colors:
             self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
-            self.settings.update(self.style_checkbutton(self.theme, indicatorcolor=color, style=f"{color}.TCheckbutton"))
+            self.settings.update(
+                self.style_roundtoggle(self.theme, indicatorcolor=color, style=f"{color}.Roundtoggle.Toolbutton")
+            )
+            self.settings.update(
+                self.style_squaretoggle(self.theme, indicatorcolor=color, style=f"{color}.Squaretoggle.Toolbutton")
+            )
+            self.settings.update(
+                self.style_checkbutton(self.theme, indicatorcolor=color, style=f"{color}.TCheckbutton")
+            )
             self.settings.update(
                 self.style_separator(self.theme, background=color, style=f"{color}.Horizontal.TSeparator")
             )
@@ -365,15 +382,6 @@ class StylerTTK:
             self.settings.update(
                 self.style_outline_buttons(self.theme, foreground=color, style=f"{color}.Outline.TButton")
             )
-
-        # default style
-        self.settings.update(self.style_solid_buttons(self.theme, style="TButton"))
-        self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
-        self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
-        self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
-        self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
-        self.settings.update(self.style_separator(self.theme))
-        self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
 
         self._style_defaults()
 
@@ -1529,442 +1537,6 @@ class StylerTTK:
         )
         return settings
 
-    def _style_link_buttons(self):
-        """Apply a solid color style to ttk button: *ttk.Button*
-
-        The options available in this widget include:
-
-            - Button.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Button.focus: focuscolor, focusthickness
-            - Button.padding: padding, relief, shiftrelief
-            - Button.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
-        """
-        # disabled settings
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        # pressed and hover settings
-        pressed_vd = 0
-        hover_vd = 0
-
-        self.settings.update(
-            {
-                "Link.TButton": {
-                    "configure": {
-                        "foreground": self.theme.colors.fg,
-                        "background": self.theme.colors.bg,
-                        "bordercolor": self.theme.colors.bg,
-                        "darkcolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.bg,
-                        "relief": "raised",
-                        "font": self.theme.font,
-                        "focusthickness": 0,
-                        "focuscolor": "",
-                        "padding": (10, 5),
-                    },
-                    "map": {
-                        "foreground": [
-                            ("disabled", disabled_fg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.info, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", ThemeColors.update_hsv(self.theme.colors.info, vd=hover_vd)),
-                        ],
-                        "shiftrelief": [("pressed !disabled", -1)],
-                        "background": [
-                            ("pressed !disabled", self.theme.colors.bg),
-                            ("hover !disabled", self.theme.colors.bg),
-                        ],
-                        "bordercolor": [
-                            ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.bg),
-                            ("hover !disabled", self.theme.colors.bg),
-                        ],
-                        "darkcolor": [
-                            ("pressed !disabled", self.theme.colors.bg),
-                            ("hover !disabled", self.theme.colors.bg),
-                        ],
-                        "lightcolor": [
-                            ("pressed !disabled", self.theme.colors.bg),
-                            ("hover !disabled", self.theme.colors.bg),
-                        ],
-                    },
-                }
-            }
-        )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Link.TButton": {
-                        "configure": {
-                            "foreground": self.theme.colors.get(color),
-                            "background": self.theme.colors.bg,
-                            "bordercolor": self.theme.colors.bg,
-                            "darkcolor": self.theme.colors.bg,
-                            "lightcolor": self.theme.colors.bg,
-                            "relief": "raised",
-                            "font": self.theme.font,
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.info, vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.info, vd=hover_vd),
-                                ),
-                            ],
-                            "shiftrelief": [("pressed !disabled", -1)],
-                            "background": [
-                                ("pressed !disabled", self.theme.colors.bg),
-                                ("hover !disabled", self.theme.colors.bg),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.bg),
-                                ("hover !disabled", self.theme.colors.bg),
-                            ],
-                            "darkcolor": [
-                                ("pressed !disabled", self.theme.colors.bg),
-                                ("hover !disabled", self.theme.colors.bg),
-                            ],
-                            "lightcolor": [
-                                ("pressed !disabled", self.theme.colors.bg),
-                                ("hover !disabled", self.theme.colors.bg),
-                            ],
-                        },
-                    }
-                }
-            )
-
-    def _create_squaretoggle_image(self, colorname):
-        """Create a set of images for the square toggle button and return as ``PhotoImage``
-
-        Args:
-            colorname (str): the color label assigned to the colors property
-
-        Returns:
-            Tuple[PhotoImage]: a tuple of images (toggle_on, toggle_off, toggle_disabled)
-        """
-        prime_color = self.theme.colors.get(colorname)
-        on_border = prime_color
-        on_indicator = prime_color
-        on_fill = self.theme.colors.bg
-        off_border = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_indicator = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_fill = self.theme.colors.bg
-        disabled_fill = self.theme.colors.bg
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        toggle_off = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_off)
-        draw.rectangle([1, 1, 225, 129], outline=off_border, width=6, fill=off_fill)
-        draw.rectangle([18, 18, 110, 110], fill=off_indicator)
-
-        toggle_on = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_on)
-        draw.rectangle([1, 1, 225, 129], outline=on_border, width=6, fill=on_fill)
-        draw.rectangle([18, 18, 110, 110], fill=on_indicator)
-        toggle_on = toggle_on.transpose(Image.ROTATE_180)
-
-        toggle_disabled = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_disabled)
-        draw.rectangle([1, 1, 225, 129], outline=disabled_fg, width=6)
-        draw.rectangle([18, 18, 110, 110], fill=disabled_fg)
-
-        images = {}
-        images[f"{colorname}_squaretoggle_on"] = ImageTk.PhotoImage(toggle_on.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_squaretoggle_off"] = ImageTk.PhotoImage(toggle_off.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_squaretoggle_disabled"] = ImageTk.PhotoImage(
-            toggle_disabled.resize((24, 15), Image.LANCZOS)
-        )
-        return images
-
-    def _create_roundtoggle_image(self, colorname):
-        """Create a set of images for the rounded toggle button and return as ``PhotoImage``
-
-        Args:
-            colorname (str): the color label assigned to the colors property
-
-        Returns:
-            Tuple[PhotoImage]
-        """
-        prime_color = self.theme.colors.get(colorname)
-        on_border = prime_color
-        on_indicator = self.theme.colors.selectfg
-        on_fill = prime_color
-        off_border = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_indicator = self.theme.colors.selectbg if self.theme.type == "light" else self.theme.colors.inputbg
-        off_fill = self.theme.colors.bg
-        disabled_fill = self.theme.colors.bg
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        toggle_off = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_off)
-        draw.rounded_rectangle([1, 1, 225, 129], radius=(128 / 2), outline=off_border, width=6, fill=off_fill)
-        draw.ellipse([20, 18, 112, 110], fill=off_indicator)
-
-        toggle_on = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_on)
-        draw.rounded_rectangle([1, 1, 225, 129], radius=(128 / 2), outline=on_border, width=6, fill=on_fill)
-        draw.ellipse([20, 18, 112, 110], fill=on_indicator)
-        toggle_on = toggle_on.transpose(Image.ROTATE_180)
-
-        toggle_disabled = Image.new("RGBA", (226, 130))
-        draw = ImageDraw.Draw(toggle_disabled)
-        draw.rounded_rectangle([1, 1, 225, 129], radius=(128 / 2), outline=disabled_fg, width=6)
-        draw.ellipse([20, 18, 112, 110], fill=disabled_fg)
-
-        images = {}
-        images[f"{colorname}_roundtoggle_on"] = ImageTk.PhotoImage(toggle_on.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_roundtoggle_off"] = ImageTk.PhotoImage(toggle_off.resize((24, 15), Image.LANCZOS))
-        images[f"{colorname}_roundtoggle_disabled"] = ImageTk.PhotoImage(
-            toggle_disabled.resize((24, 15), Image.LANCZOS)
-        )
-        return images
-
-    def _style_roundtoggle_toolbutton(self):
-        """Apply a rounded toggle switch style to ttk widgets that accept the toolbutton style (for example, a
-        checkbutton: *ttk.Checkbutton*)
-        """
-        self.theme_images.update(self._create_roundtoggle_image("primary"))
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        # create indicator element
-        self.settings.update(
-            {
-                "Roundtoggle.Toolbutton.indicator": {
-                    "element create": (
-                        "image",
-                        self.theme_images["primary_roundtoggle_on"],
-                        ("disabled", self.theme_images["primary_roundtoggle_disabled"]),
-                        ("!selected", self.theme_images["primary_roundtoggle_off"]),
-                        {"width": 28, "border": 4, "sticky": "w"},
-                    )
-                },
-                "Roundtoggle.Toolbutton": {
-                    "layout": [
-                        (
-                            "Toolbutton.border",
-                            {
-                                "sticky": "nswe",
-                                "children": [
-                                    (
-                                        "Toolbutton.padding",
-                                        {
-                                            "sticky": "nswe",
-                                            "children": [
-                                                ("Roundtoggle.Toolbutton.indicator", {"side": "left"}),
-                                                ("Toolbutton.label", {"side": "left"}),
-                                            ],
-                                        },
-                                    )
-                                ],
-                            },
-                        )
-                    ],
-                    "configure": {"relief": "flat", "borderwidth": 0, "foreground": self.theme.colors.fg},
-                    "map": {
-                        "foreground": [("disabled", disabled_fg), ("hover", self.theme.colors.primary)],
-                        "background": [
-                            ("selected", self.theme.colors.bg),
-                            ("!selected", self.theme.colors.bg),
-                        ],
-                    },
-                },
-            }
-        )
-
-        # color variations
-        for color in self.theme.colors:
-            self.theme_images.update(self._create_roundtoggle_image(color))
-
-            # create indicator element
-            self.settings.update(
-                {
-                    f"{color}.Roundtoggle.Toolbutton.indicator": {
-                        "element create": (
-                            "image",
-                            self.theme_images[f"{color}_roundtoggle_on"],
-                            ("disabled", self.theme_images[f"{color}_roundtoggle_disabled"]),
-                            ("!selected", self.theme_images[f"{color}_roundtoggle_off"]),
-                            {"width": 28, "border": 4, "sticky": "w"},
-                        )
-                    },
-                    f"{color}.Roundtoggle.Toolbutton": {
-                        "layout": [
-                            (
-                                "Toolbutton.border",
-                                {
-                                    "sticky": "nswe",
-                                    "children": [
-                                        (
-                                            "Toolbutton.padding",
-                                            {
-                                                "sticky": "nswe",
-                                                "children": [
-                                                    (
-                                                        f"{color}.Roundtoggle.Toolbutton.indicator",
-                                                        {"side": "left"},
-                                                    ),
-                                                    ("Toolbutton.label", {"side": "left"}),
-                                                ],
-                                            },
-                                        )
-                                    ],
-                                },
-                            )
-                        ],
-                        "configure": {"relief": "flat", "borderwidth": 0, "foreground": self.theme.colors.fg},
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("hover", self.theme.colors.get(color)),
-                            ],
-                            "background": [
-                                ("selected", self.theme.colors.bg),
-                                ("!selected", self.theme.colors.bg),
-                            ],
-                        },
-                    },
-                }
-            )
-
-    def _style_squaretoggle_toolbutton(self):
-        """Apply a square toggle switch style to ttk widgets that accept the toolbutton style (for example, a
-        checkbutton: *ttk.Checkbutton*)
-        """
-        self.theme_images.update(self._create_squaretoggle_image("primary"))
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        # create indicator element
-        self.settings.update(
-            {
-                "Squaretoggle.Toolbutton.indicator": {
-                    "element create": (
-                        "image",
-                        self.theme_images["primary_squaretoggle_on"],
-                        ("disabled", self.theme_images["primary_squaretoggle_disabled"]),
-                        ("!selected", self.theme_images["primary_squaretoggle_off"]),
-                        {"width": 28, "border": 4, "sticky": "w"},
-                    )
-                },
-                "Squaretoggle.Toolbutton": {
-                    "layout": [
-                        (
-                            "Toolbutton.border",
-                            {
-                                "sticky": "nswe",
-                                "children": [
-                                    (
-                                        "Toolbutton.padding",
-                                        {
-                                            "sticky": "nswe",
-                                            "children": [
-                                                ("Squaretoggle.Toolbutton.indicator", {"side": "left"}),
-                                                ("Toolbutton.label", {"side": "left"}),
-                                            ],
-                                        },
-                                    )
-                                ],
-                            },
-                        )
-                    ],
-                    "configure": {"relief": "flat", "borderwidth": 0, "foreground": self.theme.colors.fg},
-                    "map": {
-                        "foreground": [("disabled", disabled_fg), ("hover", self.theme.colors.primary)],
-                        "background": [
-                            ("selected", self.theme.colors.bg),
-                            ("!selected", self.theme.colors.bg),
-                        ],
-                    },
-                },
-            }
-        )
-
-        # color variations
-        for color in self.theme.colors:
-            self.theme_images.update(self._create_squaretoggle_image(color))
-
-            # create indicator element
-            self.settings.update(
-                {
-                    f"{color}.Squaretoggle.Toolbutton.indicator": {
-                        "element create": (
-                            "image",
-                            self.theme_images[f"{color}_squaretoggle_on"],
-                            ("disabled", self.theme_images[f"{color}_squaretoggle_disabled"]),
-                            ("!selected", self.theme_images[f"{color}_squaretoggle_off"]),
-                            {"width": 28, "border": 4, "sticky": "w"},
-                        )
-                    },
-                    f"{color}.Squaretoggle.Toolbutton": {
-                        "layout": [
-                            (
-                                "Toolbutton.border",
-                                {
-                                    "sticky": "nswe",
-                                    "children": [
-                                        (
-                                            "Toolbutton.padding",
-                                            {
-                                                "sticky": "nswe",
-                                                "children": [
-                                                    (
-                                                        f"{color}.Squaretoggle.Toolbutton.indicator",
-                                                        {"side": "left"},
-                                                    ),
-                                                    ("Toolbutton.label", {"side": "left"}),
-                                                ],
-                                            },
-                                        )
-                                    ],
-                                },
-                            )
-                        ],
-                        "configure": {"relief": "flat", "borderwidth": 0, "foreground": self.theme.colors.fg},
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("hover", self.theme.colors.get(color)),
-                            ],
-                            "background": [
-                                ("selected", self.theme.colors.bg),
-                                ("!selected", self.theme.colors.bg),
-                            ],
-                        },
-                    },
-                }
-            )
-
     def _style_solid_toolbutton(self):
         """Apply a solid color style to ttk widgets that use the Toolbutton style (for example, a checkbutton:
         *ttk.Checkbutton*)
@@ -2861,7 +2433,279 @@ class StylerTTK:
             )
 
     @staticmethod
-    def style_checkbutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+    def style_roundtoggle(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
+        """Create an image-based round togglebutton style.
+
+        Args:
+            theme (ThemeSettings): The current theme.
+            background (str, optional): The normal color of the widget background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The text color.
+            indicatorcolor (str, optional): The color of the widget indicator.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+        indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+
+        # disabled colors
+        if theme.type == "light":
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # create widget images
+        element_id = uuid4()
+        StylerTTK.style_roundtoggle_images(theme, indicatorcolor, element_id)
+        toggle_off = StylerTTK.theme_images[f"{element_id}_toggle_off"]
+        toggle_on = StylerTTK.theme_images[f"{element_id}_toggle_on"]
+        toggle_disabled = StylerTTK.theme_images[f"{element_id}_toggle_disabled"]
+
+        # create the widget style
+        settings = dict()
+        settings.update(
+            {
+                f"{element_id}.Roundtoggle.Toolbutton.indicator": {
+                    "element create": (
+                        "image",
+                        toggle_on,
+                        ("disabled", toggle_disabled),
+                        ("!selected", toggle_off),
+                        {"width": 28, "border": 4, "sticky": "w"},
+                    )
+                },
+                style: {
+                    "configure": {
+                        "background": background,
+                        "foreground": foreground,
+                        "borderwidth": 0,
+                        "relief": "flat",
+                        "padding": 0,
+                        "font": font,
+                    },
+                    "layout": [
+                        (
+                            "Toolbutton.border",
+                            {
+                                "sticky": "nswe",
+                                "children": [
+                                    (
+                                        "Toolbutton.padding",
+                                        {
+                                            "sticky": "nswe",
+                                            "children": [
+                                                (f"{element_id}.Roundtoggle.Toolbutton.indicator", {"side": "left"}),
+                                                ("Toolbutton.label", {"side": "left"}),
+                                            ],
+                                        },
+                                    )
+                                ],
+                            },
+                        )
+                    ],
+                    "map": {
+                        "foreground": [
+                            ("disabled", disabled),
+                            ("hover", indicatorcolor),
+                        ],
+                        "background": [("selected", background), ("!selected", background)],
+                    },
+                },
+            }
+        )
+        return settings
+
+    @staticmethod
+    def style_roundtoggle_images(theme, indicatorcolor, element_id):
+        """ "Create assets for roundtoggle layout
+
+        Args:
+            theme (ThemeSettings): The current theme.
+            indicator_color (str): The indicator color.
+            element_id (UUID): A unique element identification number.
+        """
+        outline = theme.colors.selectbg
+        indicator_on = theme.colors.selectfg
+        fill = theme.colors.bg
+        if theme.type == "light":
+            indicator_off = theme.colors.selectbg
+            outline = theme.colors.selectbg
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            indicator_off = theme.colors.inputbg
+            outline = theme.colors.inputbg
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # toggle off
+        toggle_off = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_off)
+        draw.rounded_rectangle([1, 1, 225, 129], radius=64, outline=outline, width=6, fill=fill)
+        draw.ellipse([18, 18, 110, 110], fill=indicator_off)
+
+        # toggle on
+        toggle_on = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_on)
+        draw.rounded_rectangle([1, 1, 225, 129], radius=64, outline=indicatorcolor, width=6, fill=indicatorcolor)
+        draw.ellipse([18, 18, 110, 110], fill=indicator_on)
+        toggle_on = toggle_on.transpose(Image.ROTATE_180)
+
+        # toggle disabled
+        toggle_disabled = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_disabled)
+        draw.rounded_rectangle([1, 1, 225, 129], radius=64, outline=disabled, width=6, fill=fill)
+        draw.ellipse([18, 18, 110, 110], fill=disabled)
+
+        # save images
+        StylerTTK.theme_images.update(
+            {
+                f"{element_id}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
+                f"{element_id}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
+                f"{element_id}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
+            }
+        )
+
+    @staticmethod
+    def style_squaretoggle(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+        """Create an image-based square togglebutton style.
+
+        Args:
+            theme (ThemeSettings): The current theme.
+            background (str, optional): The normal color of the widget background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The text color.
+            indicatorcolor (str, optional): The color of the widget indicator.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+        indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+
+        # disabled colors
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # create widget images
+        element_id = uuid4()
+        StylerTTK.style_squaretoggle_images(theme, indicatorcolor, element_id)
+        toggle_off = StylerTTK.theme_images[f"{element_id}_toggle_off"]
+        toggle_on = StylerTTK.theme_images[f"{element_id}_toggle_on"]
+        toggle_disabled = StylerTTK.theme_images[f"{element_id}_toggle_disabled"]
+
+        # create the widget style
+        settings = dict()
+        settings.update(
+            {
+                f"{element_id}.Squaretoggle.Toolbutton.indicator": {
+                    "element create": (
+                        "image",
+                        toggle_on,
+                        ("disabled", toggle_disabled),
+                        ("!selected", toggle_off),
+                        {"width": 28, "border": 4, "sticky": "w"},
+                    )
+                },
+                style: {
+                    "configure": {
+                        "background": background,
+                        "foreground": foreground,
+                        "borderwidth": 0,
+                        "relief": "flat",
+                        "padding": 0,
+                        "font": font or DEFAULT_FONT,
+                    },
+                    "layout": [
+                        (
+                            "Toolbutton.border",
+                            {
+                                "sticky": "nswe",
+                                "children": [
+                                    (
+                                        "Toolbutton.padding",
+                                        {
+                                            "sticky": "nswe",
+                                            "children": [
+                                                (f"{element_id}.Squaretoggle.Toolbutton.indicator", {"side": "left"}),
+                                                ("Toolbutton.label", {"side": "left"}),
+                                            ],
+                                        },
+                                    )
+                                ],
+                            },
+                        )
+                    ],
+                    "map": {
+                        "foreground": [
+                            ("disabled", disabled_fg),
+                            ("hover", indicatorcolor),
+                        ],
+                        "background": [("selected", background), ("!selected", background)],
+                    },
+                },
+            }
+        )
+        return settings
+
+    @staticmethod
+    def style_squaretoggle_images(theme, indicatorcolor, element_id):
+        """ "Create assets for squaretoggle layout
+
+        Args:
+            theme (ThemeSettings): The current theme.
+            indicator_color (str): The indicator color.
+            element_id (UUID): A unique element identification number.
+        """
+        outline = theme.colors.selectbg
+        indicator_on = theme.colors.selectfg
+        fill = theme.colors.bg
+        if theme.type == "light":
+            indicator_off = theme.colors.selectbg
+            outline = theme.colors.selectbg
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            indicator_off = theme.colors.inputbg
+            outline = theme.colors.inputbg
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # toggle off
+        toggle_off = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_off)
+        draw.rectangle([1, 1, 225, 129], outline=outline, width=6, fill=fill)
+        draw.rectangle([18, 18, 110, 110], fill=indicator_off)
+
+        # toggle on
+        toggle_on = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_on)
+        draw.rectangle([1, 1, 225, 129], outline=indicatorcolor, width=6, fill=indicatorcolor)
+        draw.rectangle([18, 18, 110, 110], fill=indicator_on)
+        toggle_on = toggle_on.transpose(Image.ROTATE_180)
+
+        # toggle disabled
+        toggle_disabled = Image.new("RGBA", (226, 130))
+        draw = ImageDraw.Draw(toggle_disabled)
+        draw.rectangle([1, 1, 225, 129], outline=disabled, width=6, fill=fill)
+        draw.rectangle([18, 18, 110, 110], fill=disabled)
+
+        # save images
+        StylerTTK.theme_images.update(
+            {
+                f"{element_id}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
+                f"{element_id}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
+                f"{element_id}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
+            }
+        )
+
+    @staticmethod
+    def style_checkbutton(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
         """Create an image-based checkbutton style.
 
         Args:
@@ -2879,6 +2723,12 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+
+        # disabled colors
+        if theme.type == "light":
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
         # create widget images
         element_id = uuid4()
@@ -2901,7 +2751,7 @@ class StylerTTK:
                     )
                 },
                 style: {
-                    "configure": {"background": background, "foreground": foreground, "focuscolor": ""},
+                    "configure": {"background": background, "foreground": foreground, "focuscolor": "", "font": font},
                     "layout": [
                         (
                             "Checkbutton.padding",
@@ -2923,7 +2773,7 @@ class StylerTTK:
                     ],
                     "map": {
                         "foreground": [
-                            ("disabled", theme.colors.inputfg),
+                            ("disabled", disabled),
                             ("active", ThemeColors.update_hsv(indicatorcolor, vd=-0.2)),
                         ]
                     },
@@ -2944,11 +2794,11 @@ class StylerTTK:
         outline = theme.colors.selectbg
         if theme.type == "light":
             fill = theme.colors.inputbg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=0.2)
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
             disabled_bg = theme.colors.inputbg
         else:
             fill = theme.colors.selectfg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=0.3)
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
             disabled_bg = disabled_fg
 
         # checkbutton off
