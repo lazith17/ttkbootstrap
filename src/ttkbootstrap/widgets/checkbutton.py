@@ -14,8 +14,8 @@ from ttkbootstrap.widgets import Widget
 
 
 class Checkbutton(Widget, ttk.Checkbutton):
-    """A ttk.Checkbutton widget is used to show or change a setting. It has two states, selected and deselected. The 
-    state of the checkbutton may be linked to a tkinter variable.
+    """A Checkbutton widget is used to show or change a setting. It has two states, selected and deselected. The state
+    of the checkbutton may be linked to a tkinter variable.
     """
 
     def __init__(
@@ -26,6 +26,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         command=None,
         compound=None,
         cursor=None,
+        default=False,
         font=None,
         foreground=None,
         image=None,
@@ -60,6 +61,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 the value **center** specifies  that the bitmap or image should be displayed `underneath` the text.
             cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
                 vary according to your operating system.
+            default (bool, optional): If ``True``, the widget will initialize as selected.
             font (str, Font, optional): The font to use when drawing text inside the widget.
             foreground (str, optional): The text color. Setting this option will override all other style based 
                 foreground settings.
@@ -111,7 +113,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         self.foreground = foreground
         self.indicatorcolor = indicatorcolor
         self.widget_id = None
-        self.variable = variable or Variable(value=onvalue)
+        self.variable = variable or Variable(value=onvalue if default else offvalue)
 
         self.customized = False
         self.customize_widget()
@@ -192,7 +194,7 @@ if __name__ == "__main__":
 
     # customizable colors
     Checkbutton(root, text='custom solid', indicatorcolor='purple', foreground='pink').pack(**pack_settings)
-    Checkbutton(root, text='custom outline', foreground='yellow').pack(**pack_settings)
+    Checkbutton(root, text='custom outline', foreground='yellow', default=True).pack(**pack_settings)
     Checkbutton(root, text='custom link', foreground='orange').pack(**pack_settings)
 
     Checkbutton(root, text='default toggle', bootstyle='info toggle').pack(**pack_settings)
