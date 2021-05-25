@@ -329,7 +329,7 @@ class StylerTTK:
         self._style_scrollbar()
         self._style_combobox()
         self._style_exit_button()
-        #self._style_frame()
+        # self._style_frame()
         self._style_calendar()
         self._style_entry()
         self._style_label()
@@ -363,7 +363,7 @@ class StylerTTK:
             self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
-            self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))            
+            self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))
             self.settings.update(
                 self.style_roundtoggle(self.theme, indicatorcolor=color, style=f"{color}.Roundtoggle.Toolbutton")
             )
@@ -1335,13 +1335,7 @@ class StylerTTK:
         """
         settings = dict()
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        settings.update({
-            style: {
-                'configure': {
-                    'background': background
-                }
-            }
-        })
+        settings.update({style: {"configure": {"background": background}}})
         return settings
 
     @staticmethod

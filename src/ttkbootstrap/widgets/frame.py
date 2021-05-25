@@ -23,7 +23,7 @@ class Frame(Widget, ttk.Frame):
         cursor=None,
         height=None,
         padding=None,
-        relief='flat',
+        relief="flat",
         style=None,
         takefocus=False,
         width=None,
@@ -32,7 +32,7 @@ class Frame(Widget, ttk.Frame):
         """
         Args:
             master: The parent widget.
-            background (str, optional): The normal color to use on the Frame when displaying the widget. Setting 
+            background (str, optional): The normal color to use on the Frame when displaying the widget. Setting
                 this option will override all other style-based background settings.
             bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
                 API for setting the widget style. You may also use the ``style`` option directly using the standard
@@ -43,7 +43,7 @@ class Frame(Widget, ttk.Frame):
             padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
                 length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
                 to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the 
+                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
                 vertical padding; a single number specifies the same padding all the way around the widget.
             orient (str, optional): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Frame.
             style (str, optional): May be used to specify a style using the ``ttk`` style api.
@@ -103,8 +103,7 @@ if __name__ == "__main__":
     pack_settings = {"fill": "both", "expand": "yes"}
 
     Frame(root).pack(**pack_settings)
-    Frame(root, bootstyle='info').pack(**pack_settings)
-    Frame(root, background='purple').pack(**pack_settings)
-    
-    root.mainloop()
+    Frame(root, bootstyle="info").pack(**pack_settings)
+    Frame(root, background="purple").pack(**pack_settings)
 
+    root.mainloop()
