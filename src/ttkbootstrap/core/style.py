@@ -329,7 +329,7 @@ class StylerTTK:
         self._style_scrollbar()
         self._style_combobox()
         self._style_exit_button()
-        self._style_frame()
+        #self._style_frame()
         self._style_calendar()
         self._style_entry()
         self._style_label()
@@ -356,12 +356,14 @@ class StylerTTK:
         self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
         self.settings.update(self.style_roundtoggle(self.theme, style="Roundtoggle.Toolbutton"))
         self.settings.update(self.style_squaretoggle(self.theme, style="Squaretoggle.Toolbutton"))
+        self.settings.update(self.style_frame(self.theme, style="TFrame"))
 
         # themed style
         for color in self.theme.colors:
             self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
+            self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))            
             self.settings.update(
                 self.style_roundtoggle(self.theme, indicatorcolor=color, style=f"{color}.Roundtoggle.Toolbutton")
             )
@@ -1319,17 +1321,28 @@ class StylerTTK:
                 }
             )
 
-    def _style_frame(self):
-        """Create style configuration for ttk frame: *ttk.Frame*
+    @staticmethod
+    def style_frame(theme, background=None, style=None):
+        """Create a frame style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the frame background.
+            style (str, optional): The style used to render the widget.
 
-            - Frame.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update({"TFrame": {"configure": {"background": self.theme.colors.bg}}})
-
-        for color in self.theme.colors:
-            self.settings.update({f"{color}.TFrame": {"configure": {"background": self.theme.colors.get(color)}}})
+        settings = dict()
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        settings.update({
+            style: {
+                'configure': {
+                    'background': background
+                }
+            }
+        })
+        return settings
 
     @staticmethod
     def style_solid_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
