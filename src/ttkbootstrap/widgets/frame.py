@@ -19,11 +19,9 @@ class Frame(Widget, ttk.Frame):
         master=None,
         background=None,
         bootstyle="default",
-        borderwidth=0,
         cursor=None,
         height=None,
         padding=None,
-        relief="flat",
         style=None,
         takefocus=False,
         width=None,
@@ -45,7 +43,6 @@ class Frame(Widget, ttk.Frame):
                 to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
                 specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
                 vertical padding; a single number specifies the same padding all the way around the widget.
-            orient (str, optional): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Frame.
             style (str, optional): May be used to specify a style using the ``ttk`` style api.
             takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
                 (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
