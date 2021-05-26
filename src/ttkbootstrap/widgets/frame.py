@@ -96,6 +96,7 @@ if __name__ == "__main__":
 
     style = Style()
     root = style.master
+    root.geometry('400x400')
     root.configure(background=style.colors.bg)
     pack_settings = {"fill": "both", "expand": "yes"}
 
