@@ -13,33 +13,32 @@ from tkinter.ttk import Widget
 from tkinter.ttk import _script_from_settings as script_from_settings
 
 from ttkbootstrap.core.themes import DEFINITIONS
-from ttkbootstrap.core.themes import COLOR_PATTERN, STYLE_PATTERN
+from ttkbootstrap.core.themes import COLOR_PATTERN
 
-WIDGET_PATTERN = re.compile(
-    r"btn|button|progressbar|checkbutton|radiobutton|toggle|roundtoggle|squaretoggle|checkbtn|radiobtn|label|lbl|sizegrip|separator|toolbutton"
-)
-
-WIDGET_ORIENT = re.compile(r'horizontal|vertical')
-
+STYLE_PATTERN = re.compile(r"outline|link")
+ORIENT_PATTERN = re.compile(r'horizontal|vertical')
 WIDGET_LOOKUP = {
     "button": "TButton",
     "btn": "TButton",
     "progressbar": "TProgressbar",
+    "check": "TCheckbutton",
     "checkbutton": "TCheckbutton",
     "checkbtn": "TCheckbutton",
+    "grip": "TSizegrip",
+    "lbl": "TLabel",
+    "label": "TLabel",
+    "radio": "TRadiobutton",
     "radiobutton": "TRadiobutton",
     "radiobtn": "TRadiobutton",
-    "toggle": "Roundtoggle.Toolbutton",
     "roundtoggle": "Roundtoggle.Toolbutton",
-    "squaretoggle": "Squaretoggle.Toolbutton",
-    "toolbutton": "Toolbutton",
-    "toggle": "Roundtoggle.Toolbutton",
-    "label": "TLabel",
-    "lbl": "TLabel",
+    "separator": "TSeparator",
     "sizegrip": "TSizegrip",
-    "separator": "TSeparator"
+    "squaretoggle": "Squaretoggle.Toolbutton",
+    "toggle": "Roundtoggle.Toolbutton",
+    "toolbutton": "Toolbutton",
+    "tool": "Toolbutton"
 }
-
+WIDGET_PATTERN = '|'.join(WIDGET_LOOKUP.keys())
 
 class Widget(Widget, ABC):
     """An abstract base class for all **ttkbootstrap** widgets."""
@@ -127,7 +126,7 @@ class Widget(Widget, ABC):
 
         """
         if self.orient:
-            result = re.search(WIDGET_ORIENT, self.orient.lower())
+            result = re.search(ORIENT_PATTERN, self.orient.lower())
             return result.group(0)
         else:
             return None

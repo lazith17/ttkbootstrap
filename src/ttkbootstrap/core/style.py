@@ -329,41 +329,44 @@ class StylerTTK:
         self._style_scrollbar()
         self._style_combobox()
         self._style_exit_button()
-        # self._style_frame()
         self._style_calendar()
         self._style_entry()
         self._style_label()
         self._style_meter()
         self._style_notebook()
         self._style_outline_menubutton()
-        self._style_outline_toolbutton()
         self._style_progressbar()
         self._style_striped_progressbar()
         self._style_floodgauge()
-        self._style_radiobutton()
         self._style_solid_menubutton()
-        self._style_solid_toolbutton()
         self._style_treeview()
         self._style_panedwindow()
 
         # default style
-        self.settings.update(self.style_solid_buttons(self.theme, style="TButton"))
-        self.settings.update(self.style_outline_buttons(self.theme, style="Outline.TButton"))
-        self.settings.update(self.style_link_buttons(self.theme, style="Link.TButton"))
+        self.settings.update(self.style_solid_button(self.theme, style="TButton"))
+        self.settings.update(self.style_outline_button(self.theme, style="Outline.TButton"))
+        self.settings.update(self.style_link_button(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
         self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
         self.settings.update(self.style_separator(self.theme))
         self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
+        self.settings.update(self.style_radiobutton(self.theme, style="TRadiobutton"))
+        self.settings.update(self.style_toolbutton(self.theme, style="Toolbutton"))
+        self.settings.update(self.style_outline_toolbutton(self.theme, style="Outline.Toolbutton"))
         self.settings.update(self.style_roundtoggle(self.theme, style="Roundtoggle.Toolbutton"))
         self.settings.update(self.style_squaretoggle(self.theme, style="Squaretoggle.Toolbutton"))
         self.settings.update(self.style_frame(self.theme, style="TFrame"))
 
         # themed style
         for color in self.theme.colors:
-            self.settings.update(self.style_solid_buttons(self.theme, background=color, style=f"{color}.TButton"))
-            self.settings.update(self.style_link_buttons(self.theme, foreground=color, style=f"{color}.Link.TButton"))
+            self.settings.update(self.style_solid_button(self.theme, background=color, style=f"{color}.TButton"))
+            self.settings.update(self.style_link_button(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
             self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))
+            self.settings.update(self.style_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Toolbutton"))
+            self.settings.update(
+                self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
+            )
             self.settings.update(
                 self.style_roundtoggle(self.theme, indicatorcolor=color, style=f"{color}.Roundtoggle.Toolbutton")
             )
@@ -374,6 +377,9 @@ class StylerTTK:
                 self.style_checkbutton(self.theme, indicatorcolor=color, style=f"{color}.TCheckbutton")
             )
             self.settings.update(
+                self.style_radiobutton(self.theme, indicatorcolor=color, style=f"{color}.TRadiobutton")
+            )
+            self.settings.update(
                 self.style_separator(self.theme, background=color, style=f"{color}.Horizontal.TSeparator")
             )
             self.settings.update(
@@ -382,7 +388,7 @@ class StylerTTK:
                 )
             )
             self.settings.update(
-                self.style_outline_buttons(self.theme, foreground=color, style=f"{color}.Outline.TButton")
+                self.style_outline_button(self.theme, foreground=color, style=f"{color}.Outline.TButton")
             )
 
         self._style_defaults()
@@ -1339,7 +1345,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_solid_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+    def style_solid_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
         """Apply a solid color style to ttk button: *ttk.Button*
 
         Args:
@@ -1414,7 +1420,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+    def style_outline_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
         """Apply an outline style to ttk button: *ttk.Button*.
 
         The outline and text are colored with the ``foreground``, and the remaining fill is set with the ``background``
@@ -1486,7 +1492,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_link_buttons(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+    def style_link_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
         """Apply a hyperlink style to ttk button: *ttk.Button*
 
         Args:
@@ -1544,44 +1550,47 @@ class StylerTTK:
         )
         return settings
 
-    def _style_solid_toolbutton(self):
+    @staticmethod
+    def style_toolbutton(theme, anchor="center", font=None, foreground=None, indicatorcolor=None, style=None):
         """Apply a solid color style to ttk widgets that use the Toolbutton style (for example, a checkbutton:
         *ttk.Checkbutton*)
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            anchor (str, optional): The position of the text inside of the button.
+            indicatorcolor (str, optional): Corresponds to the color of the button background when selected.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the button text.
+            style (str, optional): The style used to render the widget.
 
-            - Button.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Button.focus: focuscolor, focusthickness
-            - Button.padding: padding, relief, shiftrelief
-            - Button.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # disabled settings
-        disabled_fg = self.theme.colors.inputfg
-        disabled_bg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        # fallback colors
+        background_on = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+        background_off = ThemeColors.update_hsv(background_on, sd=-0.5, vd=0.1)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
 
-        # pressed and hover settings
-        pressed_vd = -0.2
-        hover_vd = -0.1
-        normal_sd = -0.5
-        normal_vd = 0.1
+        # disabled colors
+        disabled_fg = theme.colors.inputfg
+        if theme.type == "light":
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
-        self.settings.update(
+        settings = dict()
+        settings.update(
             {
-                "Toolbutton": {
+                f"{style}": {
                     "configure": {
-                        "foreground": self.theme.colors.selectfg,
-                        "background": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
-                        "bordercolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
-                        "darkcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
-                        "lightcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=normal_sd, vd=normal_vd),
-                        "font": self.theme.font,
-                        "anchor": "center",
+                        "anchor": anchor or "center",
+                        "foreground": foreground,
+                        "background": background_off,
+                        "bordercolor": background_off,
+                        "darkcolor": background_off,
+                        "lightcolor": background_off,
                         "relief": "raised",
+                        "font": font or DEFAULT_FONT,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1590,254 +1599,115 @@ class StylerTTK:
                         "foreground": [("disabled", disabled_fg)],
                         "background": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", self.theme.colors.primary),
-                            ("selected !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_on),
+                            ("selected", background_on),
+                            ("hover", background_on),
                         ],
                         "bordercolor": [
                             ("disabled", disabled_bg),
-                            ("selected !disabled", self.theme.colors.primary),
-                            ("pressed !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_on),
+                            ("selected", background_on),
+                            ("hover", background_on),
                         ],
                         "darkcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", self.theme.colors.primary),
-                            ("selected !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_on),
+                            ("selected", background_on),
+                            ("hover", background_on),
                         ],
                         "lightcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", self.theme.colors.primary),
-                            ("selected !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_on),
+                            ("selected", background_on),
+                            ("hover", background_on),
                         ],
                     },
                 }
             }
         )
+        return settings
 
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Toolbutton": {
-                        "configure": {
-                            "foreground": self.theme.colors.selectfg,
-                            "background": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=normal_sd, vd=normal_vd
-                            ),
-                            "bordercolor": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=normal_sd, vd=normal_vd
-                            ),
-                            "darkcolor": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=normal_sd, vd=normal_vd
-                            ),
-                            "lightcolor": ThemeColors.update_hsv(
-                                self.theme.colors.get(color), sd=normal_sd, vd=normal_vd
-                            ),
-                            "relief": "raised",
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "foreground": [("disabled", disabled_fg)],
-                            "background": [
-                                ("disabled", disabled_bg),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                                ("selected !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_bg),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                                ("selected !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "darkcolor": [
-                                ("disabled", disabled_bg),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                                ("selected !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "lightcolor": [
-                                ("disabled", disabled_bg),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                                ("selected !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                        },
-                    }
-                }
-            )
+    @staticmethod
+    def style_outline_toolbutton(theme, anchor="center", background=None, font=None, indicatorcolor=None, style=None):
+        """Apply an outline style to widgets that use the Toolbutton style (radiobutton, checkbutton)
 
-    def _style_outline_toolbutton(self):
-        """Apply an outline style to ttk widgets that use the Toolbutton style (for example, a checkbutton:
-        *ttk.Checkbutton*). This button has a solid button look on focus and hover.
+        Args:
+            theme (str): The theme name.
+            anchor (str, optional): The position of the text inside of the button.
+            background (str, optional): The inner fill of the button when not selected.
+            indicatorcolor (str, optional): The outline and foreground color when selected.
+            font (str, optional): The font used to render the button text.
+            style (str, optional): The style used to render the widget.
 
-        The options available in this widget include:
-
-            - Button.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Button.focus: focuscolor, focusthickness
-            - Button.padding: padding, relief, shiftrelief
-            - Button.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # disabled settings
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
         # pressed and hover settings
-        pressed_vd = -0.10
+        vd = -0.1
 
-        self.settings.update(
+        # fallback colors
+        background_on = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+        background_off = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        background_over = ThemeColors.update_hsv(background_on, vd=vd)
+        foreground_off = ThemeColors.normalize(indicatorcolor, theme.colors.selectfg, theme.colors)
+        foreground_on = background_off
+
+        # disabled colors
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        settings = dict()
+        settings.update(
             {
-                "Outline.Toolbutton": {
+                f"{style}": {
                     "configure": {
-                        "foreground": self.theme.colors.primary,
-                        "background": self.theme.colors.bg,
-                        "bordercolor": self.theme.colors.border,
-                        "darkcolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.bg,
+                        "anchor": anchor or "center",
+                        "foreground": foreground_off,
+                        "background": background_off,
+                        "bordercolor": theme.colors.border,
+                        "darkcolor": background_off,
+                        "lightcolor": background_off,
                         "relief": "raised",
-                        "font": self.theme.font,
+                        "font": font or DEFAULT_FONT,
                         "focusthickness": 0,
                         "focuscolor": "",
-                        "borderwidth": 1,
                         "padding": (10, 5),
                     },
                     "map": {
                         "foreground": [
                             ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.selectfg),
-                            ("selected !disabled", self.theme.colors.selectfg),
-                            ("hover !disabled", self.theme.colors.selectfg),
+                            ("pressed", foreground_on),
+                            ("selected", foreground_on),
+                            ("hover", foreground_on),
                         ],
                         "background": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "selected !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_over),
+                            ("selected", background_over),
+                            ("hover", background_on),
                         ],
                         "bordercolor": [
                             ("disabled", disabled_fg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "selected !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_over),
+                            ("selected", background_over),
+                            ("hover", background_on),
                         ],
                         "darkcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "selected !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_over),
+                            ("selected", background_over),
+                            ("hover", background_on),
                         ],
                         "lightcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "selected !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed", background_over),
+                            ("selected", background_over),
+                            ("hover", background_on),
                         ],
                     },
                 }
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Outline.Toolbutton": {
-                        "configure": {
-                            "foreground": self.theme.colors.get(color),
-                            "background": self.theme.colors.bg,
-                            "bordercolor": self.theme.colors.border,
-                            "darkcolor": self.theme.colors.bg,
-                            "lightcolor": self.theme.colors.bg,
-                            "relief": "raised",
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "borderwidth": 1,
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.selectfg),
-                                ("selected !disabled", self.theme.colors.selectfg),
-                                ("hover !disabled", self.theme.colors.selectfg),
-                            ],
-                            "background": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "selected !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_fg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "selected !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "darkcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "selected !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "lightcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "selected !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                        },
-                    }
-                }
-            )
+        return settings
 
     def _style_entry(self):
         """Create style configuration for ttk entry: *ttk.Entry*
@@ -1911,43 +1781,65 @@ class StylerTTK:
                 }
             )
 
-    def _style_radiobutton(self):
-        """Create style configuration for ttk radiobutton: *ttk.Radiobutton*
+    @staticmethod
+    def style_radiobutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+        """Create an image-based radiobutton style.
 
-        The options available in this widget include:
+        Args:
+            theme (ThemeSettings): The current theme.
+            background (str, optional): The normal color of the widget background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The text color.
+            indicatorcolor (str, optional): The color of the widget indicator.
+            style (str, optional): The style used to render the widget.
 
-            - Radiobutton.padding: padding, relief, shiftrelief
-            - Radiobutton.indicator: indicatorsize, indicatormargin, indicatorbackground, indicatorforeground,
-                upperbordercolor, lowerbordercolor
-            - Radiobutton.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-        disabled_bg = self.theme.colors.inputbg if self.theme.type == "light" else disabled_fg
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+        indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
 
-        self.theme_images.update(self._create_radiobutton_images("primary"))
-        self.settings.update(
+        # disabled colors
+        if theme.type == "light":
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # create widget images
+        element_id = uuid4()
+        StylerTTK.style_radiobutton_images(theme, indicatorcolor, element_id)
+        radio_off = StylerTTK.theme_images[f"{element_id}_radio_off"]
+        radio_on = StylerTTK.theme_images[f"{element_id}_radio_on"]
+        radio_disabled = StylerTTK.theme_images[f"{element_id}_radio_disabled"]
+
+        # create the widget style
+        settings = dict()
+        settings.update(
             {
-                "Radiobutton.indicator": {
+                f"{element_id}.Radiobutton.indicator": {
                     "element create": (
                         "image",
-                        self.theme_images["primary_radio_on"],
-                        ("disabled", self.theme_images["primary_radio_disabled"]),
-                        ("!selected", self.theme_images["primary_radio_off"]),
+                        radio_on,
+                        ("disabled", radio_disabled),
+                        ("!selected", radio_off),
                         {"width": 20, "border": 4, "sticky": "w"},
                     )
                 },
-                "TRadiobutton": {
+                style: {
+                    "configure": {
+                        "background": background,
+                        "foreground": foreground,
+                        "focuscolor": "",
+                        "font": font or DEFAULT_FONT,
+                    },
                     "layout": [
                         (
                             "Radiobutton.padding",
                             {
                                 "children": [
-                                    ("Radiobutton.indicator", {"side": "left", "sticky": ""}),
+                                    (f"{element_id}.Radiobutton.indicator", {"side": "left", "sticky": ""}),
                                     (
                                         "Radiobutton.focus",
                                         {
@@ -1961,118 +1853,64 @@ class StylerTTK:
                             },
                         )
                     ],
-                    "configure": {"font": self.theme.font},
                     "map": {
-                        "foreground": [("disabled", disabled_fg), ("active", self.theme.colors.primary)],
-                        "indicatorforeground": [
-                            ("disabled", disabled_fg),
-                            ("active selected !disabled", self.theme.colors.primary),
-                        ],
+                        "foreground": [
+                            ("disabled", disabled),
+                            ("active", ThemeColors.update_hsv(indicatorcolor, vd=-0.2)),
+                        ]
                     },
                 },
             }
         )
+        return settings
 
-        # variations change the indicator color
-        for color in self.theme.colors:
-            self.theme_images.update(self._create_radiobutton_images(color))
-            self.settings.update(
-                {
-                    f"{color}.Radiobutton.indicator": {
-                        "element create": (
-                            "image",
-                            self.theme_images[f"{color}_radio_on"],
-                            ("disabled", self.theme_images[f"{color}_radio_disabled"]),
-                            ("!selected", self.theme_images[f"{color}_radio_off"]),
-                            {"width": 20, "border": 4, "sticky": "w"},
-                        )
-                    },
-                    f"{color}.TRadiobutton": {
-                        "layout": [
-                            (
-                                "Radiobutton.padding",
-                                {
-                                    "children": [
-                                        (f"{color}.Radiobutton.indicator", {"side": "left", "sticky": ""}),
-                                        (
-                                            "Radiobutton.focus",
-                                            {
-                                                "children": [("Radiobutton.label", {"sticky": "nswe"})],
-                                                "side": "left",
-                                                "sticky": "",
-                                            },
-                                        ),
-                                    ],
-                                    "sticky": "nswe",
-                                },
-                            )
-                        ],
-                        "configure": {"font": self.theme.font},
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("active", ThemeColors.update_hsv(self.theme.colors.get(color), vd=-0.2)),
-                            ],
-                            "indicatorforeground": [
-                                ("disabled", disabled_fg),
-                                (
-                                    "active selected !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=-0.2),
-                                ),
-                            ],
-                        },
-                    },
-                }
-            )
-
-    def _create_radiobutton_images(self, colorname):
-        """Create radiobutton assets
+    @staticmethod
+    def style_radiobutton_images(theme, indicatorcolor, element_id):
+        """ "Create assets for radiobutton layout
 
         Args:
-            colorname (str): the name of the color to use for the button on state
-
-        Returns:
-            Tuple[PhotoImage]: a tuple of widget images.
+            theme (ThemeSettings): The current theme.
+            indicator_color (str): The indicator color.
+            element_id (UUID): A unique element identification number.
         """
-        prime_color = self.theme.colors.get(colorname)
-        on_border = prime_color if self.theme.type == "light" else self.theme.colors.selectbg
-        on_indicator = self.theme.colors.selectfg if self.theme.type == "light" else prime_color
-        on_fill = prime_color if self.theme.type == "light" else self.theme.colors.selectfg
-        off_border = self.theme.colors.selectbg
-        off_fill = self.theme.colors.inputbg if self.theme.type == "light" else self.theme.colors.selectfg
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-        disabled_bg = self.theme.colors.inputbg if self.theme.type == "light" else disabled_fg
+        outline = theme.colors.selectbg
+        if theme.type == "light":
+            fill = theme.colors.inputbg
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+            disabled_bg = theme.colors.inputbg
+        else:
+            fill = theme.colors.selectfg
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+            disabled_bg = disabled_fg
 
-        # radio off
+        # radiobutton off
         radio_off = Image.new("RGBA", (134, 134))
         draw = ImageDraw.Draw(radio_off)
-        draw.ellipse([2, 2, 132, 132], outline=off_border, width=3, fill=off_fill)
+        draw.ellipse([2, 2, 132, 132], outline=outline, width=3, fill=fill)
 
-        # radio on
+        # radiobutton on
         radio_on = Image.new("RGBA", (134, 134))
         draw = ImageDraw.Draw(radio_on)
-        draw.ellipse([2, 2, 132, 132], outline=on_border, width=12 if self.theme.type == "light" else 6, fill=on_fill)
-        if self.theme.type == "light":
-            # small indicator for light theme
-            draw.ellipse([40, 40, 94, 94], fill=on_indicator)
+        if theme.type == "light":
+            draw.ellipse([2, 2, 132, 132], outline=indicatorcolor, width=3, fill=indicatorcolor)
+            draw.ellipse([40, 40, 94, 94], fill=fill)
         else:
-            # large indicator for dark theme
-            draw.ellipse([30, 30, 104, 104], fill=on_indicator)
+            draw.ellipse([2, 2, 132, 132], outline=indicatorcolor, width=3, fill=fill)
+            draw.ellipse([30, 30, 104, 104], fill=indicatorcolor)
 
-        # radio disabled
+        # radiobutton disabled
         radio_disabled = Image.new("RGBA", (134, 134))
         draw = ImageDraw.Draw(radio_disabled)
-        draw.ellipse([2, 2, 132, 132], outline=disabled_fg, width=3, fill=off_fill)
+        draw.ellipse([2, 2, 132, 132], outline=disabled_fg, width=3, fill=disabled_bg)
 
-        return {
-            f"{colorname}_radio_off": ImageTk.PhotoImage(radio_off.resize((14, 14), Image.LANCZOS)),
-            f"{colorname}_radio_on": ImageTk.PhotoImage(radio_on.resize((14, 14), Image.LANCZOS)),
-            f"{colorname}_radio_disabled": ImageTk.PhotoImage(radio_disabled.resize((14, 14), Image.LANCZOS)),
-        }
+        # save images
+        StylerTTK.theme_images.update(
+            {
+                f"{element_id}_radio_off": ImageTk.PhotoImage(radio_off.resize((14, 14)), Image.LANCZOS),
+                f"{element_id}_radio_on": ImageTk.PhotoImage(radio_on.resize((14, 14)), Image.LANCZOS),
+                f"{element_id}_radio_disabled": ImageTk.PhotoImage(radio_disabled.resize((14, 14)), Image.LANCZOS),
+            }
+        )
 
     def _style_calendar(self):
         """Create style configuration for the ttkbootstrap.widgets.datechooser
@@ -2712,7 +2550,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_checkbutton(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
+    def style_checkbutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
         """Create an image-based checkbutton style.
 
         Args:
@@ -2758,7 +2596,12 @@ class StylerTTK:
                     )
                 },
                 style: {
-                    "configure": {"background": background, "foreground": foreground, "focuscolor": "", "font": font},
+                    "configure": {
+                        "background": background,
+                        "foreground": foreground,
+                        "focuscolor": "",
+                        "font": font or DEFAULT_FONT,
+                    },
                     "layout": [
                         (
                             "Checkbutton.padding",

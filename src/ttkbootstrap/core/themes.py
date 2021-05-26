@@ -4,7 +4,6 @@ import json
 import importlib.resources
 import colorsys
 
-STYLE_PATTERN = re.compile(r"outline|link")
 COLOR_PATTERN = re.compile(r"primary|secondary|success|info|warning|danger")
 COLORMAP = json.loads(importlib.resources.read_text("ttkbootstrap.core.files", "colormap.json"))
 
