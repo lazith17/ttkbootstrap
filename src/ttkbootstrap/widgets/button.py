@@ -148,13 +148,13 @@ class Button(Widget, ttk.Button):
 
             if "Outline" in self.style:
                 self.foreground = self.foreground or self.themed_color
-                settings = StylerTTK.style_outline_buttons(**options)
+                settings = StylerTTK.style_outline_button(**options)
             elif "Link" in self.style:
                 self.foreground = self.foreground or self.themed_color
-                settings = StylerTTK.style_link_buttons(**options)
+                settings = StylerTTK.style_link_button(**options)
             else:
                 self.background = self.background or self.themed_color
-                settings = StylerTTK.style_solid_buttons(**options)
+                settings = StylerTTK.style_solid_button(**options)
 
             self.update_ttk_style(settings)
 
