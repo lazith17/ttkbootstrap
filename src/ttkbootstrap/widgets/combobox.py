@@ -55,7 +55,7 @@ class Combobox(Widget, ttk.Combobox):
             font (str or Font, optional): The font used to render the widget text.
             foreground (str, optional): The color of the text inside the Combobox widget. Setting this option will
                 override all other style-based foreground setting.
-            height (int, optional): The widget's requested height in pixels.
+            height (int, optional): Specifies the height of the pop-down listbox, in rows.
             justify (str, optional): Specifies how the text is aligned within the widget. Must be one of left, center,
                 or right.
             padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
@@ -71,7 +71,11 @@ class Combobox(Widget, ttk.Combobox):
             style (str, optional): May be used to specify a style using the ``ttk`` style api.
             takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
                 (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
-            width (int, optional): The widget's requested width in pixels.
+            textvariable (Variable, optional): Specifies the name of a variable whose value is linked to the widget 
+                value. Whenever the variable changes value the widget value is updated, and vice versa.  
+            values (List or Tuple, optional): Specifies the list of values to display in the drop-down listbox. 
+            width (int, optional): Specifies an integer value indicating the desired width of the entry window, in 
+                average-size characters of the widget's font. 
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
