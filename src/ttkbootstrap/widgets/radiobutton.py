@@ -16,8 +16,8 @@ from ttkbootstrap.widgets import Widget
 
 class Radiobutton(Widget, ttk.Radiobutton):
     """A Radiobutton widget is used in groups to show or change a set of mutually-exclusive options. Radiobuttons are 
-    linked to a tkinter variable, and have an associated value; when a radiobutton is clicked, it sets the variable to 
-    its associated value.
+    linked to a variable and have an associated value; when a radiobutton is clicked, it sets the variable to its 
+    associated value.
     """
 
     def __init__(
@@ -68,11 +68,10 @@ class Radiobutton(Widget, ttk.Radiobutton):
             foreground (str, optional): The text color. Setting this option will override all other style based 
                 foreground settings.
             group (str, optional): Specifies the name of the radiobutton group. This name will be assigned to an 
-                interal tkinter variable that is bound to each radiobutton in the group. This group name will be 
-                ignored if a variable is assigned to the ``variable`` option, in which case, the ``group`` will
-                be set to the variable name. If no variable is assigned and no group is provided, one will be
-                generated automatically. If placed in a group, each Radiobutton must be given a value with the 
-                ``value`` option.
+                internal tkinter variable that is bound to each radiobutton in the group. This group name will be 
+                ignored if a variable is assigned to the ``variable`` option. If no variable is assigned and no group 
+                is provided, one will be generated automatically. If placed in a group, each Radiobutton must be given 
+                a value with the ``value`` option.
             image (PhotoImage, optional): Specifies an image to display in the widget, which must have been created
                 with ``tk.PhotoImage`` or `TkPhotoImage`` if using **pillow**. Can also be a string representing the
                 name of the photo if the photo has been given a name using the ``name`` parameter.  Typically, if
