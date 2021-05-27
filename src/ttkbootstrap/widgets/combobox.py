@@ -119,7 +119,6 @@ class Combobox(Widget, ttk.Combobox):
         if self.customized:
             options = {
                 "theme": self.theme,
-                "font": self.font,
                 "background": self.background,
                 "foreground": self.foreground,
                 "focuscolor": self.focuscolor or self.themed_color,
