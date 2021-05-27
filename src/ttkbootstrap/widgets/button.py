@@ -154,7 +154,7 @@ class Button(Widget, ttk.Button):
                 settings = StylerTTK.style_link_button(**options)
             else:
                 self.background = self.background or self.themed_color
-                settings = StylerTTK.style_solid_button(**options)
+                settings = StylerTTK.style_button(**options)
 
             self.update_ttk_style(settings)
 
