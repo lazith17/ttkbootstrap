@@ -329,7 +329,6 @@ class StylerTTK:
         self._style_scrollbar()
         self._style_exit_button()
         self._style_calendar()
-        self._style_entry()
         self._style_label()
         self._style_meter()
         self._style_notebook()
@@ -356,6 +355,7 @@ class StylerTTK:
         self.settings.update(self.style_squaretoggle(self.theme, style="Squaretoggle.Toolbutton"))
         self.settings.update(self.style_frame(self.theme, style="TFrame"))
         self.settings.update(self.style_combobox(self.theme, style="TCombobox"))
+        self.settings.update(self.style_entry(self.theme, style="TEntry"))
 
         # themed style
         for color in self.theme.colors:
@@ -365,6 +365,7 @@ class StylerTTK:
             self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))
             self.settings.update(self.style_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Toolbutton"))
             self.settings.update(self.style_combobox(self.theme, focuscolor=color, style=f"{color}.TCombobox"))
+            self.settings.update(self.style_entry(self.theme, focuscolor=color, style=f"{color}.TEntry"))
             self.settings.update(
                 self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
             )
@@ -1693,77 +1694,76 @@ class StylerTTK:
         )
         return settings
 
-    def _style_entry(self):
-        """Create style configuration for ttk entry: *ttk.Entry*
+    @staticmethod
+    def style_entry(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+        """Create an entry style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the entry background.
+            focuscolor (str, optional): The color of the focus ring when the widget has focus.
+            font (str, optional): The font used to render the widget text.
+            foreground (str, optional): The color of the widget text.
+            style (str, optional): The style used to render the widget.
 
-            - Entry.field: bordercolor, lightcolor, darkcolor, fieldbackground
-            - Entry.padding: padding, relief, shiftrelief
-            - Entry.textarea: font, width
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        settings = dict()
+        
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
+        focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
+        
+        # disabled colors
+        if theme.type == 'light':
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
 
-        if self.theme.type == "dark":
-            self.settings.update({"Entry.field": {"element create": ("from", "default")}})
+        # use Entry field from dark theme to prevent corners from shining through
+        if theme.type == 'dark':
+            settings.update({
+                'Entry.field': {
+                    'element create': ('from', 'default')
+                }
+            })
 
-        self.settings.update(
+        settings.update(
             {
-                "TEntry": {
+                style: {
                     "configure": {
-                        "bordercolor": self.theme.colors.border,
-                        "darkcolor": self.theme.colors.inputbg,
-                        "lightcolor": self.theme.colors.inputbg,
-                        "fieldbackground": self.theme.colors.inputbg,
-                        "foreground": self.theme.colors.inputfg,
-                        "borderwidth": 0,  # only applies to border on darktheme
+                        "bordercolor": theme.colors.border,
+                        "darkcolor": background,
+                        "lightcolor": background,
+                        "foreground": foreground,
+                        "font": font or DEFAULT_FONT,
+                        "fieldbackground ": background,
+                        "background ": background,
+                        "relief": "flat",
+                        "borderwidth ": 0,  # only applies to dark theme border
                         "padding": 5,
                     },
                     "map": {
                         "foreground": [("disabled", disabled_fg)],
                         "bordercolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.bg),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", focuscolor),
                         ],
                         "lightcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
                         "darkcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
                     },
-                }
+                },
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TEntry": {
-                        "map": {
-                            "foreground": [("disabled", disabled_fg)],
-                            "bordercolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.bg),
-                            ],
-                            "lightcolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "darkcolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                        }
-                    }
-                }
-            )
+        return settings        
 
     @staticmethod
     def style_radiobutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
