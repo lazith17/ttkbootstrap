@@ -24,6 +24,8 @@ WIDGET_LOOKUP = {
     "check": "TCheckbutton",
     "checkbutton": "TCheckbutton",
     "checkbtn": "TCheckbutton",
+    "combo": "TCombobox",
+    "combobox": "TCombobox",
     "grip": "TSizegrip",
     "lbl": "TLabel",
     "label": "TLabel",

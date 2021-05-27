@@ -1,0 +1,150 @@
+"""
+    A **ttkbootstrap** styled **Combobox** widget.
+
+    Created: 2021-05-27
+    Author: Israel Dryer, israel.dryer@gmail.com
+
+"""
+from src.ttkbootstrap.core.themes import DEFAULT_FONT
+from uuid import uuid4
+from tkinter import ttk
+from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.widgets import Widget
+
+
+class Combobox(Widget, ttk.Combobox):
+    """A Combobox widget is a combination of an Entry and a drop-down menu. In your application, you will see the usual
+    text entry area, with a downward-pointing arrow. When the user clicks on the arrow, a drop-down menu appears. If
+    the user clicks on one, that choice replaces the current contents of the entry. However, the user may still type
+    text directly into the entry (when it has focus), or edit the current text."""
+
+    def __init__(
+        self,
+        master=None,
+        background=None,
+        bootstyle="default",
+        cursor=None,
+        exportselection=False,
+        focuscolor=None,
+        font=None,
+        foreground=None,
+        height=None,
+        justify=None,
+        padding=None,
+        postcommand=None,
+        state="normal",
+        style=None,
+        takefocus=True,
+        textvariable=None,
+        values=None,
+        width=None,
+        **kw,
+    ):
+        """
+        Args:
+            master: The parent widget.
+            background (str, optional): The normal background color to use for the Combobox. Setting this option will
+                override all other style-based background settings.
+            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
+                API for setting the widget style. You may also use the ``style`` option directly using the standard
+                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
+            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
+                vary according to your operating system.
+            exportselection (bool, optional): Boolean value. If set, the widget selection is linked to the X selection.
+            focuscolor (str, optional): The color of the focus ring when the widget has focus.
+            font (str or Font, optional): The font used to render the widget text.
+            foreground (str, optional): The color of the text inside the Combobox widget. Setting this option will
+                override all other style-based foreground setting.
+            height (int, optional): The widget's requested height in pixels.
+            justify (str, optional): Specifies how the text is aligned within the widget. Must be one of left, center,
+                or right.
+            padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
+                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
+                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
+                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
+                vertical padding; a single number specifies the same padding all the way around the widget.
+            postcommand (func, optional): A script to evaluate immediately before displaying the listbox. The
+                ``postcommand`` script may specify the ``values`` to display.
+            state (str, optional): One of `normal`, `readonly`, or `disabled`. In the readonly state, the value may not
+                be edited directly, and the user can only select one of the -values from the dropdown list. In the
+                normal state, the text field is directly editable. In the disabled state, no interaction is possible.
+            style (str, optional): May be used to specify a style using the ``ttk`` style api.
+            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
+                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
+            width (int, optional): The widget's requested width in pixels.
+
+        .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
+        """
+        Widget.__init__(self, "TCombobox", master=master, bootstyle=bootstyle, style=style)
+
+        self.tk = master.tk
+        self.background = background
+        self.focuscolor = focuscolor
+        self.foreground = foreground
+        self.font = font or DEFAULT_FONT
+        self.widget_id = None
+
+        self.customized = False
+        self.customize_widget()
+
+        ttk.Combobox.__init__(
+            self,
+            master=master,
+            cursor=cursor,
+            exportselection=exportselection,
+            font=font,
+            justify=justify,
+            height=height,
+            padding=padding,
+            postcommand=postcommand,
+            state=state,
+            style=self.style,
+            takefocus=takefocus,
+            textvariable=textvariable,
+            values=values,
+            width=width,
+            **kw,
+        )
+        self.bind("<<ThemeChanged>>", self.on_theme_change)
+
+    def customize_widget(self):
+
+        if any([self.background != None, self.foreground != None, self.focuscolor != None]):
+            self.customized = True
+
+            if not self.widget_id:
+                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
+                self.style = f"{self.widget_id}.{self.style}"
+
+        if self.customized:
+            options = {
+                "theme": self.theme,
+                "font": self.font,
+                "background": self.background,
+                "foreground": self.foreground,
+                "focuscolor": self.focuscolor or self.themed_color,
+                "style": self.style,
+            }
+            settings = StylerTTK.style_combobox(**options)
+
+            self.update_ttk_style(settings)
+
+
+if __name__ == "__main__":
+
+    style = Style()
+    root = style.master
+    root.configure(background=style.colors.bg)
+    pack_settings = {"fill": "x", "expand": "yes", "padx": 10, "pady": 10}
+    values = ["red", "blue", "green"]
+    a = Combobox(root, values=values)
+    a.set("primary")
+    a.pack(**pack_settings)
+    b = Combobox(root, values=values, bootstyle="info")
+    b.set("blue")
+    b.pack(**pack_settings)
+    c = Combobox(root, font=("Algerian", 12), foreground="yellow", background="blue", focuscolor="yellow")
+    c.set("purple")
+    c.pack(**pack_settings)
+
+    root.mainloop()
