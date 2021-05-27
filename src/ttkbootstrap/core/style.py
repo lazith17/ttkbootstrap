@@ -327,7 +327,6 @@ class StylerTTK:
         self._style_spinbox()
         self._style_scale()
         self._style_scrollbar()
-        self._style_combobox()
         self._style_exit_button()
         self._style_calendar()
         self._style_entry()
@@ -343,7 +342,7 @@ class StylerTTK:
         self._style_panedwindow()
 
         # default style
-        self.settings.update(self.style_solid_button(self.theme, style="TButton"))
+        self.settings.update(self.style_button(self.theme, style="TButton"))
         self.settings.update(self.style_outline_button(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_button(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
@@ -356,14 +355,16 @@ class StylerTTK:
         self.settings.update(self.style_roundtoggle(self.theme, style="Roundtoggle.Toolbutton"))
         self.settings.update(self.style_squaretoggle(self.theme, style="Squaretoggle.Toolbutton"))
         self.settings.update(self.style_frame(self.theme, style="TFrame"))
+        self.settings.update(self.style_combobox(self.theme, style="TCombobox"))
 
         # themed style
         for color in self.theme.colors:
-            self.settings.update(self.style_solid_button(self.theme, background=color, style=f"{color}.TButton"))
+            self.settings.update(self.style_button(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_button(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
             self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))
             self.settings.update(self.style_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Toolbutton"))
+            self.settings.update(self.style_combobox(self.theme, focuscolor=color, style=f"{color}.TCombobox"))
             self.settings.update(
                 self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
             )
@@ -418,38 +419,47 @@ class StylerTTK:
             }
         )
 
-    def _style_combobox(self):
-        """Create style configuration for ``ttk.Combobox``. This element style is created with a layout that combines
-        *clam* and *default* theme elements.
+    @staticmethod
+    def style_combobox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+        """Create a combobox style.
 
-        The options available in this widget based on this layout include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the combobox background.
+            focuscolor (str, optional): The color of the focus ring when the widget has focus.
+            font (str, optional): The font used to render the widget text.
+            foreground (str, optional): The color of the widget text.
+            style (str, optional): The style used to render the widget.
 
-            - Combobox.downarrow: arrowsize, background, bordercolor, relief, arrowcolor
-            - Combobox.field: bordercolor, lightcolor, darkcolor, fieldbackground
-            - Combobox.padding: padding, relief, shiftrelief
-            - Combobox.textarea: font, width
-
-        .. info::
-
-            When the dark theme is used, I used the *spinbox.field* from the *default* theme because the background
-            shines through the corners using the `clam` theme. This is an unfortuate hack to make it look ok. Hopefully
-            there will be a more permanent/better solution in the future.
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        settings = dict()
+        
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
+        focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
+        element_id = uuid4()
+        
+        # disabled colors
+        if theme.type == 'light':
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
 
-        if self.theme.type == "dark":
-            self.settings.update({"combo.Spinbox.field": {"element create": ("from", "default")}})
+        # use spinbox field from dark theme to prevent corners from shining through
+        if theme.type == 'dark':
+            settings.update({
+                'combo.Spinbox.field': {
+                    'element create': ('from', 'default')
+                }
+            })
 
-        self.settings.update(
+        settings.update(
             {
-                "Combobox.downarrow": {"element create": ("from", "default")},
-                "Combobox.padding": {"element create": ("from", "clam")},
-                "Combobox.textarea": {"element create": ("from", "clam")},
-                "TCombobox": {
+                f"{element_id}.Combobox.downarrow": {"element create": ("from", "default")},
+                style: {
                     "layout": [
                         (
                             "combo.Spinbox.field",
@@ -457,7 +467,7 @@ class StylerTTK:
                                 "side": "top",
                                 "sticky": "we",
                                 "children": [
-                                    ("Combobox.downarrow", {"side": "right", "sticky": "ns"}),
+                                    (f"{element_id}.Combobox.downarrow", {"side": "right", "sticky": "ns"}),
                                     (
                                         "Combobox.padding",
                                         {
@@ -471,13 +481,14 @@ class StylerTTK:
                         )
                     ],
                     "configure": {
-                        "bordercolor": self.theme.colors.border,
-                        "darkcolor": self.theme.colors.inputbg,
-                        "lightcolor": self.theme.colors.inputbg,
-                        "arrowcolor": self.theme.colors.inputfg,
-                        "foreground": self.theme.colors.inputfg,
-                        "fieldbackground ": self.theme.colors.inputbg,
-                        "background ": self.theme.colors.inputbg,
+                        "bordercolor": theme.colors.border,
+                        "darkcolor": background,
+                        "lightcolor": background,
+                        "arrowcolor": foreground,
+                        "foreground": foreground,
+                        "font": font or DEFAULT_FONT,
+                        "fieldbackground ": background,
+                        "background ": background,
                         "relief": "flat",
                         "borderwidth ": 0,  # only applies to dark theme border
                         "padding": 5,
@@ -486,56 +497,28 @@ class StylerTTK:
                     "map": {
                         "foreground": [("disabled", disabled_fg)],
                         "bordercolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.bg),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", focuscolor),
                         ],
                         "lightcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
                         "darkcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
                         "arrowcolor": [
                             ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.inputbg),
-                            ("focus !disabled", self.theme.colors.inputfg),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("pressed !disabled", background),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", focuscolor),
                         ],
                     },
                 },
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TCombobox": {
-                        "map": {
-                            "foreground": [("disabled", disabled_fg)],
-                            "bordercolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "lightcolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                            ],
-                            "darkcolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                            ],
-                            "arrowcolor": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.inputbg),
-                                ("focus !disabled", self.theme.colors.inputfg),
-                                ("hover !disabled", self.theme.colors.primary),
-                            ],
-                        }
-                    }
-                }
-            )
+        return settings
 
     @staticmethod
     def style_separator(theme, background=None, orient="horizontal", style="Horizontal.TSeparator"):
@@ -1345,8 +1328,8 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_solid_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
-        """Apply a solid color style to ttk button: *ttk.Button*
+    def style_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+        """Create a solid button style.
 
         Args:
             theme (str): The theme name.
@@ -1440,6 +1423,7 @@ class StylerTTK:
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
+        select_fg = theme.colors.selectfg
 
         # disabled color settings
         if theme.type == "light":
@@ -1468,7 +1452,7 @@ class StylerTTK:
                         "padding": (10, 5),
                     },
                     "map": {
-                        "foreground": [("disabled", disabled_fg), ("pressed", background), ("hover", background)],
+                        "foreground": [("disabled", disabled_fg), ("pressed", select_fg), ("hover", select_fg)],
                         "background": [
                             ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
                             ("hover !disabled", foreground),
