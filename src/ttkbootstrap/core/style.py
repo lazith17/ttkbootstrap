@@ -6,7 +6,6 @@ from PIL import ImageTk, Image, ImageDraw, ImageFont
 
 from ttkbootstrap.core.themes import DEFAULT_FONT, ThemeColors
 from ttkbootstrap.core.themes import ThemeDefinition
-from ttkbootstrap.core.themes import COLORMAP
 
 
 class Style(ttk.Style):
@@ -329,7 +328,6 @@ class StylerTTK:
         self._style_scrollbar()
         self._style_exit_button()
         self._style_calendar()
-        self._style_label()
         self._style_meter()
         self._style_notebook()
         self._style_outline_menubutton()
@@ -356,6 +354,8 @@ class StylerTTK:
         self.settings.update(self.style_frame(self.theme, style="TFrame"))
         self.settings.update(self.style_combobox(self.theme, style="TCombobox"))
         self.settings.update(self.style_entry(self.theme, style="TEntry"))
+        self.settings.update(self.style_label(self.theme, style="TLabel"))
+        self.settings.update(self.style_label(self.theme, background=self.theme.colors.fg, style="TLabel"))
 
         # themed style
         for color in self.theme.colors:
@@ -366,6 +366,8 @@ class StylerTTK:
             self.settings.update(self.style_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Toolbutton"))
             self.settings.update(self.style_combobox(self.theme, focuscolor=color, style=f"{color}.TCombobox"))
             self.settings.update(self.style_entry(self.theme, focuscolor=color, style=f"{color}.TEntry"))
+            self.settings.update(self.style_label(self.theme, foreground=color, style=f"{color}.TLabel"))
+            self.settings.update(self.style_label(self.theme, background=color, style=f"{color}.Inverse.TLabel"))
             self.settings.update(
                 self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
             )
@@ -436,26 +438,22 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         settings = dict()
-        
+
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
         element_id = uuid4()
-        
+
         # disabled colors
-        if theme.type == 'light':
+        if theme.type == "light":
             disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
         else:
             disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
 
         # use spinbox field from dark theme to prevent corners from shining through
-        if theme.type == 'dark':
-            settings.update({
-                'combo.Spinbox.field': {
-                    'element create': ('from', 'default')
-                }
-            })
+        if theme.type == "dark":
+            settings.update({"combo.Spinbox.field": {"element create": ("from", "default")}})
 
         settings.update(
             {
@@ -1710,25 +1708,21 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         settings = dict()
-        
+
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
-        
+
         # disabled colors
-        if theme.type == 'light':
+        if theme.type == "light":
             disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
         else:
             disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
 
         # use Entry field from dark theme to prevent corners from shining through
-        if theme.type == 'dark':
-            settings.update({
-                'Entry.field': {
-                    'element create': ('from', 'default')
-                }
-            })
+        if theme.type == "dark":
+            settings.update({"Entry.field": {"element create": ("from", "default")}})
 
         settings.update(
             {
@@ -1763,7 +1757,7 @@ class StylerTTK:
                 },
             }
         )
-        return settings        
+        return settings
 
     @staticmethod
     def style_radiobutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
@@ -2168,44 +2162,33 @@ class StylerTTK:
         for color in self.theme.colors:
             self.settings.update({f"{color}.TMeter": {"configure": {"foreground": self.theme.colors.get(color)}}})
 
-    def _style_label(self):
-        """Create style configuration for ttk label: *ttk.Label*
+    @staticmethod
+    def style_label(theme, background=None, font=None, foreground=None, style=None):
+        """Create a label style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the entry background.
+            focuscolor (str, optional): The color of the focus ring when the widget has focus.
+            font (str, optional): The font used to render the widget text.
+            foreground (str, optional): The color of the widget text.
+            style (str, optional): The style used to render the widget.
 
-            - Label.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Label.padding: padding, relief, shiftrelief
-            - Label.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update(
-            {
-                "TLabel": {"configure": {"foreground": self.theme.colors.fg, "background": self.theme.colors.bg}},
-                "Inverse.TLabel": {
-                    "configure": {"foreground": self.theme.colors.bg, "background": self.theme.colors.fg}
-                },
-            }
-        )
+        settings = dict()
 
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TLabel": {"configure": {"foreground": self.theme.colors.get(color)}},
-                    f"{color}.Inverse.TLabel": {
-                        "configure": {
-                            "foreground": self.theme.colors.selectfg,
-                            "background": self.theme.colors.get(color),
-                        }
-                    },
-                    # TODO deprecate this version down the road
-                    f"{color}.Invert.TLabel": {
-                        "configure": {
-                            "foreground": self.theme.colors.selectfg,
-                            "background": self.theme.colors.get(color),
-                        }
-                    },
-                }
-            )
+        # fallback values
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        if "Inverse" in style:
+            foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+        else:
+            foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+        font = font or DEFAULT_FONT
+
+        settings.update({style: {"configure": {"foreground": foreground, "background": background, "font": font}}})
+        return settings
 
     def _style_labelframe(self):
         """Create style configuration for ttk labelframe: *ttk.LabelFrame*
