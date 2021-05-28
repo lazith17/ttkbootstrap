@@ -5,7 +5,6 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_COLORS, ThemeColors
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
