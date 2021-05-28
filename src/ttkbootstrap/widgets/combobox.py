@@ -8,7 +8,7 @@
 from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -131,23 +131,3 @@ class Combobox(Widget, ttk.Combobox):
             settings = StylerTTK.style_combobox(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style()
-    root = style.master
-    root.configure(background=style.colors.bg)
-    pack_settings = {"fill": "x", "expand": "yes", "padx": 10, "pady": 10}
-    values = ["red", "blue", "green"]
-    a = Combobox(root, values=values)
-    a.set("primary")
-    a.pack(**pack_settings)
-    b = Combobox(root, values=values, bootstyle="info")
-    b.set("blue")
-    b.pack(**pack_settings)
-    c = Combobox(root, font=("Algerian", 12), foreground="yellow", background="blue", focuscolor="yellow")
-    c.set("purple")
-    c.pack(**pack_settings)
-
-    root.mainloop()

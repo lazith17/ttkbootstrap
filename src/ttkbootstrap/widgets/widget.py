@@ -15,7 +15,7 @@ from tkinter.ttk import _script_from_settings as script_from_settings
 from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN
 
-STYLE_PATTERN = re.compile(r"outline|link")
+STYLE_PATTERN = re.compile(r"outline|link|inverse")
 ORIENT_PATTERN = re.compile(r'horizontal|vertical')
 WIDGET_LOOKUP = {
     "button": "TButton",

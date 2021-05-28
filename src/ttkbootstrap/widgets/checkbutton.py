@@ -9,7 +9,7 @@ from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -183,31 +183,3 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 settings = StylerTTK.style_checkbutton(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style()
-    root = style.master
-    #root.configure(background=style.colors.bg)
-    pack_settings = {'padx': 10, 'pady': 10, 'fill': 'x', 'expand': 'yes'}
-
-    # smart keyword based style builder
-    Checkbutton(root, text='default').pack(**pack_settings)
-    Checkbutton(root, text='secondary', bootstyle='secondary').pack(**pack_settings)
-    Checkbutton(root, text='info outline', indicatorcolor='blue', bootstyle='info').pack(**pack_settings)
-    Checkbutton(root, text='danger link', state='disabled', bootstyle='danger-link').pack(**pack_settings)
-
-    # customizable colors
-    Checkbutton(root, text='custom solid', indicatorcolor='purple', foreground='pink').pack(**pack_settings)
-    Checkbutton(root, text='custom outline', foreground='yellow', default=True).pack(**pack_settings)
-    Checkbutton(root, text='custom link', foreground='orange').pack(**pack_settings)
-
-    Checkbutton(root, text='default toggle', bootstyle='info tool').pack(**pack_settings)
-    Checkbutton(root, font='Consolas 10', text='custom toggle', indicatorcolor='purple', bootstyle='toggle').pack(**pack_settings)
-
-    Checkbutton(root, text='info square toggle', bootstyle='info squaretoggle').pack(**pack_settings)
-    Checkbutton(root, text='square toggle', indicatorcolor='red', bootstyle='tool').pack(**pack_settings)    
-    Checkbutton(root, text='square toggle', state='disabled', bootstyle='squaretoggle').pack(**pack_settings)
-
-    root.mainloop()

@@ -10,7 +10,7 @@ from uuid import uuid4
 from tkinter import ttk
 from tkinter import TclError
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -201,26 +201,3 @@ class Radiobutton(Widget, ttk.Radiobutton):
                 options.pop('background')
                 settings = StylerTTK.style_radiobutton(**options)                
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style('journal')
-    root = style.master
-    #root.configure(background=style.colors.bg)
-    pack_settings = {'padx': 10, 'pady': 10, 'fill': 'x', 'expand': 'yes'}
-
-    # smart keyword based style builder
-    Radiobutton(root, text='default', group='colors', value=1).pack(**pack_settings)
-    Radiobutton(root, text='success', group='colors', value=2, bootstyle='success').pack(**pack_settings)
-    Radiobutton(root, text='info', group='colors', value=3, default=True, bootstyle='info').pack(**pack_settings)
-    Radiobutton(root, text='warning', group='colors', value=4, bootstyle='warning').pack(**pack_settings)
-
-    Radiobutton(root, text='danger toolbutton', group='colors', value=5, bootstyle='danger tool').pack(**pack_settings)
-    Radiobutton(root, text='custom pink toolbutton', group='colors', value=6, indicatorcolor='pink', bootstyle='toolbutton').pack(**pack_settings)
-
-    Radiobutton(root, text='info toolbutton', group='colors', value=5, bootstyle='info outline tool').pack(**pack_settings)
-    Radiobutton(root, text='custom pink toolbutton', group='colors', value=6, background='red', indicatorcolor='pink', bootstyle='outline toolbutton').pack(**pack_settings)
-
-
-    root.mainloop()

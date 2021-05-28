@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -80,19 +80,3 @@ class Separator(Widget, ttk.Separator):
             settings = StylerTTK.style_separator(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style('superhero')
-    root = style.master
-    root.configure(background=style.colors.bg)
-    pack_settings = {"fill": "both", "expand": "yes"}
-
-    Separator(root).pack(**pack_settings)
-    Separator(root, bootstyle='info').pack(**pack_settings)
-    Separator(root, background='red').pack(**pack_settings)
-    Separator(root, orient='vertical').pack(**pack_settings)
-    
-    root.mainloop()
-

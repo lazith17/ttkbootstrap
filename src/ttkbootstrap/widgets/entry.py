@@ -8,7 +8,7 @@
 from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -148,25 +148,3 @@ class Entry(Widget, ttk.Entry):
             settings = StylerTTK.style_entry(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style()
-    root = style.master
-    root.configure(background=style.colors.bg)
-    pack_settings = {"fill": "x", "expand": "yes", "padx": 10, "pady": 10}
-    a = Entry(root)
-    a.insert("end", "default")
-    a.pack(**pack_settings)
-    b = Entry(root, bootstyle="info")
-    b.insert("end", "info")
-    b.pack(**pack_settings)
-    c = Entry(root, font=("Algerian", 12), foreground="yellow", background="blue", focuscolor="yellow")
-    c.insert("end", "custom")
-    c.pack(**pack_settings)
-    d = Entry(root, bootstyle="info", show="*")
-    d.insert("end", "password")
-    d.pack(**pack_settings)
-
-    root.mainloop()

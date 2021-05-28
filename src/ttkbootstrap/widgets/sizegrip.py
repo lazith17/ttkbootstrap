@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -84,19 +84,3 @@ class Sizegrip(Widget, ttk.Sizegrip):
             settings = StylerTTK.style_sizegrip(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style()
-    root = style.master
-    root.configure(background=style.colors.bg)
-    pack_settings = {"fill": "both", "expand": "yes"}
-
-    Sizegrip(root).pack(**pack_settings)
-    Sizegrip(root, bootstyle='info', background='light gray').pack(**pack_settings)
-    Sizegrip(root, foreground='red').pack(**pack_settings)
-    Sizegrip(root, foreground='blue', background='orange').pack(**pack_settings)
-
-    root.mainloop()
-

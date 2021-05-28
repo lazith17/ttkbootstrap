@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -157,24 +157,3 @@ class Button(Widget, ttk.Button):
                 settings = StylerTTK.style_button(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style('superhero')
-    root = style.master
-    root.configure(background=style.colors.bg)
-    pack_settings = {'padx': 2, 'pady': 2, 'fill': 'x'}
-
-    # smart keyword based style builder
-    Button(root, text='default').pack(**pack_settings)
-    Button(root, text='secondary', bootstyle='secondary').pack(**pack_settings)
-    Button(root, text='info outline', background='blue', bootstyle='info-outline').pack(**pack_settings)
-    Button(root, text='danger link', bootstyle='danger-link').pack(**pack_settings)
-
-    # customizable colors
-    Button(root, text='custom solid', background='purple', foreground='pink').pack(**pack_settings)
-    Button(root, text='custom outline', foreground='yellow', bootstyle='outline').pack(**pack_settings)
-    Button(root, text='custom link', foreground='orange', bootstyle='link').pack(**pack_settings)
-
-    root.mainloop()

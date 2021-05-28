@@ -31,3 +31,5 @@
 
 """
 from ttkbootstrap.core.style import Style
+from ttkbootstrap.widgets import *
+

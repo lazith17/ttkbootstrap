@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK, Style
+from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
@@ -90,18 +90,3 @@ class Frame(Widget, ttk.Frame):
             settings = StylerTTK.style_frame(**options)
 
             self.update_ttk_style(settings)
-
-
-if __name__ == "__main__":
-
-    style = Style()
-    root = style.master
-    root.geometry('400x400')
-    root.configure(background=style.colors.bg)
-    pack_settings = {"fill": "both", "expand": "yes"}
-
-    Frame(root).pack(**pack_settings)
-    Frame(root, bootstyle="info").pack(**pack_settings)
-    Frame(root, background="purple").pack(**pack_settings)
-
-    root.mainloop()
