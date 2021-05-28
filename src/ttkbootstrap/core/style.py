@@ -333,7 +333,7 @@ class StylerTTK:
         self._style_striped_progressbar()
         self._style_floodgauge()
         self._style_treeview()
-        self._style_panedwindow()
+        # self._style_panedwindow()
 
         # default style
         self.settings.update(self.style_button(self.theme, style="TButton"))
@@ -356,6 +356,7 @@ class StylerTTK:
         self.settings.update(self.style_labelframe(self.theme, foreground=self.theme.colors.fg, style="TLabelframe"))
         self.settings.update(self.style_menubutton(self.theme, style="TMenubutton"))
         self.settings.update(self.style_outline_menubutton(self.theme, style="Outline.TMenubutton"))
+        self.settings.update(self.style_panedwindow(self.theme, style="TPanedwindow"))
 
         # themed style
         for color in self.theme.colors:
@@ -369,6 +370,7 @@ class StylerTTK:
             self.settings.update(self.style_label(self.theme, foreground=color, style=f"{color}.TLabel"))
             self.settings.update(self.style_label(self.theme, background=color, style=f"{color}.Inverse.TLabel"))
             self.settings.update(self.style_labelframe(self.theme, background=color, style=f"{color}.TLabelframe"))
+            self.settings.update(self.style_panedwindow(self.theme, sashcolor=color, style=f"{color}.TPanedwindow"))
             self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
             self.settings.update(
                 self.style_outline_menubutton(self.theme, foreground=color, style=f"{color}.Outline.TMenubutton")
@@ -2845,36 +2847,36 @@ class StylerTTK:
             }
         )
 
-    def _style_panedwindow(self):
-        """Create style configuration for ttk paned window: *ttk.PanedWindow*
+    @staticmethod
+    def style_panedwindow(theme, sashcolor=None, sashthickness=5, style=None):
+        """Create a panedwindows style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            sashcolor (str, optional): The color of the sash.
+            sashthickness (int, optional): The thickness of the sash in pixels.
+            style (str, optional): The style used to render the widget.
 
-            Paned Window:
-
-                - Panedwindow.background: background
-
-            Sash:
-
-                - Sash.hsash: sashthickness
-                - Sash.hgrip: lightcolor, bordercolor, gripcount
-                - Sash.vsash: sashthickness
-                - Sash.vgrip: lightcolor, bordercolor, gripcount
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update(
+        sashcolor = ThemeColors.normalize(sashcolor, theme.colors.bg, theme.colors)
+        settings = dict()
+        settings.update(
             {
-                "TPanedwindow": {"configure": {"background": self.theme.colors.bg}},
+                style: {"configure": {"background": sashcolor}},
                 "Sash": {
                     "configure": {
-                        "bordercolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.bg,
-                        "sashthickness": 8,
+                        "bordercolor": sashcolor,
+                        "lightcolor": sashcolor,
+                        "sashthickness": sashthickness,
                         "sashpad": 0,
                         "gripcount": 0,
                     }
                 },
             }
         )
+        return settings
 
     @staticmethod
     def style_sizegrip(theme, background=None, foreground=None, style="TSizegrip"):
