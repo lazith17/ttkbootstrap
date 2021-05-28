@@ -322,7 +322,6 @@ class StylerTTK:
         """Update the settings dictionary that is used to create a theme. This is a wrapper on all the `_style_widget`
         methods which define the layout, configuration, and styling mapping for each ttk widget.
         """
-        #self._style_labelframe()
         self._style_spinbox()
         self._style_scale()
         self._style_scrollbar()
@@ -330,11 +329,9 @@ class StylerTTK:
         self._style_calendar()
         self._style_meter()
         self._style_notebook()
-        self._style_outline_menubutton()
         self._style_progressbar()
         self._style_striped_progressbar()
         self._style_floodgauge()
-        self._style_solid_menubutton()
         self._style_treeview()
         self._style_panedwindow()
 
@@ -357,6 +354,8 @@ class StylerTTK:
         self.settings.update(self.style_label(self.theme, style="TLabel"))
         self.settings.update(self.style_label(self.theme, background=self.theme.colors.fg, style="Inverse.TLabel"))
         self.settings.update(self.style_labelframe(self.theme, foreground=self.theme.colors.fg, style="TLabelframe"))
+        self.settings.update(self.style_menubutton(self.theme, style="TMenubutton"))
+        self.settings.update(self.style_outline_menubutton(self.theme, style="Outline.TMenubutton"))
 
         # themed style
         for color in self.theme.colors:
@@ -370,6 +369,10 @@ class StylerTTK:
             self.settings.update(self.style_label(self.theme, foreground=color, style=f"{color}.TLabel"))
             self.settings.update(self.style_label(self.theme, background=color, style=f"{color}.Inverse.TLabel"))
             self.settings.update(self.style_labelframe(self.theme, background=color, style=f"{color}.TLabelframe"))
+            self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
+            self.settings.update(
+                self.style_outline_menubutton(self.theme, foreground=color, style=f"{color}.Outline.TMenubutton")
+            )
             self.settings.update(
                 self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
             )
@@ -2216,10 +2219,7 @@ class StylerTTK:
 
         settings.update(
             {
-                f"{style}.Label": {
-                    "configure": {
-                        "foreground": foreground,
-                        "background": background}},
+                f"{style}.Label": {"configure": {"foreground": foreground, "background": background}},
                 style: {
                     "configure": {
                         "relief": "raised",
@@ -2227,7 +2227,7 @@ class StylerTTK:
                         "bordercolor": bordercolor,
                         "lightcolor": background,
                         "darkcolor": background,
-                        "background": background
+                        "background": background,
                     }
                 },
             }
@@ -2635,339 +2635,171 @@ class StylerTTK:
             }
         )
 
-    def _style_solid_menubutton(self):
-        """Apply a solid color style to ttk menubutton: *ttk.Menubutton*
+    @staticmethod
+    def style_outline_menubutton(theme, background=None, font=None, foreground=None, style=None):
+        """Create a solid menubutton style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the button background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the button text.
+            style (str, optional): The style used to render the widget.
 
-            - Menubutton.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Menubutton.focus: focuscolor, focusthickness
-            - Menubutton.indicator: arrowsize, arrowcolor, arrowpadding
-            - Menubutton.padding: compound, space, text, font, foreground, underline, width, anchor, justify,
-                wraplength, embossed, image, stipple, background
-            - Menubutton.label:
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # disabled settings
-        disabled_fg = self.theme.colors.inputfg
-        disabled_bg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        pass
 
-        # pressed and hover settings
+    @staticmethod
+    def style_menubutton(theme, arrowsize=4, background=None, font=None, foreground=None, style=None):
+        """Create a solid menubutton style.
+
+        Args:
+            theme (str): The theme name.
+            arrowsize (int, optional): The size of the down arrow.
+            background (str, optional): The color of the button background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the button text.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+
+        # disabled colors
+        disabled_fg = theme.colors.inputfg
+        if theme.type == "light":
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # pressed and hover color settings
         pressed_vd = -0.2
         hover_vd = -0.1
 
-        self.settings.update(
+        settings = dict()
+        settings.update(
             {
-                "TMenubutton": {
+                f"{style}": {
                     "configure": {
-                        "foreground": self.theme.colors.selectfg,
-                        "background": self.theme.colors.primary,
-                        "bordercolor": self.theme.colors.primary,
-                        "darkcolor": self.theme.colors.primary,
-                        "lightcolor": self.theme.colors.primary,
-                        "arrowsize": 4,
-                        "arrowcolor": self.theme.colors.bg if self.theme.type == "light" else "white",
+                        "arrowsize": arrowsize,
+                        "arrowcolor": foreground,
                         "arrowpadding": (0, 0, 15, 0),
-                        "relief": "raised",
+                        "background": background,
+                        "bordercolor": background,
+                        "darkcolor": background,
+                        "foreground": foreground,
+                        "lightcolor": background,
+                        "font": font or DEFAULT_FONT,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
+                        "relief": "raised",
                     },
                     "map": {
                         "arrowcolor": [("disabled", disabled_fg)],
                         "foreground": [("disabled", disabled_fg)],
                         "background": [
                             ("disabled", disabled_bg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
                         ],
                         "bordercolor": [
                             ("disabled", disabled_bg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
                         ],
                         "darkcolor": [
                             ("disabled", disabled_bg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
                         ],
                         "lightcolor": [
                             ("disabled", disabled_bg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
                         ],
                     },
                 }
             }
         )
+        return settings
 
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TMenubutton": {
-                        "configure": {
-                            "foreground": self.theme.colors.selectfg,
-                            "background": self.theme.colors.get(color),
-                            "bordercolor": self.theme.colors.get(color),
-                            "darkcolor": self.theme.colors.get(color),
-                            "lightcolor": self.theme.colors.get(color),
-                            "arrowsize": 4,
-                            "arrowcolor": self.theme.colors.bg if self.theme.type == "light" else "white",
-                            "arrowpadding": (0, 0, 15, 0),
-                            "relief": "raised",
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "arrowcolor": [("disabled", disabled_fg)],
-                            "foreground": [("disabled", disabled_fg)],
-                            "background": [
-                                ("disabled", disabled_bg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_bg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "darkcolor": [
-                                ("disabled", disabled_bg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "lightcolor": [
-                                ("disabled", disabled_bg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                        },
-                    }
-                }
-            )
+    @staticmethod
+    def style_outline_menubutton(theme, arrowsize=4, background=None, font=None, foreground=None, style=None):
+        """Create an outline menubutton style.
 
-    def _style_outline_menubutton(self):
-        """Apply and outline style to ttk menubutton: *ttk.Menubutton*
+        Args:
+            theme (str): The theme name.
+            arrowsize (int, optional): The size of the down arrow.
+            background (str, optional): The color of the button background.
+            font (str, optional): The font used to render the button text.
+            foreground (str, optional): The color of the button text and outline.
+            style (str, optional): The style used to render the widget.
 
-        The options available in this widget include:
-
-            - Menubutton.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Menubutton.focus: focuscolor, focusthickness
-            - Menubutton.indicator: arrowsize, arrowcolor, arrowpadding
-            - Menubutton.padding: compound, space, text, font, foreground, underline, width, anchor, justify,
-                wraplength, embossed, image, stipple, background
-            - Menubutton.label:
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        # disabled settings
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
+        selected = theme.colors.selectfg
 
-        # pressed and hover settings
+        # disabled colors
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+
+        # pressed and hover color settings
         pressed_vd = -0.2
         hover_vd = -0.1
 
-        self.settings.update(
+        settings = dict()
+        settings.update(
             {
-                "Outline.TMenubutton": {
+                f"{style}": {
                     "configure": {
-                        "font": self.theme.font,
-                        "foreground": self.theme.colors.primary,
-                        "background": self.theme.colors.bg,
-                        "bordercolor": self.theme.colors.primary,
-                        "darkcolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.bg,
-                        "arrowcolor": self.theme.colors.primary,
+                        "arrowsize": arrowsize,
+                        "arrowcolor": foreground,
                         "arrowpadding": (0, 0, 15, 0),
-                        "relief": "raised",
+                        "background": background,
+                        "bordercolor": foreground,
+                        "darkcolor": background,
+                        "foreground": foreground,
+                        "lightcolor": background,
+                        "font": font or DEFAULT_FONT,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
+                        "relief": "raised",
                     },
                     "map": {
-                        "foreground": [
-                            ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.selectfg),
-                            ("hover !disabled", self.theme.colors.selectfg),
-                        ],
+                        "arrowcolor": [("disabled", disabled_fg), ("pressed", selected), ("hover", selected)],
+                        "foreground": [("disabled", disabled_fg), ("pressed", selected), ("hover", selected)],
                         "background": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
                         ],
                         "bordercolor": [
-                            ("disabled", disabled_fg),
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
                         ],
                         "darkcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
                         ],
                         "lightcolor": [
-                            (
-                                "pressed !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd),
-                            ),
-                            (
-                                "hover !disabled",
-                                ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd),
-                            ),
-                        ],
-                        "arrowcolor": [
-                            ("disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.selectfg),
-                            ("hover !disabled", self.theme.colors.selectfg),
+                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
                         ],
                     },
                 }
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Outline.TMenubutton": {
-                        "configure": {
-                            "foreground": self.theme.colors.get(color),
-                            "background": self.theme.colors.bg,
-                            "bordercolor": self.theme.colors.get(color),
-                            "darkcolor": self.theme.colors.bg,
-                            "lightcolor": self.theme.colors.bg,
-                            "arrowcolor": self.theme.colors.get(color),
-                            "arrowpadding": (0, 0, 15, 0),
-                            "relief": "raised",
-                            "focusthickness": 0,
-                            "focuscolor": "",
-                            "padding": (10, 5),
-                        },
-                        "map": {
-                            "foreground": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.selectfg),
-                                ("hover !disabled", self.theme.colors.selectfg),
-                            ],
-                            "background": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "bordercolor": [
-                                ("disabled", disabled_fg),
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "darkcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "lightcolor": [
-                                (
-                                    "pressed !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd),
-                                ),
-                                (
-                                    "hover !disabled",
-                                    ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd),
-                                ),
-                            ],
-                            "arrowcolor": [
-                                ("disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.selectfg),
-                                ("hover !disabled", self.theme.colors.selectfg),
-                            ],
-                        },
-                    }
-                }
-            )
+        return settings
 
     def _style_notebook(self):
         """Create style configuration for ttk notebook: *ttk.Notebook*
