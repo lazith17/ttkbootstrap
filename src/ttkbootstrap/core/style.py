@@ -322,7 +322,7 @@ class StylerTTK:
         """Update the settings dictionary that is used to create a theme. This is a wrapper on all the `_style_widget`
         methods which define the layout, configuration, and styling mapping for each ttk widget.
         """
-        self._style_labelframe()
+        #self._style_labelframe()
         self._style_spinbox()
         self._style_scale()
         self._style_scrollbar()
@@ -355,7 +355,8 @@ class StylerTTK:
         self.settings.update(self.style_combobox(self.theme, style="TCombobox"))
         self.settings.update(self.style_entry(self.theme, style="TEntry"))
         self.settings.update(self.style_label(self.theme, style="TLabel"))
-        self.settings.update(self.style_label(self.theme, background=self.theme.colors.fg, style="TLabel"))
+        self.settings.update(self.style_label(self.theme, background=self.theme.colors.fg, style="Inverse.TLabel"))
+        self.settings.update(self.style_labelframe(self.theme, foreground=self.theme.colors.fg, style="TLabelframe"))
 
         # themed style
         for color in self.theme.colors:
@@ -368,6 +369,7 @@ class StylerTTK:
             self.settings.update(self.style_entry(self.theme, focuscolor=color, style=f"{color}.TEntry"))
             self.settings.update(self.style_label(self.theme, foreground=color, style=f"{color}.TLabel"))
             self.settings.update(self.style_label(self.theme, background=color, style=f"{color}.Inverse.TLabel"))
+            self.settings.update(self.style_labelframe(self.theme, background=color, style=f"{color}.TLabelframe"))
             self.settings.update(
                 self.style_outline_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Outline.Toolbutton")
             )
@@ -2168,10 +2170,9 @@ class StylerTTK:
 
         Args:
             theme (str): The theme name.
-            background (str, optional): The color of the entry background.
-            focuscolor (str, optional): The color of the focus ring when the widget has focus.
-            font (str, optional): The font used to render the widget text.
-            foreground (str, optional): The color of the widget text.
+            background (str, optional): The color of the label background.
+            font (str, optional): The font used to render the label text.
+            foreground (str, optional): The color of the text.
             style (str, optional): The style used to render the widget.
 
         Returns:
@@ -2190,59 +2191,48 @@ class StylerTTK:
         settings.update({style: {"configure": {"foreground": foreground, "background": background, "font": font}}})
         return settings
 
-    def _style_labelframe(self):
-        """Create style configuration for ttk labelframe: *ttk.LabelFrame*
+    @staticmethod
+    def style_labelframe(theme, background=None, bordercolor=None, foreground=None, style=None):
+        """Create a labelframe style.
 
-        The options available in this widget include:
-
-            - Labelframe.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Label.fill: background
-            - Label.text: text, font, foreground, underline, width, anchor, justify, wraplength, embossed
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the labelframe background.
+            bordercolor (str, optional): The color of the labelframe border.
+            foreground (str, optional): The color of the label text.
+            style (str, optional): The style used to render the widget.
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update(
+        settings = dict()
+
+        # fallback values
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+        if theme.type == "light":
+            bordercolor = ThemeColors.normalize(bordercolor, theme.colors.border, theme.colors)
+        else:
+            bordercolor = ThemeColors.normalize(bordercolor, theme.colors.selectbg, theme.colors)
+
+        settings.update(
             {
-                "Labelframe.Label": {"element create": ("from", "clam")},
-                "Label.fill": {"element create": ("from", "clam")},
-                "Label.text": {"element create": ("from", "clam")},
-                "TLabelframe.Label": {
-                    "layout": [("Label.fill", {"sticky": "nswe", "children": [("Label.text", {"sticky": "nswe"})]})],
-                    "configure": {"foreground": self.theme.colors.fg},
-                },
-                "TLabelframe": {
-                    "layout": [("Labelframe.border", {"sticky": "nswe"})],
+                f"{style}.Label": {
+                    "configure": {
+                        "foreground": foreground,
+                        "background": background}},
+                style: {
                     "configure": {
                         "relief": "raised",
-                        "borderwidth": "1",
-                        "bordercolor": (
-                            self.theme.colors.border if self.theme.type == "light" else self.theme.colors.selectbg
-                        ),
-                        "lightcolor": self.theme.colors.bg,
-                        "darkcolor": self.theme.colors.bg,
-                    },
+                        "borderwidth": 1,
+                        "bordercolor": bordercolor,
+                        "lightcolor": background,
+                        "darkcolor": background,
+                        "background": background
+                    }
                 },
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TLabelframe": {
-                        "configure": {
-                            "background": self.theme.colors.get(color),
-                            "lightcolor": self.theme.colors.get(color),
-                            "darkcolor": self.theme.colors.get(color),
-                        }
-                    },
-                    f"{color}.TLabelframe.Label": {
-                        "configure": {
-                            "foreground": self.theme.colors.selectfg,
-                            "background": self.theme.colors.get(color),
-                            "lightcolor": self.theme.colors.get(color),
-                            "darkcolor": self.theme.colors.get(color),
-                        }
-                    },
-                }
-            )
+        return settings
 
     @staticmethod
     def style_roundtoggle(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):

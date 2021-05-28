@@ -26,9 +26,13 @@ WIDGET_LOOKUP = {
     "checkbtn": "TCheckbutton",
     "combo": "TCombobox",
     "combobox": "TCombobox",
+    "frame": "TFrame",
     "grip": "TSizegrip",
     "lbl": "TLabel",
     "label": "TLabel",
+    "labelframe": "TLabelframe", # labelframe could conflict with label, but this api 
+    "lblframe": "TLabelframe",   # is not likely to be used in that way... so ok for now.
+    "lblfrm": "TLabelframe",
     "radio": "TRadiobutton",
     "radiobutton": "TRadiobutton",
     "radiobtn": "TRadiobutton",
