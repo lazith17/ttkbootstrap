@@ -328,12 +328,10 @@ class StylerTTK:
         self._style_exit_button()
         self._style_calendar()
         self._style_meter()
-        self._style_notebook()
         self._style_progressbar()
         self._style_striped_progressbar()
         self._style_floodgauge()
         self._style_treeview()
-        # self._style_panedwindow()
 
         # default style
         self.settings.update(self.style_button(self.theme, style="TButton"))
@@ -357,6 +355,7 @@ class StylerTTK:
         self.settings.update(self.style_menubutton(self.theme, style="TMenubutton"))
         self.settings.update(self.style_outline_menubutton(self.theme, style="Outline.TMenubutton"))
         self.settings.update(self.style_panedwindow(self.theme, style="TPanedwindow"))
+        self.settings.update(self.style_notebook(self.theme, style="TNotebook"))
 
         # themed style
         for color in self.theme.colors:
@@ -372,6 +371,7 @@ class StylerTTK:
             self.settings.update(self.style_labelframe(self.theme, background=color, style=f"{color}.TLabelframe"))
             self.settings.update(self.style_panedwindow(self.theme, sashcolor=color, style=f"{color}.TPanedwindow"))
             self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
+            self.settings.update(self.style_notebook(self.theme, background=color, style=f"{color}.TNotebook"))
             self.settings.update(
                 self.style_outline_menubutton(self.theme, foreground=color, style=f"{color}.Outline.TMenubutton")
             )
@@ -2803,49 +2803,59 @@ class StylerTTK:
         )
         return settings
 
-    def _style_notebook(self):
-        """Create style configuration for ttk notebook: *ttk.Notebook*
+    @staticmethod
+    def style_notebook(theme, background=None, foreground=None, style=None):
+        """Create a notebook style.
 
-        The options available in this widget include:
+        This doesn't look great with other themes aside from default, but it is possible to use them.
 
-            - Notebook.client: background, bordercolor, lightcolor, darkcolor
-            - Notebook.tab: background, bordercolor, lightcolor, darkcolor
-            - Notebook.padding: padding, relief, shiftrelief
-            - Notebook.focus: focuscolor, focusthickness
-            - Notebook.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the notebook background.
+            foreground (str, optional): The color of the tab text.
+            style (str, optional): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        border_color = self.theme.colors.border if self.theme.type == "light" else self.theme.colors.selectbg
-        fg_color = self.theme.colors.inputfg if self.theme.type == "light" else self.theme.colors.inputbg
-        bg_color = self.theme.colors.inputbg if self.theme.type == "light" else border_color
+        settings = dict()
 
-        self.settings.update(
-            {
-                "TNotebook": {
-                    "configure": {
-                        "bordercolor": border_color,
-                        "lightcolor": self.theme.colors.bg,
-                        "darkcolor": self.theme.colors.bg,
-                        "borderwidth": 1,
-                    }
+        # fallback colors
+        if theme.type == 'light':
+            bordercolor = theme.colors.border
+            foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
+            background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
+        else:
+            bordercolor = theme.colors.selectbg
+            foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+            background = ThemeColors.normalize(background, bordercolor, theme.colors)
+
+        settings.update({
+            style: {
+                "configure": {
+                    "bordercolor": bordercolor,
+                    "lightcolor": background,
+                    "darkcolor": background,
+                    "borderwidth": 1,
+                }
+            },
+            f"{style}.Tab": {
+                "configure": {
+                    "bordercolor": bordercolor,
+                    "lightcolor": background,
+                    "foreground": foreground,
+                    "padding": (10, 5),
                 },
-                "TNotebook.Tab": {
-                    "configure": {
-                        "bordercolor": border_color,
-                        "lightcolor": self.theme.colors.bg,
-                        "foreground": self.theme.colors.fg,
-                        "padding": (10, 5),
-                    },
-                    "map": {
-                        "background": [("!selected", bg_color)],
-                        "lightcolor": [("!selected", bg_color)],
-                        "darkcolor": [("!selected", bg_color)],
-                        "bordercolor": [("!selected", border_color)],
-                        "foreground": [("!selected", fg_color)],
-                    },
-                },
+                "map": {
+                    "background": [("!selected", background)],
+                    "lightcolor": [("!selected", background)],
+                    "darkcolor": [("!selected", background)],
+                    "bordercolor": [("!selected", bordercolor)],
+                    "foreground": [("!selected", foreground)],
+                }
             }
-        )
+        })
+        return settings
 
     @staticmethod
     def style_panedwindow(theme, sashcolor=None, sashthickness=5, style=None):
