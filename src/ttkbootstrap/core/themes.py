@@ -196,13 +196,17 @@ class ThemeColors:
         """
         if not color:
             return fallback
-        
+
+        if '#' in color:
+            return color
+
         bootscolor = re.search(COLOR_PATTERN, color)
         if bootscolor and theme_colors:
             return theme_colors.get(color)
         
         if '#' not in color and color in COLORMAP:
             return COLORMAP.get(color)
+
 
         return fallback
 
