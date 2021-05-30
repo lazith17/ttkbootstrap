@@ -72,7 +72,7 @@ class Widget(Widget, ABC):
         self.set_ttk_style()
 
     @abstractmethod
-    def customize_widget(self):
+    def _customize_widget(self):
         """Apply color customizations"""
         return NotImplementedError
 
@@ -80,7 +80,7 @@ class Widget(Widget, ABC):
         """Callback for <<ThemeChanged>> virtual event"""
         theme_name = self.tk.call("ttk::style", "theme", "use")
         self.theme = DEFINITIONS.get(theme_name)
-        self.customize_widget()
+        self._customize_widget()
 
     def update_ttk_style(self, settings):
         """Temporarily sets the current theme to themename, apply specified settings and then restore the previous

@@ -21,6 +21,7 @@ class Separator(Widget, ttk.Separator):
         bootstyle="default",
         cursor=None,
         orient='horizontal',
+        sashthickness = 1,
         style=None,
         takefocus=False,
         **kw,
@@ -36,6 +37,7 @@ class Separator(Widget, ttk.Separator):
             cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
                 vary according to your operating system.
             orient (str, optional): One of 'horizontal' or 'vertical'.  Specifies the orientation of the separator.
+            sashthickness (int, optional): The thickness of the separator line in pixels. Default is 1.
             style (str, optional): May be used to specify a style using the ``ttk`` style api.
             takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
                 (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
@@ -46,11 +48,12 @@ class Separator(Widget, ttk.Separator):
 
         self.tk = master.tk
         self.background = background
+        self.sashthickness = sashthickness
         self.orient = orient
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.Separator.__init__(
             self,
@@ -62,9 +65,9 @@ class Separator(Widget, ttk.Separator):
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
-        if self.background != None:
+        if any([self.background != None, self.sashthickness != 1]):
             self.customized = True
 
             if not self.widget_id:
@@ -75,6 +78,7 @@ class Separator(Widget, ttk.Separator):
             options = {
                 "theme": self.theme,
                 "background": self.background or self.themed_color,
+                "sashthickness": self.sashthickness,
                 "style": self.style,
             }
             settings = StylerTTK.style_separator(**options)

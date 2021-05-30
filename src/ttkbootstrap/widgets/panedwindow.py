@@ -66,7 +66,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.PanedWindow.__init__(
             self,
@@ -82,7 +82,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.sashcolor != None, self.sashthickness != 5]):
             self.customized = True

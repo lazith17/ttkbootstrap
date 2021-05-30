@@ -65,7 +65,7 @@ class Notebook(Widget, ttk.Notebook):
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.Notebook.__init__(
             self,
@@ -81,7 +81,7 @@ class Notebook(Widget, ttk.Notebook):
         print(self.option_get("Notebook", "background"))
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None]):
             self.customized = True

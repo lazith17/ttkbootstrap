@@ -8,6 +8,7 @@
 from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
+from tkinter import Variable
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
@@ -24,6 +25,7 @@ class Combobox(Widget, ttk.Combobox):
         background=None,
         bootstyle="default",
         cursor=None,
+        defaultvalue=None,
         exportselection=False,
         focuscolor=None,
         font=None,
@@ -50,6 +52,7 @@ class Combobox(Widget, ttk.Combobox):
                 ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
             cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
                 vary according to your operating system.
+            defaultvalue (Any, optional): The initial value shown in the combobox.
             exportselection (bool, optional): Boolean value. If set, the widget selection is linked to the X selection.
             focuscolor (str, optional): The color of the focus ring when the widget has focus.
             font (str or Font, optional): The font used to render the widget text.
@@ -72,7 +75,8 @@ class Combobox(Widget, ttk.Combobox):
             takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
                 (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
             textvariable (Variable, optional): Specifies the name of a variable whose value is linked to the widget 
-                value. Whenever the variable changes value the widget value is updated, and vice versa.  
+                value. Whenever the variable changes value the widget value is updated, and vice versa. If a variable
+                is not provided, one is created by default and can be access via the ``value`` property.
             values (List or Tuple, optional): Specifies the list of values to display in the drop-down listbox. 
             width (int, optional): Specifies an integer value indicating the desired width of the entry window, in 
                 average-size characters of the widget's font. 
@@ -83,13 +87,18 @@ class Combobox(Widget, ttk.Combobox):
 
         self.tk = master.tk
         self.background = background
+        self.defaultvalue = defaultvalue
         self.focuscolor = focuscolor
         self.foreground = foreground
         self.font = font or DEFAULT_FONT
+        self.textvariable = textvariable or Variable()
+        self.values = values
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+
+        self._set_variable()
+        self._customize_widget()
 
         ttk.Combobox.__init__(
             self,
@@ -111,7 +120,7 @@ class Combobox(Widget, ttk.Combobox):
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None, self.focuscolor != None]):
             self.customized = True
@@ -131,3 +140,20 @@ class Combobox(Widget, ttk.Combobox):
             settings = StylerTTK.style_combobox(**options)
 
             self.update_ttk_style(settings)
+
+    def _set_variable(self):
+        """Set initial variable value upon instantiation"""
+        if self.values and not self.defaultvalue:
+            self.value = self.values[0]
+        elif self.defaultvalue:
+            self.value = self.defaultvalue
+
+    @property
+    def value(self):
+        """Get the current value of the spinbox widget"""
+        return self.textvariable.get()
+
+    @value.setter
+    def value(self, value):
+        """Set the current value of the spinbox widget"""
+        self.textvariable.set(value)

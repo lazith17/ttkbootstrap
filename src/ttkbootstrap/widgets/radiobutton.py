@@ -119,10 +119,10 @@ class Radiobutton(Widget, ttk.Radiobutton):
         self.indicatorcolor = indicatorcolor
         self.widget_id = None
         self.variable = variable
-        self.set_group_variable(value)
-
         self.customized = False
-        self.customize_widget()
+
+        self._set_variable(value)
+        self._customize_widget()
 
         ttk.Radiobutton.__init__(
             self,
@@ -155,7 +155,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         """Set the current value of the ``variable``"""
         self.variable.set(value)
 
-    def set_group_variable(self, value=1):
+    def _set_variable(self, value=1):
         """Create a group variable if not existing; and set default value if requested.
         
         Args:
@@ -172,7 +172,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         if self.default:
             self.value = value
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None, self.font != None, self.indicatorcolor != None]):
             self.customized = True

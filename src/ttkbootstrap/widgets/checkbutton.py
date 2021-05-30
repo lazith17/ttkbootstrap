@@ -116,7 +116,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         self.variable = variable or Variable(value=onvalue if default else offvalue)
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.Checkbutton.__init__(
             self,
@@ -150,7 +150,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         """Set the current value of the ``variable``"""
         self.variable.set(value)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None, self.font != None, self.indicatorcolor != None]):
             self.customized = True

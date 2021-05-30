@@ -104,7 +104,7 @@ class Entry(Widget, ttk.Entry):
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.Entry.__init__(
             self,
@@ -128,7 +128,7 @@ class Entry(Widget, ttk.Entry):
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None, self.focuscolor != None]):
             self.customized = True

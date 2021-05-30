@@ -106,7 +106,7 @@ class Button(Widget, ttk.Button):
         self.widget_id = None
 
         self.customized = False
-        self.customize_widget()
+        self._customize_widget()
 
         ttk.Button.__init__(
             self,
@@ -127,7 +127,7 @@ class Button(Widget, ttk.Button):
         )
         self.bind("<<ThemeChanged>>", self.on_theme_change)
 
-    def customize_widget(self):
+    def _customize_widget(self):
 
         if any([self.background != None, self.foreground != None, self.anchor != None, self.font != None]):
             self.customized = True
