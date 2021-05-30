@@ -16,3 +16,4 @@ from .panedwindow import PanedWindow
 from .radiobutton import Radiobutton
 from .separator import Separator
 from .sizegrip import Sizegrip
+from .spinbox import Spinbox

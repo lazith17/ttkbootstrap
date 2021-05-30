@@ -322,7 +322,7 @@ class StylerTTK:
         """Update the settings dictionary that is used to create a theme. This is a wrapper on all the `_style_widget`
         methods which define the layout, configuration, and styling mapping for each ttk widget.
         """
-        self._style_spinbox()
+        # self._style_spinbox()
         self._style_scale()
         self._style_scrollbar()
         self._style_exit_button()
@@ -356,6 +356,7 @@ class StylerTTK:
         self.settings.update(self.style_outline_menubutton(self.theme, style="Outline.TMenubutton"))
         self.settings.update(self.style_panedwindow(self.theme, style="TPanedwindow"))
         self.settings.update(self.style_notebook(self.theme, style="TNotebook"))
+        self.settings.update(self.style_spinbox(self.theme, style="TSpinbox"))
 
         # themed style
         for color in self.theme.colors:
@@ -365,6 +366,7 @@ class StylerTTK:
             self.settings.update(self.style_frame(self.theme, background=color, style=f"{color}.TFrame"))
             self.settings.update(self.style_toolbutton(self.theme, indicatorcolor=color, style=f"{color}.Toolbutton"))
             self.settings.update(self.style_combobox(self.theme, focuscolor=color, style=f"{color}.TCombobox"))
+            self.settings.update(self.style_spinbox(self.theme, focuscolor=color, style=f"{color}.TSpinbox"))
             self.settings.update(self.style_entry(self.theme, focuscolor=color, style=f"{color}.TEntry"))
             self.settings.update(self.style_label(self.theme, foreground=color, style=f"{color}.TLabel"))
             self.settings.update(self.style_label(self.theme, background=color, style=f"{color}.Inverse.TLabel"))
@@ -527,7 +529,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_separator(theme, background=None, orient="horizontal", style="Horizontal.TSeparator"):
+    def style_separator(theme, background=None, orient="horizontal", sashthickness=1, style="Horizontal.TSeparator"):
         """Create style configuration for ttk separator: *ttk.Separator*. The default style for light will be border,
         but dark will be primary, as this makes the most sense for general use. However, all other colors will be
         available as well through styling.
@@ -536,6 +538,7 @@ class StylerTTK:
             theme (str): The theme name.
             background (str, optional): The color of the sizegrip background.
             orient (str, optional): One of 'horizontal' or 'vertical'
+            sashthickness (int, optional): The thickness of the separator line.
             style (str, optional): The style used to render the widget.
 
         Returns:
@@ -548,11 +551,11 @@ class StylerTTK:
 
         # create separator images
         hs_image_id = uuid4()
-        hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, 1), background))
+        hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, sashthickness), background))
         StylerTTK.theme_images[hs_image_id] = hs_im
 
         vs_image_id = uuid4()
-        vs_im = ImageTk.PhotoImage(Image.new("RGB", (1, 40), background))
+        vs_im = ImageTk.PhotoImage(Image.new("RGB", (sashthickness, 40), background))
         StylerTTK.theme_images[vs_image_id] = vs_im
 
         settings = dict()
@@ -1099,38 +1102,49 @@ class StylerTTK:
             }
         )
 
-    def _style_spinbox(self):
-        """Create style configuration for ttk spinbox: *ttk.Spinbox*
+    @staticmethod
+    def style_spinbox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+        """Create a spinbox style.
 
-        This widget uses elements from the *default* and *clam* theme to create the widget layout.
-        For dark themes,the spinbox.field is created from the *default* theme element because the background
-        color shines through the corners of the widget when the primary theme background color is dark.
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the entry background.
+            focuscolor (str, optional): The color of the focus ring when the widget has focus.
+            font (str, optional): The font used to render the widget text.
+            foreground (str, optional): The color of the widget text.
+            style (str, optional): The style used to render the widget.
 
-        The options available in this widget include:
-
-            - Spinbox.field: bordercolor, lightcolor, darkcolor, fieldbackground
-            - spinbox.uparrow: background, relief, borderwidth, arrowcolor, arrowsize
-            - spinbox.downarrow: background, relief, borderwidth, arrowcolor, arrowsize
-            - spinbox.padding: padding, relief, shiftrelief
-            - spinbox.textarea: font, width
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        settings = dict()
 
-        if self.theme.type == "dark":
-            self.settings.update({"custom.Spinbox.field": {"element create": ("from", "default")}})
+        # fallback colors
+        background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
+        focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
 
-        self.settings.update(
+        # disabled colors
+        if theme.type == "light":
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
+        else:
+            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
+
+        # use Entry field from dark theme to prevent corners from shining through
+        widget_id = uuid4()
+        if theme.type == "dark":
+            settings.update({f"{widget_id}.Spinbox.field": {"element create": ("from"< "default")}})
+        
+        # use the arrows from the default theme ... they just look better.
+        settings.update({f"{widget_id}.Spinbox.uparrow": {"element create": ("from", "default")}})
+        settings.update({f"{widget_id}.Spinbox.downarrow": {"element create": ("from", "default")}})
+
+        settings.update(
             {
-                "Spinbox.uparrow": {"element create": ("from", "default")},
-                "Spinbox.downarrow": {"element create": ("from", "default")},
-                "TSpinbox": {
+                style: {
                     "layout": [
                         (
-                            "custom.Spinbox.field",
+                            f"{widget_id}.Spinbox.field",
                             {
                                 "side": "top",
                                 "sticky": "we",
@@ -1141,8 +1155,8 @@ class StylerTTK:
                                             "side": "right",
                                             "sticky": "",
                                             "children": [
-                                                ("Spinbox.uparrow", {"side": "top", "sticky": "e"}),
-                                                ("Spinbox.downarrow", {"side": "bottom", "sticky": "e"}),
+                                                (f"{widget_id}.Spinbox.uparrow", {"side": "top", "sticky": "e"}),
+                                                (f"{widget_id}.Spinbox.downarrow", {"side": "bottom", "sticky": "e"}),
                                             ],
                                         },
                                     ),
@@ -1158,64 +1172,44 @@ class StylerTTK:
                         )
                     ],
                     "configure": {
-                        "bordercolor": self.theme.colors.border,
-                        "darkcolor": self.theme.colors.inputbg,
-                        "lightcolor": self.theme.colors.inputbg,
-                        "fieldbackground": self.theme.colors.inputbg,
-                        "foreground": self.theme.colors.inputfg,
-                        "borderwidth": 0,
-                        "background": self.theme.colors.inputbg,
-                        "relief": "flat",
-                        "arrowcolor": self.theme.colors.inputfg,
                         "arrowsize": 14,
-                        "padding": (10, 5),
+                        "arrowcolor": foreground,
+                        "bordercolor": theme.colors.border,
+                        "darkcolor": background,
+                        "lightcolor": background,
+                        "foreground": foreground,
+                        "font": font or DEFAULT_FONT,
+                        "fieldbackground ": background,
+                        "background ": background,
+                        "relief": "flat",
+                        "borderwidth ": 0,  # only applies to dark theme border
+                        "padding": 5,
                     },
                     "map": {
-                        "foreground": [("disabled", disabled_fg)],
-                        "bordercolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.bg),
+                        "arrowcolor": [
+                            ("disabled", disabled_fg),
+                            ("pressed", focuscolor),
+                            ("focus", foreground),
+                            ("hover", focuscolor),
                         ],
-                        "lightcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                        "bordercolor": [
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", focuscolor),
                         ],
                         "darkcolor": [
-                            ("focus !disabled", self.theme.colors.primary),
-                            ("hover !disabled", self.theme.colors.primary),
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
-                        "arrowcolor": [
-                            ("disabled !disabled", disabled_fg),
-                            ("pressed !disabled", self.theme.colors.primary),
-                            ("focus !disabled", self.theme.colors.inputfg),
-                            ("hover !disabled", self.theme.colors.inputfg),
+                        "foreground": [("disabled", disabled_fg)],
+                        "lightcolor": [
+                            ("focus !disabled", focuscolor),
+                            ("hover !disabled", background),
                         ],
                     },
                 },
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.TSpinbox": {
-                        "map": {
-                            "foreground": [("disabled", disabled_fg)],
-                            "bordercolor": [
-                                ("focus !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.get(color)),
-                            ],
-                            "arrowcolor": [
-                                ("disabled !disabled", disabled_fg),
-                                ("pressed !disabled", self.theme.colors.get(color)),
-                                ("hover !disabled", self.theme.colors.inputfg),
-                            ],
-                            "lightcolor": [("focus !disabled", self.theme.colors.get(color))],
-                            "darkcolor": [("focus !disabled", self.theme.colors.get(color))],
-                        }
-                    }
-                }
-            )
+        return settings
 
     def _style_treeview(self):
         """Create style configuration for ttk treeview: *ttk.Treeview*. This widget uses elements from the *alt* and
@@ -2821,7 +2815,7 @@ class StylerTTK:
         settings = dict()
 
         # fallback colors
-        if theme.type == 'light':
+        if theme.type == "light":
             bordercolor = theme.colors.border
             foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
             background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
@@ -2830,31 +2824,33 @@ class StylerTTK:
             foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
             background = ThemeColors.normalize(background, bordercolor, theme.colors)
 
-        settings.update({
-            style: {
-                "configure": {
-                    "bordercolor": bordercolor,
-                    "lightcolor": background,
-                    "darkcolor": background,
-                    "borderwidth": 1,
-                }
-            },
-            f"{style}.Tab": {
-                "configure": {
-                    "bordercolor": bordercolor,
-                    "lightcolor": background,
-                    "foreground": foreground,
-                    "padding": (10, 5),
+        settings.update(
+            {
+                style: {
+                    "configure": {
+                        "bordercolor": bordercolor,
+                        "lightcolor": background,
+                        "darkcolor": background,
+                        "borderwidth": 1,
+                    }
                 },
-                "map": {
-                    "background": [("!selected", background)],
-                    "lightcolor": [("!selected", background)],
-                    "darkcolor": [("!selected", background)],
-                    "bordercolor": [("!selected", bordercolor)],
-                    "foreground": [("!selected", foreground)],
-                }
+                f"{style}.Tab": {
+                    "configure": {
+                        "bordercolor": bordercolor,
+                        "lightcolor": background,
+                        "foreground": foreground,
+                        "padding": (10, 5),
+                    },
+                    "map": {
+                        "background": [("!selected", background)],
+                        "lightcolor": [("!selected", background)],
+                        "darkcolor": [("!selected", background)],
+                        "bordercolor": [("!selected", bordercolor)],
+                        "foreground": [("!selected", foreground)],
+                    },
+                },
             }
-        })
+        )
         return settings
 
     @staticmethod
