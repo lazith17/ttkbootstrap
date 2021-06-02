@@ -1,6 +1,6 @@
 import colorsys
 import importlib.resources
-from tkinter import ttk
+from tkinter import PhotoImage, ttk
 from uuid import uuid4
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
@@ -335,10 +335,6 @@ class StylerTTK:
         self.settings.update(self.style_button(self.theme, style="TButton"))
         self.settings.update(self.style_scrollbar(self.theme, style="Vertical.TScrollbar"))
         self.settings.update(self.style_scrollbar(self.theme, style="Rounded.Vertical.TScrollbar"))
-        self.settings.update(self.style_scrollbar(self.theme, orient="horizontal", style="Horizontal.TScrollbar"))
-        self.settings.update(
-            self.style_scrollbar(self.theme, orient="horizontal", style="Rounded.Horizontal.TScrollbar")
-        )
         self.settings.update(self.style_outline_button(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_button(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
@@ -361,6 +357,10 @@ class StylerTTK:
         self.settings.update(self.style_panedwindow(self.theme, style="TPanedwindow"))
         self.settings.update(self.style_notebook(self.theme, style="TNotebook"))
         self.settings.update(self.style_spinbox(self.theme, style="TSpinbox"))
+        self.settings.update(self.style_scrollbar(self.theme, orient="horizontal", style="Horizontal.TScrollbar"))
+        self.settings.update(
+            self.style_scrollbar(self.theme, orient="horizontal", style="Rounded.Horizontal.TScrollbar")
+        )
 
         # themed style
         for color in self.theme.colors:
@@ -1011,19 +1011,16 @@ class StylerTTK:
             )
 
     @staticmethod
-    def style_scrollbar(theme, style=None, thickness=12, thumbcolor=None, troughcolor=None, orient="vertical"):
+    def style_scrollbar(theme, style=None, thumbcolor=None, troughcolor=None, orient="vertical", arrows=True):
         """Create a default scrollbar style.
 
         Args:
             theme (str): The theme name.
             style (str, optional): The style used to render the widget.
             thumbcolor (str, optional): The color of the scrollbar thumb.
-            thickness (str, optional): The thickness along the short side.
             troughcolor (str, optional): The color of the scrollbar trough.
-            orient (str, optional): The orientation of the scrollbar; either horizontal or vertical.
-
-        Thickness does not work well with the rounded style because the border also needs to be adjusted to allow for
-        the repeating section when the image is repeated.
+            orient (str, optional): The orientation of the scrollbar; either 'horizontal' or 'vertical'.
+            arrows (bool, optional): Whether to include or exclude arrow buttons. Ignored for rounded styles.
 
         Returns:
             dict: A dictionary of theme settings.
@@ -1032,10 +1029,10 @@ class StylerTTK:
 
         # fallback colors
         if theme.type == "light":
-            fallback = ThemeColors.update_hsv(theme.colors.bg, vd=-0.15)
+            fallback = ThemeColors.update_hsv(theme.colors.bg, vd=-0.25)
             thumbcolor = ThemeColors.normalize(thumbcolor, fallback, theme.colors)
         else:
-            fallback = ThemeColors.update_hsv(theme.colors.selectbg, vd=0.25, sd=-0.1)
+            fallback = ThemeColors.update_hsv(theme.colors.selectbg, vd=0.35, sd=-0.1)
             thumbcolor = ThemeColors.normalize(thumbcolor, fallback, theme.colors)
         troughcolor = ThemeColors.normalize(troughcolor, ThemeColors.update_hsv(theme.colors.bg, vd=0.2), theme.colors)
 
@@ -1043,40 +1040,84 @@ class StylerTTK:
         element = style.replace("TScrollbar", "Scrollbar")
 
         if "rounded" in style.lower():
-            StylerTTK.style_rounded_scrollbar_images(thumbcolor, troughcolor, thickness, element)
+            arrows = False  # no arrows on a rounded scrollbar
+            StylerTTK.style_rounded_scrollbar_images(thumbcolor, troughcolor, 12, element, theme)
         else:
-            StylerTTK.style_default_scrollbar_images(thumbcolor, troughcolor, thickness, element)
+            StylerTTK.style_default_scrollbar_images(thumbcolor, troughcolor, 16, element, theme)
         
         thumb_normal = StylerTTK.theme_images[f"{element}.normal"]
         thumb_pressed = StylerTTK.theme_images[f"{element}.pressed"]
         thumb_active = StylerTTK.theme_images[f"{element}.active"]
         trough = StylerTTK.theme_images[f"{element}.trough"]
 
+        # create style settings
         settings.update(
             {
                 f"{element}.thumb": {
                     "element create": ("image", thumb_normal, ("pressed", thumb_pressed), ("active", thumb_active),
-                        {"border": 5, "padding": 2})},
+                        {"border": 5, "padding": 0})},
                 f"{element}.trough": {
-                    "element create": ("image", trough, {"border": 5, "padding": 2})}})
+                    "element create": ("image", trough, {"border": (5, 5, 5, 5), "padding": 0})}})
 
+        ## horizontal orientation
         if orient.lower() == "horizontal":
-            settings.update(
-                {
+            ### without arrow buttons
+            if not arrows:
+                settings.update(
+                    {
+                        style: {
+                            "layout": [
+                                (f"{element}.trough", {"sticky": "we", "children": [
+                                    (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
+            ### with arrow buttons
+            else:
+                StylerTTK.style_arrows(thumbcolor, 'horizontal', element)
+                leftarrow = StylerTTK.theme_images[f'{element}.leftarrow']
+                rightarrow = StylerTTK.theme_images[f'{element}.rightarrow']
+                settings.update(
+                    {
+                        f'{element}.leftarrow': {
+                            "element create": ("image", leftarrow)},
+                        f'{element}.rightarrow': {
+                            "element create": ("image", rightarrow)},
+                        style: {
+                            "layout": [
+                                (f'{element}.trough', {'sticky': 'we', 'children': [
+                                    (f'{element}.leftarrow', {'side': 'left', 'sticky': ''}), 
+                                    (f'{element}.rightarrow', {'side': 'right', 'sticky': ''}), 
+                                    (f'{element}.thumb', {'expand': '1', 'sticky': 'nswe'})]})]}})
+
+        ## vertical orientation
+        else:
+            ### without arrow buttons
+            if not arrows:
+                settings.update({
                     style: {
                         "layout": [
-                            (f"{element}.trough", {"sticky": "we", "children": [
+                            (f"{element}.trough", {"sticky": "ns", "children": [
                                 (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
-        else:
-            settings.update({
-                style: {
-                    "layout": [
-                        (f"{element}.trough", {"sticky": "ns", "children": [
-                            (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
+            ### with arrow buttons
+            else:
+                StylerTTK.style_arrows(thumbcolor, 'vertical', element)
+                uparrow = StylerTTK.theme_images[f'{element}.uparrow']
+                downarrow = StylerTTK.theme_images[f'{element}.downarrow']
+                settings.update(
+                    {
+                        f'{element}.uparrow': {
+                            "element create": ("image", uparrow)},
+                        f'{element}.downarrow': {
+                            "element create": ("image", downarrow)},
+                        style: {
+                            "layout": [
+                                (f'{element}.trough', {'sticky': 'ns', 'children': [
+                                    (f'{element}.uparrow', {'side': 'top', 'sticky': ''}), 
+                                    (f'{element}.downarrow', {'side': 'bottom', 'sticky': ''}), 
+                                    (f'{element}.thumb', {'expand': '1', 'sticky': 'nswe'})]})]}})
+
         return settings
 
     @staticmethod
-    def style_default_scrollbar_images(thumbcolor, troughcolor, thickness, element):
+    def style_default_scrollbar_images(thumbcolor, troughcolor, thickness, element, theme):
         """Create image assets for squared scrollbar widget
 
         Args:
@@ -1085,8 +1126,8 @@ class StylerTTK:
             thickness (int): The thickness of the short side in pixels.
             element (str): A unique style element identifier.
         """
-        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35)
-        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == 'light' else 0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == 'light' else 0.25)
         w = thickness
         h = thickness * 2
 
@@ -1117,7 +1158,7 @@ class StylerTTK:
             StylerTTK.theme_images[f"{element}.trough"] = img_trough
 
     @staticmethod
-    def style_rounded_scrollbar_images(thumbcolor, troughcolor, thickness, element):
+    def style_rounded_scrollbar_images(thumbcolor, troughcolor, thickness, element, theme):
         """Create image assets for rounded scrollbar widget
 
         Args:
@@ -1126,28 +1167,29 @@ class StylerTTK:
             thickness (int): The thickness of the short side in pixels.
             element (str): A unique style element identifier.
         """
-        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35)
-        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == 'light' else 0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == 'light' else 0.25)
         troughoutline = ThemeColors.update_hsv(troughcolor, vd=-0.25)
         thumboutline = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        
         w = thickness
         h = thickness * 2
 
         if "vertical" in element.lower():
             img = Image.new("RGBA", (500, 1000))
             draw = ImageDraw.Draw(img)
-            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=thumbcolor, outline=thumboutline, width=10)
-            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+            draw.rounded_rectangle((3, 3, 497, 997), radius=498, fill=thumbcolor, outline=thumboutline, width=10)
+            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((w, h), Image.CUBIC))
 
             img = Image.new("RGBA", (500, 1000))
             draw = ImageDraw.Draw(img)
-            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=pressed)
-            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+            draw.rounded_rectangle((3, 3, 497, 997), radius=498, fill=pressed)
+            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((w, h), Image.CUBIC))
 
             img = Image.new("RGBA", (500, 1000))
             draw = ImageDraw.Draw(img)
-            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=active)
-            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+            draw.rounded_rectangle((1, 1, 497, 997), radius=498, fill=active)
+            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((w, h), Image.CUBIC))
 
             img = Image.new("RGBA", (500, 1000))
             draw = ImageDraw.Draw(img)
@@ -1158,22 +1200,50 @@ class StylerTTK:
             img = Image.new("RGBA", (1000, 500))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=thumbcolor, outline=thumboutline, width=10)
-            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
 
             img = Image.new("RGBA", (1000, 500))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=pressed)
-            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
 
             img = Image.new("RGBA", (1000, 500))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=active)
-            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
 
             img = Image.new("RGBA", (1000, 500))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=troughcolor, outline=troughoutline, width=10)
             StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
+
+    @staticmethod
+    def style_arrows(arrowcolor, orient, element):
+        """Create horizontal or vertical arrow images to be used for buttons
+
+        Args:
+            arrowcolor (str): The color of the arrow.
+            orient (str): One of 'horizontal' or 'vertical'.
+            element (str): A unique element identifier to associate with the images.
+        """
+        img = Image.new('RGBA', (16,16))
+        draw = ImageDraw.Draw(img)
+
+        draw.line([5, 8, 5, 11], fill=arrowcolor)
+        draw.line([6, 7, 6, 10], fill=arrowcolor)
+        draw.line([7, 6, 7, 9], fill=arrowcolor)
+        draw.line([8, 5, 8, 8], fill=arrowcolor)
+        draw.line([9, 6, 9, 9], fill=arrowcolor)
+        draw.line([10, 7, 10, 10], fill=arrowcolor)
+        draw.line([11, 8, 11, 11], fill=arrowcolor)
+
+        if orient.lower() == 'vertical':
+            StylerTTK.theme_images[f'{element}.uparrow'] = ImageTk.PhotoImage(img)
+            StylerTTK.theme_images[f'{element}.downarrow'] = ImageTk.PhotoImage(img.rotate(180))
+        else:
+            StylerTTK.theme_images[f'{element}.leftarrow'] = ImageTk.PhotoImage(img.rotate(90))
+            StylerTTK.theme_images[f'{element}.rightarrow'] = ImageTk.PhotoImage(img.rotate(-90))
+
 
     @staticmethod
     def style_spinbox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
