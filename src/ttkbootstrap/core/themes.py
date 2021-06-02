@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import importlib.resources
 import colorsys
+from PIL import ImageColor
 
 COLOR_PATTERN = re.compile(r"primary|secondary|success|info|warning|danger")
 COLORMAP = json.loads(importlib.resources.read_text("ttkbootstrap.core.files", "colormap.json"))
@@ -184,7 +185,7 @@ class ThemeColors:
 
     @staticmethod
     def normalize(color, fallback, theme_colors=None):
-        """Standard colors by converting named color to rgb value.
+        """Standard colors by converting named color to hex value.
 
         Args:
             color (str): The color to normalize.
@@ -192,7 +193,7 @@ class ThemeColors:
             theme_colors (dict, optional): The color dictionary for a theme.
 
         Returns:
-            str: a hexadecimal color value.
+            str: a hex color value.
         """
         if not color:
             return fallback
@@ -205,8 +206,8 @@ class ThemeColors:
             return theme_colors.get(color)
         
         if '#' not in color and color in COLORMAP:
-            return COLORMAP.get(color)
-
+            rgb = ImageColor.getrgb(color)
+            return ThemeColors.rgb_to_hex(*rgb)
 
         return fallback
 
@@ -219,6 +220,8 @@ class ThemeColors:
             hd (float): % change in hue
             sd (float): % change in saturation
             vd (float): % change in value
+
+        # TODO: There is probably a better way to do this using the ``ImageColor`` module in PIL.
 
         Returns:
             str: a new hexadecimal color value that results from the hsv arguments passed into the function
