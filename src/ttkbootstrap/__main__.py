@@ -35,7 +35,7 @@ class Demo(Style):
         sb = ttk.Scrollbar(self.root)
         sb.set(0.1, 0.55)
 
-        sb.pack(side="right", fill="y")
+        sb.pack(side="right", fill="y", padx=1)
         self.nb = ttk.Notebook(self.root)
         self.nb.pack(fill="both", expand="yes")
         self.tab = self.create_themed_tab()
