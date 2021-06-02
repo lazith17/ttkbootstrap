@@ -15,8 +15,8 @@ from tkinter.ttk import _script_from_settings as script_from_settings
 from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN
 
-STYLE_PATTERN = re.compile(r"outline|link|inverse")
-ORIENT_PATTERN = re.compile(r'horizontal|vertical')
+STYLE_PATTERN = re.compile(r"outline|link|inverse|rounded")
+ORIENT_PATTERN = re.compile(r"horizontal|vertical")
 WIDGET_LOOKUP = {
     "button": "TButton",
     "btn": "TButton",
@@ -30,21 +30,23 @@ WIDGET_LOOKUP = {
     "grip": "TSizegrip",
     "lbl": "TLabel",
     "label": "TLabel",
-    "labelframe": "TLabelframe", # labelframe could conflict with label, but this api 
-    "lblframe": "TLabelframe",   # is not likely to be used in that way... so ok for now.
+    "labelframe": "TLabelframe",  # labelframe could conflict with label, but this api
+    "lblframe": "TLabelframe",  # is not likely to be used in that way... so ok for now.
     "lblfrm": "TLabelframe",
     "radio": "TRadiobutton",
     "radiobutton": "TRadiobutton",
     "radiobtn": "TRadiobutton",
     "roundtoggle": "Roundtoggle.Toolbutton",
     "separator": "TSeparator",
+    "scrollbar": "TScrollbar",
     "sizegrip": "TSizegrip",
     "squaretoggle": "Squaretoggle.Toolbutton",
     "toggle": "Roundtoggle.Toolbutton",
     "toolbutton": "Toolbutton",
-    "tool": "Toolbutton"
+    "tool": "Toolbutton",
 }
-WIDGET_PATTERN = '|'.join(WIDGET_LOOKUP.keys())
+WIDGET_PATTERN = "|".join(WIDGET_LOOKUP.keys())
+
 
 class Widget(Widget, ABC):
     """An abstract base class for all **ttkbootstrap** widgets."""
@@ -61,6 +63,7 @@ class Widget(Widget, ABC):
         self.widgetclass = widgetclass
         self.master = setup_master(master)
         self.bootstyle = bootstyle.lower()
+        self.customized = False
         self.orient = orient
         self.style = style
         self.tk = self.master.tk
@@ -70,6 +73,7 @@ class Widget(Widget, ABC):
         self.colors = self.theme.colors
         self.themed_color = self.get_style_color()
         self.set_ttk_style()
+        self.after(100, lambda: self.bind("<<ThemeChanged>>", self.on_theme_change))
 
     @abstractmethod
     def _customize_widget(self):
@@ -78,9 +82,10 @@ class Widget(Widget, ABC):
 
     def on_theme_change(self, event):
         """Callback for <<ThemeChanged>> virtual event"""
-        theme_name = self.tk.call("ttk::style", "theme", "use")
-        self.theme = DEFINITIONS.get(theme_name)
-        self._customize_widget()
+        if not self.customized:
+            return
+        if not self.style_exists(self.style):
+            self._customize_widget()
 
     def update_ttk_style(self, settings):
         """Temporarily sets the current theme to themename, apply specified settings and then restore the previous
@@ -95,6 +100,14 @@ class Widget(Widget, ABC):
         theme_name = self.tk.call("ttk::style", "theme", "use")
         self.theme = DEFINITIONS.get(theme_name)
         self.tk.call("ttk::style", "theme", "settings", self.theme.name, script)
+
+    def style_exists(self, style):
+        """Query a style configuration and return if true, else return an empty string.
+
+        Args:
+            style (str): A ttk style to check.
+        """
+        return self.tk.call("ttk::style", "configure", style, None)
 
     def get_style_color(self):
         """Identity themed color in the style name. Returns the matched name if found, otherwise None.
@@ -126,7 +139,7 @@ class Widget(Widget, ABC):
 
     def get_widget_orientation(self):
         """Identify the widget orientation for widgets with such settings
-        
+
         Returns:
             str: The widget orientation if existing.
 
@@ -136,8 +149,6 @@ class Widget(Widget, ABC):
             return result.group(0)
         else:
             return None
-
-
 
     def get_widget_type(self):
         """Identity widget type in the style name. Returns the matched name if found, otherwise None.

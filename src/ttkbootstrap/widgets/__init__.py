@@ -15,5 +15,6 @@ from .notebook import Notebook
 from .panedwindow import PanedWindow
 from .radiobutton import Radiobutton
 from .separator import Separator
+from .scrollbar import Scrollbar
 from .sizegrip import Sizegrip
 from .spinbox import Spinbox
