@@ -142,7 +142,6 @@ class Spinbox(Widget, ttk.Spinbox):
             xscrollcommand=xscrollcommand,
             **kw,
         )
-        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
     def _customize_widget(self):
 

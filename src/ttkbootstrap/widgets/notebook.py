@@ -78,8 +78,6 @@ class Notebook(Widget, ttk.Notebook):
             width=width,
             **kw,
         )
-        print(self.option_get("Notebook", "background"))
-        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
     def _customize_widget(self):
 

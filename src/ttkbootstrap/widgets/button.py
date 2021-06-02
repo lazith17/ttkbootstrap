@@ -125,7 +125,6 @@ class Button(Widget, ttk.Button):
             width=width,
             **kw,
         )
-        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
     def _customize_widget(self):
 

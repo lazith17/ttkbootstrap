@@ -143,7 +143,6 @@ class Radiobutton(Widget, ttk.Radiobutton):
             width=width,
             **kw,
         )
-        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
     @property
     def value(self):

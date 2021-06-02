@@ -113,7 +113,6 @@ class Label(Widget, ttk.Label):
             wraplength=wraplength,
             **kw,
         )
-        self.bind("<<ThemeChanged>>", self.on_theme_change)
 
     def _customize_widget(self):
 
