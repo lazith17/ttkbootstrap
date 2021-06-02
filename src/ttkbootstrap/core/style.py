@@ -33,6 +33,11 @@ class Style(ttk.Style):
         for theme in style.theme_names():
             print(theme)
 
+
+     # TODO Themes are not set until after the elements are initialized. This causes several problems including
+     the ``ThemeChanged`` event, and the issue of all themes defaulting to "light" when the custom widget is
+     instantiated. Not sure why this should happen. Need to investigate further.
+
     .. _documentation: https://docs.python.org/3.9/library/tkinter.ttk.html#tkinter.ttk.Style
     """
 
@@ -322,7 +327,6 @@ class StylerTTK:
         """Update the settings dictionary that is used to create a theme. This is a wrapper on all the `_style_widget`
         methods which define the layout, configuration, and styling mapping for each ttk widget.
         """
-        self._style_scale()
         self._style_exit_button()
         self._style_calendar()
         self._style_meter()
@@ -338,6 +342,8 @@ class StylerTTK:
         self.settings.update(self.style_outline_button(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_button(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
+        self.settings.update(self.style_scale(self.theme, orient="vertical", style="Vertical.TScale"))
+        self.settings.update(self.style_scale(self.theme, orient="horizontal", style="Horizontal.TScale"))
         self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
         self.settings.update(self.style_separator(self.theme, style="Horizontal.TSeparator"))
         self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
@@ -392,6 +398,16 @@ class StylerTTK:
             self.settings.update(
                 self.style_scrollbar(
                     self.theme, thumbcolor=color, orient="horizontal", style=f"{color}.Rounded.Horizontal.TScrollbar"
+                )
+            )
+            self.settings.update(
+                self.style_scale(
+                    self.theme, slidercolor=color, orient="vertical", style=f"{color}.Vertical.TScale"
+                )
+            )
+            self.settings.update(
+                self.style_scale(
+                    self.theme, slidercolor=color, orient="horizontal", style=f"{color}.Horizontal.TScale"
                 )
             )
             self.settings.update(
@@ -743,124 +759,48 @@ class StylerTTK:
             )
 
     @staticmethod
-    def _create_slider_image(color, size=16):
-        """Create a circle slider image based on given size and color; used in the slider widget.
+    def style_scale(theme, troughcolor=None, slidercolor=None, orient="horizontal", style=None):
+        """Create a scale style.
 
         Args:
-            color (str): a hexadecimal color value.
-            size (int): the size diameter of the slider circle; default=16.
+            theme (str): The theme name.
+            troughcolor (str, optional): The color of the trough.
+            orient (str, optional): One of 'horizontal' or 'vertical'
+            slidercolor (str, optional): The color of the round slider.
+            style (str, optional): The style used to render the widget.
 
         Returns:
-            ImageTk.PhotoImage: an image drawn in the shape of the circle of the theme color specified.
+            dict: A dictionary of theme settings.
         """
-        im = Image.new("RGBA", (100, 100))
-        draw = ImageDraw.Draw(im)
-        draw.ellipse((0, 0, 95, 95), fill=color)
-        return ImageTk.PhotoImage(im.resize((size, size), Image.LANCZOS))
+        # fallback colors
+        slidercolor = ThemeColors.normalize(slidercolor, theme.colors.primary, theme.colors)
+        if theme.type == "light":
+            troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
+            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
-    def _style_scale(self):
-        """Create style configuration for ttk scale: *ttk.Scale*
+        settings = dict()
 
-        The options available in this widget include:
+        # images
+        element = style.replace("TScale", "Scale")
+        StylerTTK.style_scale_images(slidercolor, troughcolor, disabled, orient, element, theme)
+        img_disabled = StylerTTK.theme_images[f"{element}.disabled"]
+        img_normal = StylerTTK.theme_images[f"{element}.normal"]
+        img_pressed = StylerTTK.theme_images[f"{element}.pressed"]
+        img_hover = StylerTTK.theme_images[f"{element}.hover"]
+        img_trough = StylerTTK.theme_images[f"{element}.trough"]
 
-            - Scale.trough: borderwidth, troughcolor, troughrelief
-            - Scale.slider: sliderlength, sliderthickness, sliderrelief, borderwidth, background, bordercolor, orient
-        """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
-
-        trough_color = (
-            self.theme.colors.inputbg
-            if self.theme.type == "dark"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.03)
-        )
-
-        pressed_vd = -0.2
-        hover_vd = -0.1
-
-        # create widget images
-        self.theme_images.update(
-            {
-                "primary_disabled": self._create_slider_image(disabled_fg),
-                "primary_regular": self._create_slider_image(self.theme.colors.primary),
-                "primary_pressed": self._create_slider_image(
-                    ThemeColors.update_hsv(self.theme.colors.primary, vd=pressed_vd)
-                ),
-                "primary_hover": self._create_slider_image(
-                    ThemeColors.update_hsv(self.theme.colors.primary, vd=hover_vd)
-                ),
-                "htrough": ImageTk.PhotoImage(Image.new("RGB", (40, 8), trough_color)),
-                "vtrough": ImageTk.PhotoImage(Image.new("RGB", (8, 40), trough_color)),
-            }
-        )
-
-        # The layout is derived from the 'xpnative' theme
-        self.settings.update(
-            {
-                "Horizontal.TScale": {
-                    "layout": [
-                        (
-                            "Scale.focus",
-                            {
-                                "expand": "1",
-                                "sticky": "nswe",
-                                "children": [
-                                    ("Horizontal.Scale.track", {"sticky": "we"}),
-                                    ("Horizontal.Scale.slider", {"side": "left", "sticky": ""}),
-                                ],
-                            },
-                        )
-                    ]
-                },
-                "Vertical.TScale": {
-                    "layout": [
-                        (
-                            "Scale.focus",
-                            {
-                                "expand": "1",
-                                "sticky": "nswe",
-                                "children": [
-                                    ("Vertical.Scale.track", {"sticky": "ns"}),
-                                    ("Vertical.Scale.slider", {"side": "top", "sticky": ""}),
-                                ],
-                            },
-                        )
-                    ]
-                },
-                "Horizontal.Scale.track": {"element create": ("image", self.theme_images["htrough"])},
-                "Vertical.Scale.track": {"element create": ("image", self.theme_images["vtrough"])},
-                "Scale.slider": {
-                    "element create": (
-                        "image",
-                        self.theme_images["primary_regular"],
-                        ("disabled", self.theme_images["primary_disabled"]),
-                        ("pressed !disabled", self.theme_images["primary_pressed"]),
-                        ("hover !disabled", self.theme_images["primary_hover"]),
-                    )
-                },
-            }
-        )
-
-        for color in self.theme.colors:
-            self.theme_images.update(
+        if orient.lower() == "horizontal":
+            settings.update(
                 {
-                    f"{color}_regular": self._create_slider_image(self.theme.colors.get(color)),
-                    f"{color}_pressed": self._create_slider_image(
-                        ThemeColors.update_hsv(self.theme.colors.get(color), vd=pressed_vd)
-                    ),
-                    f"{color}_hover": self._create_slider_image(
-                        ThemeColors.update_hsv(self.theme.colors.get(color), vd=hover_vd)
-                    ),
-                }
-            )
-
-            # The layout is derived from the 'xpnative' theme
-            self.settings.update(
-                {
-                    f"{color}.Horizontal.TScale": {
+                    f"{element}.Horizontal.Scale.track": {"element create": ("image", img_trough, {'border': 5})},
+                    f"{element}.Horizontal.Scale.slider": {"element create": ("image", img_normal, 
+                        ("disabled", img_disabled),
+                        ("pressed", img_pressed),
+                        ("hover", img_hover))},                     
+                    style: {
                         "layout": [
                             (
                                 "Scale.focus",
@@ -868,39 +808,91 @@ class StylerTTK:
                                     "expand": "1",
                                     "sticky": "nswe",
                                     "children": [
-                                        ("Horizontal.Scale.track", {"sticky": "we"}),
-                                        (f"{color}.Scale.slider", {"side": "left", "sticky": ""}),
+                                        (f"{element}.Horizontal.Scale.track", {"sticky": "we"}),
+                                        (f"{element}.Horizontal.Scale.slider", {"side": "left", "sticky": ""}),
                                     ],
                                 },
                             )
                         ]
                     },
-                    f"{color}.Vertical.TScale": {
+                }
+            )
+
+        else:
+            settings.update(
+                {
+                    f"{element}.Vertical.Scale.track": {"element create": ("image", img_trough, {'border': 5})},
+                    f"{element}.Vertical.Scale.slider": {"element create": ("image", img_normal, 
+                        ("disabled", img_disabled),
+                        ("pressed", img_pressed),
+                        ("hover", img_hover))},                    
+                    style: {
                         "layout": [
                             (
-                                f"{color}.Scale.focus",
+                                "Scale.focus",
                                 {
                                     "expand": "1",
                                     "sticky": "nswe",
                                     "children": [
-                                        ("Vertical.Scale.track", {"sticky": "ns"}),
-                                        (f"{color}.Scale.slider", {"side": "top", "sticky": ""}),
+                                        (f"{element}.Vertical.Scale.track", {"sticky": "ns"}),
+                                        (f"{element}.Vertical.Scale.slider", {"side": "top", "sticky": ""}),
                                     ],
                                 },
                             )
                         ]
                     },
-                    f"{color}.Scale.slider": {
-                        "element create": (
-                            "image",
-                            self.theme_images[f"{color}_regular"],
-                            ("disabled", self.theme_images["primary_disabled"]),
-                            ("pressed", self.theme_images[f"{color}_pressed"]),
-                            ("hover", self.theme_images[f"{color}_hover"]),
-                        )
-                    },
                 }
             )
+
+        return settings
+
+    @staticmethod
+    def style_scale_images(slidercolor, troughcolor, disabled, orient, element, theme):
+        """Create images for the scale widget image layout
+
+        Args:
+            slidercolor (str): The color used on the round slider.
+            disabled (str): The slider color when disabled.
+            troughcolor (str): The color used on the trough.
+            orient (str): One of 'horizontal' or 'vertical'.
+            element (str): A unique widget id to associate with the images.
+            theme (str): The current theme.
+        """
+        outline = ThemeColors.update_hsv(troughcolor, vd=-0.10)
+        pressed = ThemeColors.update_hsv(slidercolor, vd=-0.10 if theme.type == "light" else 0.35)
+        hover = ThemeColors.update_hsv(slidercolor, vd=-0.20 if theme.type == "light" else 0.25)
+        size = (16, 16)
+
+        im = Image.new("RGBA", (100, 100))
+        draw = ImageDraw.Draw(im)
+        draw.ellipse((0, 0, 95, 95), fill=slidercolor)
+        StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(im.resize(size, Image.CUBIC))
+
+        im = Image.new("RGBA", (100, 100))
+        draw = ImageDraw.Draw(im)
+        draw.ellipse((0, 0, 95, 95), fill=pressed)
+        StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(im.resize(size, Image.CUBIC))
+
+        im = Image.new("RGBA", (100, 100))
+        draw = ImageDraw.Draw(im)
+        draw.ellipse((0, 0, 95, 95), fill=disabled)
+        StylerTTK.theme_images[f"{element}.disabled"] = ImageTk.PhotoImage(im.resize(size, Image.CUBIC))
+
+        im = Image.new("RGBA", (100, 100))
+        draw = ImageDraw.Draw(im)
+        draw.ellipse((0, 0, 95, 95), fill=hover)
+        StylerTTK.theme_images[f"{element}.hover"] = ImageTk.PhotoImage(im.resize(size, Image.CUBIC))
+
+        if orient.lower() == "horizontal":
+            im = Image.new("RGBA", (400, 80))
+            draw = ImageDraw.Draw(im)
+            draw.rounded_rectangle([1, 20, 399, 60], radius=78, fill=troughcolor, outline=outline, width=5)
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(im.resize([40, 8], Image.CUBIC))
+        else:
+            im = Image.new("RGBA", (80, 400))
+            draw = ImageDraw.Draw(im)
+            draw.rounded_rectangle([20, 1, 60, 399], radius=78, fill=troughcolor, outline=outline, width=5)
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(im.resize([8, 40], Image.CUBIC))
 
     def _style_floodgauge(self):
         """Create a style configuration for the *ttk.Progressbar* that makes it into a floodgauge. Which is essentially
@@ -1044,7 +1036,7 @@ class StylerTTK:
             StylerTTK.style_rounded_scrollbar_images(thumbcolor, troughcolor, 12, element, theme)
         else:
             StylerTTK.style_default_scrollbar_images(thumbcolor, troughcolor, 16, element, theme)
-        
+
         thumb_normal = StylerTTK.theme_images[f"{element}.normal"]
         thumb_pressed = StylerTTK.theme_images[f"{element}.pressed"]
         thumb_active = StylerTTK.theme_images[f"{element}.active"]
@@ -1054,10 +1046,17 @@ class StylerTTK:
         settings.update(
             {
                 f"{element}.thumb": {
-                    "element create": ("image", thumb_normal, ("pressed", thumb_pressed), ("active", thumb_active),
-                        {"border": 5, "padding": 0})},
-                f"{element}.trough": {
-                    "element create": ("image", trough, {"border": (5, 5, 5, 5), "padding": 0})}})
+                    "element create": (
+                        "image",
+                        thumb_normal,
+                        ("pressed", thumb_pressed),
+                        ("active", thumb_active),
+                        {"border": 5, "padding": 0},
+                    )
+                },
+                f"{element}.trough": {"element create": ("image", trough, {"border": (5, 5, 5, 5), "padding": 0})},
+            }
+        )
 
         ## horizontal orientation
         if orient.lower() == "horizontal":
@@ -1067,52 +1066,89 @@ class StylerTTK:
                     {
                         style: {
                             "layout": [
-                                (f"{element}.trough", {"sticky": "we", "children": [
-                                    (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
+                                (
+                                    f"{element}.trough",
+                                    {
+                                        "sticky": "we",
+                                        "children": [(f"{element}.thumb", {"expand": "1", "sticky": "nswe"})],
+                                    },
+                                )
+                            ]
+                        }
+                    }
+                )
             ### with arrow buttons
             else:
-                StylerTTK.style_arrows(thumbcolor, 'horizontal', element)
-                leftarrow = StylerTTK.theme_images[f'{element}.leftarrow']
-                rightarrow = StylerTTK.theme_images[f'{element}.rightarrow']
+                StylerTTK.style_arrows(thumbcolor, "horizontal", element)
+                leftarrow = StylerTTK.theme_images[f"{element}.leftarrow"]
+                rightarrow = StylerTTK.theme_images[f"{element}.rightarrow"]
                 settings.update(
                     {
-                        f'{element}.leftarrow': {
-                            "element create": ("image", leftarrow)},
-                        f'{element}.rightarrow': {
-                            "element create": ("image", rightarrow)},
+                        f"{element}.leftarrow": {"element create": ("image", leftarrow)},
+                        f"{element}.rightarrow": {"element create": ("image", rightarrow)},
                         style: {
                             "layout": [
-                                (f'{element}.trough', {'sticky': 'we', 'children': [
-                                    (f'{element}.leftarrow', {'side': 'left', 'sticky': ''}), 
-                                    (f'{element}.rightarrow', {'side': 'right', 'sticky': ''}), 
-                                    (f'{element}.thumb', {'expand': '1', 'sticky': 'nswe'})]})]}})
+                                (
+                                    f"{element}.trough",
+                                    {
+                                        "sticky": "we",
+                                        "children": [
+                                            (f"{element}.leftarrow", {"side": "left", "sticky": ""}),
+                                            (f"{element}.rightarrow", {"side": "right", "sticky": ""}),
+                                            (f"{element}.thumb", {"expand": "1", "sticky": "nswe"}),
+                                        ],
+                                    },
+                                )
+                            ]
+                        },
+                    }
+                )
 
         ## vertical orientation
         else:
             ### without arrow buttons
             if not arrows:
-                settings.update({
-                    style: {
-                        "layout": [
-                            (f"{element}.trough", {"sticky": "ns", "children": [
-                                (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
-            ### with arrow buttons
-            else:
-                StylerTTK.style_arrows(thumbcolor, 'vertical', element)
-                uparrow = StylerTTK.theme_images[f'{element}.uparrow']
-                downarrow = StylerTTK.theme_images[f'{element}.downarrow']
                 settings.update(
                     {
-                        f'{element}.uparrow': {
-                            "element create": ("image", uparrow)},
-                        f'{element}.downarrow': {
-                            "element create": ("image", downarrow)},
                         style: {
                             "layout": [
-                                (f'{element}.trough', {'sticky': 'ns', 'children': [
-                                    (f'{element}.uparrow', {'side': 'top', 'sticky': ''}), 
-                                    (f'{element}.downarrow', {'side': 'bottom', 'sticky': ''}), 
-                                    (f'{element}.thumb', {'expand': '1', 'sticky': 'nswe'})]})]}})
+                                (
+                                    f"{element}.trough",
+                                    {
+                                        "sticky": "ns",
+                                        "children": [(f"{element}.thumb", {"expand": "1", "sticky": "nswe"})],
+                                    },
+                                )
+                            ]
+                        }
+                    }
+                )
+            ### with arrow buttons
+            else:
+                StylerTTK.style_arrows(thumbcolor, "vertical", element)
+                uparrow = StylerTTK.theme_images[f"{element}.uparrow"]
+                downarrow = StylerTTK.theme_images[f"{element}.downarrow"]
+                settings.update(
+                    {
+                        f"{element}.uparrow": {"element create": ("image", uparrow)},
+                        f"{element}.downarrow": {"element create": ("image", downarrow)},
+                        style: {
+                            "layout": [
+                                (
+                                    f"{element}.trough",
+                                    {
+                                        "sticky": "ns",
+                                        "children": [
+                                            (f"{element}.uparrow", {"side": "top", "sticky": ""}),
+                                            (f"{element}.downarrow", {"side": "bottom", "sticky": ""}),
+                                            (f"{element}.thumb", {"expand": "1", "sticky": "nswe"}),
+                                        ],
+                                    },
+                                )
+                            ]
+                        },
+                    }
+                )
 
         return settings
 
@@ -1126,31 +1162,31 @@ class StylerTTK:
             thickness (int): The thickness of the short side in pixels.
             element (str): A unique style element identifier.
         """
-        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == 'light' else 0.35)
-        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == 'light' else 0.25)
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == "light" else 0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == "light" else 0.25)
         w = thickness
         h = thickness * 2
 
         if "vertical" in element.lower():
             img_normal = ImageTk.PhotoImage(Image.new("RGB", (w, h), thumbcolor))
             StylerTTK.theme_images[f"{element}.normal"] = img_normal
-            
+
             img_pressed = ImageTk.PhotoImage(Image.new("RGB", (w, h), pressed))
             StylerTTK.theme_images[f"{element}.pressed"] = img_pressed
-            
+
             img_active = ImageTk.PhotoImage(Image.new("RGB", (w, h), active))
             StylerTTK.theme_images[f"{element}.active"] = img_active
-            
+
             img_trough = ImageTk.PhotoImage(Image.new("RGB", (w, h), troughcolor))
             StylerTTK.theme_images[f"{element}.trough"] = img_trough
-        
+
         else:
             img_normal = ImageTk.PhotoImage(Image.new("RGB", (h, w), thumbcolor))
             StylerTTK.theme_images[f"{element}.normal"] = img_normal
-            
+
             img_pressed = ImageTk.PhotoImage(Image.new("RGB", (h, w), pressed))
             StylerTTK.theme_images[f"{element}.pressed"] = img_pressed
-            
+
             img_active = ImageTk.PhotoImage(Image.new("RGB", (h, w), active))
             StylerTTK.theme_images[f"{element}.active"] = img_active
 
@@ -1167,11 +1203,11 @@ class StylerTTK:
             thickness (int): The thickness of the short side in pixels.
             element (str): A unique style element identifier.
         """
-        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == 'light' else 0.35)
-        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == 'light' else 0.25)
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35 if theme.type == "light" else 0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25 if theme.type == "light" else 0.25)
         troughoutline = ThemeColors.update_hsv(troughcolor, vd=-0.25)
         thumboutline = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
-        
+
         w = thickness
         h = thickness * 2
 
@@ -1226,7 +1262,7 @@ class StylerTTK:
             orient (str): One of 'horizontal' or 'vertical'.
             element (str): A unique element identifier to associate with the images.
         """
-        img = Image.new('RGBA', (16,16))
+        img = Image.new("RGBA", (16, 16))
         draw = ImageDraw.Draw(img)
 
         draw.line([5, 8, 5, 11], fill=arrowcolor)
@@ -1237,13 +1273,12 @@ class StylerTTK:
         draw.line([10, 7, 10, 10], fill=arrowcolor)
         draw.line([11, 8, 11, 11], fill=arrowcolor)
 
-        if orient.lower() == 'vertical':
-            StylerTTK.theme_images[f'{element}.uparrow'] = ImageTk.PhotoImage(img)
-            StylerTTK.theme_images[f'{element}.downarrow'] = ImageTk.PhotoImage(img.rotate(180))
+        if orient.lower() == "vertical":
+            StylerTTK.theme_images[f"{element}.uparrow"] = ImageTk.PhotoImage(img)
+            StylerTTK.theme_images[f"{element}.downarrow"] = ImageTk.PhotoImage(img.rotate(180))
         else:
-            StylerTTK.theme_images[f'{element}.leftarrow'] = ImageTk.PhotoImage(img.rotate(90))
-            StylerTTK.theme_images[f'{element}.rightarrow'] = ImageTk.PhotoImage(img.rotate(-90))
-
+            StylerTTK.theme_images[f"{element}.leftarrow"] = ImageTk.PhotoImage(img.rotate(90))
+            StylerTTK.theme_images[f"{element}.rightarrow"] = ImageTk.PhotoImage(img.rotate(-90))
 
     @staticmethod
     def style_spinbox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
@@ -1486,21 +1521,18 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
+        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == 'light' else 0.2)
+        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == 'light' else 0.1)
 
-        # disabled colors
+        if theme.type == 'light':
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
+        else:
+            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
         disabled_fg = theme.colors.inputfg
-        disabled_bg = (
-            ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-            if theme.type == "light"
-            else ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-        )
 
-        # pressed and hover color settings
-        pressed_vd = -0.2
-        hover_vd = -0.1
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -1522,22 +1554,22 @@ class StylerTTK:
                         "foreground": [("disabled", disabled_fg)],
                         "background": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "bordercolor": [
                             ("disabled", disabled_bg),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("hover !disabled", hover),
                         ],
                         "darkcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "lightcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                     },
                 }
@@ -1566,17 +1598,15 @@ class StylerTTK:
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
+        pressed = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == 'light' else 0.1)
         select_fg = theme.colors.selectfg
 
-        # disabled color settings
         if theme.type == "light":
             disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
         else:
             disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
-        # pressed color settings
-        pressed_vd = -0.1
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -1597,19 +1627,19 @@ class StylerTTK:
                     "map": {
                         "foreground": [("disabled", disabled_fg), ("pressed", select_fg), ("hover", select_fg)],
                         "background": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("pressed !disabled", pressed),
                             ("hover !disabled", foreground),
                         ],
                         "bordercolor": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("pressed !disabled", pressed),
                             ("hover !disabled", foreground),
                         ],
                         "darkcolor": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("pressed !disabled", pressed),
                             ("hover !disabled", foreground),
                         ],
                         "lightcolor": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
+                            ("pressed !disabled", pressed),
                             ("hover !disabled", foreground),
                         ],
                     },
@@ -1987,13 +2017,13 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_radiobutton_images(theme, indicatorcolor, element_id):
+    def style_radiobutton_images(theme, indicatorcolor, element):
         """ "Create assets for radiobutton layout
 
         Args:
             theme (ThemeSettings): The current theme.
             indicator_color (str): The indicator color.
-            element_id (UUID): A unique element identification number.
+            element (UUID): A unique element identification number.
         """
         outline = theme.colors.selectbg
         if theme.type == "light":
@@ -2028,9 +2058,9 @@ class StylerTTK:
         # save images
         StylerTTK.theme_images.update(
             {
-                f"{element_id}_radio_off": ImageTk.PhotoImage(radio_off.resize((14, 14)), Image.LANCZOS),
-                f"{element_id}_radio_on": ImageTk.PhotoImage(radio_on.resize((14, 14)), Image.LANCZOS),
-                f"{element_id}_radio_disabled": ImageTk.PhotoImage(radio_disabled.resize((14, 14)), Image.LANCZOS),
+                f"{element}_radio_off": ImageTk.PhotoImage(radio_off.resize((14, 14)), Image.LANCZOS),
+                f"{element}_radio_on": ImageTk.PhotoImage(radio_on.resize((14, 14)), Image.LANCZOS),
+                f"{element}_radio_disabled": ImageTk.PhotoImage(radio_disabled.resize((14, 14)), Image.LANCZOS),
             }
         )
 
@@ -2307,7 +2337,7 @@ class StylerTTK:
             self.settings.update({f"{color}.TMeter": {"configure": {"foreground": self.theme.colors.get(color)}}})
 
     @staticmethod
-    def style_label(theme, background=None, font=None, foreground=None, style=None):
+    def style_label(theme, background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create a label style.
 
         Args:
@@ -2320,16 +2350,13 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        settings = dict()
-
-        # fallback values
+        # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        if "Inverse" in style:
-            foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-        else:
-            foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
-        font = font or DEFAULT_FONT
+        fallbackfg = theme.colors.selectfg if 'inverse' in style.lower() else theme.colors.fg
+        foreground = ThemeColors.normalize(foreground, fallbackfg, theme.colors)
 
+        # style settings
+        settings = dict()
         settings.update({style: {"configure": {"foreground": foreground, "background": background, "font": font}}})
         return settings
 
@@ -2343,6 +2370,7 @@ class StylerTTK:
             bordercolor (str, optional): The color of the labelframe border.
             foreground (str, optional): The color of the label text.
             style (str, optional): The style used to render the widget.
+
         Returns:
             dict: A dictionary of theme settings.
         """
@@ -2351,11 +2379,10 @@ class StylerTTK:
         # fallback values
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-        if theme.type == "light":
-            bordercolor = ThemeColors.normalize(bordercolor, theme.colors.border, theme.colors)
-        else:
-            bordercolor = ThemeColors.normalize(bordercolor, theme.colors.selectbg, theme.colors)
+        borderfallback = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
+        bordercolor = ThemeColors.normalize(bordercolor, borderfallback, theme.colors)
 
+        # style settings
         settings.update(
             {
                 f"{style}.Label": {"configure": {"foreground": foreground, "background": background}},
@@ -2392,25 +2419,20 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-
-        # disabled colors
-        if theme.type == "light":
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # create widget images
-        element_id = uuid4()
-        StylerTTK.style_roundtoggle_images(theme, indicatorcolor, element_id)
-        toggle_off = StylerTTK.theme_images[f"{element_id}_toggle_off"]
-        toggle_on = StylerTTK.theme_images[f"{element_id}_toggle_on"]
-        toggle_disabled = StylerTTK.theme_images[f"{element_id}_toggle_disabled"]
+        element = uuid4()
+        StylerTTK.style_roundtoggle_images(theme, indicatorcolor, element)
+        toggle_off = StylerTTK.theme_images[f"{element}_toggle_off"]
+        toggle_on = StylerTTK.theme_images[f"{element}_toggle_on"]
+        toggle_disabled = StylerTTK.theme_images[f"{element}_toggle_disabled"]
 
-        # create the widget style
+        # style settings
         settings = dict()
         settings.update(
             {
-                f"{element_id}.Roundtoggle.Toolbutton.indicator": {
+                f"{element}.Roundtoggle.Toolbutton.indicator": {
                     "element create": (
                         "image",
                         toggle_on,
@@ -2439,7 +2461,7 @@ class StylerTTK:
                                         {
                                             "sticky": "nswe",
                                             "children": [
-                                                (f"{element_id}.Roundtoggle.Toolbutton.indicator", {"side": "left"}),
+                                                (f"{element}.Roundtoggle.Toolbutton.indicator", {"side": "left"}),
                                                 ("Toolbutton.label", {"side": "left"}),
                                             ],
                                         },
@@ -2461,25 +2483,20 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_roundtoggle_images(theme, indicatorcolor, element_id):
+    def style_roundtoggle_images(theme, indicatorcolor, element):
         """ "Create assets for roundtoggle layout
 
         Args:
             theme (ThemeSettings): The current theme.
             indicator_color (str): The indicator color.
-            element_id (UUID): A unique element identification number.
+            element (UUID): A unique element identification number.
         """
-        outline = theme.colors.selectbg
+        # fallback colors
+        outline = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
         indicator_on = theme.colors.selectfg
+        indicator_off = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
         fill = theme.colors.bg
-        if theme.type == "light":
-            indicator_off = theme.colors.selectbg
-            outline = theme.colors.selectbg
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            indicator_off = theme.colors.inputbg
-            outline = theme.colors.inputbg
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # toggle off
         toggle_off = Image.new("RGBA", (226, 130))
@@ -2503,9 +2520,9 @@ class StylerTTK:
         # save images
         StylerTTK.theme_images.update(
             {
-                f"{element_id}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
-                f"{element_id}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
-                f"{element_id}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
             }
         )
 
@@ -2528,25 +2545,20 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # create widget images
-        element_id = uuid4()
-        StylerTTK.style_squaretoggle_images(theme, indicatorcolor, element_id)
-        toggle_off = StylerTTK.theme_images[f"{element_id}_toggle_off"]
-        toggle_on = StylerTTK.theme_images[f"{element_id}_toggle_on"]
-        toggle_disabled = StylerTTK.theme_images[f"{element_id}_toggle_disabled"]
+        element = uuid4()
+        StylerTTK.style_squaretoggle_images(theme, indicatorcolor, element)
+        toggle_off = StylerTTK.theme_images[f"{element}_toggle_off"]
+        toggle_on = StylerTTK.theme_images[f"{element}_toggle_on"]
+        toggle_disabled = StylerTTK.theme_images[f"{element}_toggle_disabled"]
 
-        # create the widget style
+        # style settings
         settings = dict()
         settings.update(
             {
-                f"{element_id}.Squaretoggle.Toolbutton.indicator": {
+                f"{element}.Squaretoggle.Toolbutton.indicator": {
                     "element create": (
                         "image",
                         toggle_on,
@@ -2575,7 +2587,7 @@ class StylerTTK:
                                         {
                                             "sticky": "nswe",
                                             "children": [
-                                                (f"{element_id}.Squaretoggle.Toolbutton.indicator", {"side": "left"}),
+                                                (f"{element}.Squaretoggle.Toolbutton.indicator", {"side": "left"}),
                                                 ("Toolbutton.label", {"side": "left"}),
                                             ],
                                         },
@@ -2597,25 +2609,20 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_squaretoggle_images(theme, indicatorcolor, element_id):
+    def style_squaretoggle_images(theme, indicatorcolor, element):
         """ "Create assets for squaretoggle layout
 
         Args:
             theme (ThemeSettings): The current theme.
             indicator_color (str): The indicator color.
-            element_id (UUID): A unique element identification number.
+            element (UUID): A unique element identification number.
         """
-        outline = theme.colors.selectbg
+        # fallback colors
+        outline = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
         indicator_on = theme.colors.selectfg
+        indicator_off = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
         fill = theme.colors.bg
-        if theme.type == "light":
-            indicator_off = theme.colors.selectbg
-            outline = theme.colors.selectbg
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            indicator_off = theme.colors.inputbg
-            outline = theme.colors.inputbg
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
         # toggle off
         toggle_off = Image.new("RGBA", (226, 130))
@@ -2639,9 +2646,9 @@ class StylerTTK:
         # save images
         StylerTTK.theme_images.update(
             {
-                f"{element_id}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
-                f"{element_id}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
-                f"{element_id}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_off": ImageTk.PhotoImage(toggle_off.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_on": ImageTk.PhotoImage(toggle_on.resize((24, 15)), Image.LANCZOS),
+                f"{element}_toggle_disabled": ImageTk.PhotoImage(toggle_disabled.resize((24, 15)), Image.LANCZOS),
             }
         )
 
@@ -2664,25 +2671,20 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-
-        # disabled colors
-        if theme.type == "light":
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # create widget images
-        element_id = uuid4()
-        StylerTTK.style_checkbutton_images(theme, indicatorcolor, element_id)
-        cb_off = StylerTTK.theme_images[f"{element_id}_cb_off"]
-        cb_on = StylerTTK.theme_images[f"{element_id}_cb_on"]
-        cb_disabled = StylerTTK.theme_images[f"{element_id}_cb_disabled"]
+        element = uuid4()
+        StylerTTK.style_checkbutton_images(theme, indicatorcolor, element)
+        cb_off = StylerTTK.theme_images[f"{element}_cb_off"]
+        cb_on = StylerTTK.theme_images[f"{element}_cb_on"]
+        cb_disabled = StylerTTK.theme_images[f"{element}_cb_disabled"]
 
         # create the widget style
         settings = dict()
         settings.update(
             {
-                f"{element_id}.Checkbutton.indicator": {
+                f"{element}.Checkbutton.indicator": {
                     "element create": (
                         "image",
                         cb_on,
@@ -2703,7 +2705,7 @@ class StylerTTK:
                             "Checkbutton.padding",
                             {
                                 "children": [
-                                    (f"{element_id}.Checkbutton.indicator", {"side": "left", "sticky": ""}),
+                                    (f"{element}.Checkbutton.indicator", {"side": "left", "sticky": ""}),
                                     (
                                         "Checkbutton.focus",
                                         {
@@ -2729,13 +2731,13 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_checkbutton_images(theme, indicatorcolor, element_id):
+    def style_checkbutton_images(theme, indicatorcolor, element):
         """ "Create assets for checkbutton layout
 
         Args:
             theme (ThemeSettings): The current theme.
             indicator_color (str): The indicator color.
-            element_id (UUID): A unique element identification number.
+            element (str): A unique element identification number.
         """
         outline = theme.colors.selectbg
         if theme.type == "light":
@@ -2768,9 +2770,9 @@ class StylerTTK:
         # save images
         StylerTTK.theme_images.update(
             {
-                f"{element_id}_cb_off": ImageTk.PhotoImage(cb_off.resize((14, 14)), Image.LANCZOS),
-                f"{element_id}_cb_on": ImageTk.PhotoImage(cb_on.resize((14, 14)), Image.LANCZOS),
-                f"{element_id}_cb_disabled": ImageTk.PhotoImage(cb_disabled.resize((14, 14)), Image.LANCZOS),
+                f"{element}_cb_off": ImageTk.PhotoImage(cb_off.resize((14, 14)), Image.LANCZOS),
+                f"{element}_cb_on": ImageTk.PhotoImage(cb_on.resize((14, 14)), Image.LANCZOS),
+                f"{element}_cb_disabled": ImageTk.PhotoImage(cb_disabled.resize((14, 14)), Image.LANCZOS),
             }
         )
 
@@ -2806,20 +2808,14 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
-        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-
-        # disabled colors
         disabled_fg = theme.colors.inputfg
-        if theme.type == "light":
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+        background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
+        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == 'light' else 0.2)
+        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == 'light' else 0.1)
 
-        # pressed and hover color settings
-        pressed_vd = -0.2
-        hover_vd = -0.1
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -2844,22 +2840,22 @@ class StylerTTK:
                         "foreground": [("disabled", disabled_fg)],
                         "background": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "bordercolor": [
                             ("disabled", disabled_bg),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("hover !disabled", hover),
                         ],
                         "darkcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "lightcolor": [
                             ("disabled", disabled_bg),
-                            ("pressed !disabled", ThemeColors.update_hsv(background, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(background, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                     },
                 }
