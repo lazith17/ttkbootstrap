@@ -7,6 +7,7 @@
 """
 from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
+from numbers import Number
 from tkinter import ttk
 from tkinter import StringVar
 from ttkbootstrap.core import StylerTTK
@@ -29,15 +30,15 @@ class Spinbox(Widget, ttk.Spinbox):
         focuscolor=None,
         font=None,
         foreground=None,
-        format=None,
-        from_=0.0,
-        increment=1.0,
+        format='%0.0f',
+        from_=0,
+        increment=1,
         padding=None,
         state="normal",
         style=None,
         takefocus=True,
         textvariable=None,
-        to=100.0,
+        to=100,
         validate=None,
         validatecommand=None,
         values=None,
@@ -109,6 +110,7 @@ class Spinbox(Widget, ttk.Spinbox):
         self.focuscolor = focuscolor
         self.foreground = foreground
         self.font = font or DEFAULT_FONT
+        self.format = format
         self.from_ = from_
         self.to = to
         self.defaultvalue = defaultvalue
@@ -167,11 +169,11 @@ class Spinbox(Widget, ttk.Spinbox):
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
         if self.values and not self.defaultvalue:
-            self.value = self.values[0]
+            self.value = self.format % self.values[0] if isinstance(self.values[0], Number) else self.values[0]
         elif self.defaultvalue:
-            self.value = self.defaultvalue
+            self.value = self.format % self.defaultvalue if isinstance(self.defaultvalue, Number) else self.defaultvalue
         else:
-            self.value = self.from_
+            self.value = self.format % self.from_
 
     @property
     def value(self):
