@@ -322,9 +322,7 @@ class StylerTTK:
         """Update the settings dictionary that is used to create a theme. This is a wrapper on all the `_style_widget`
         methods which define the layout, configuration, and styling mapping for each ttk widget.
         """
-        # self._style_spinbox()
         self._style_scale()
-        self._style_scrollbar()
         self._style_exit_button()
         self._style_calendar()
         self._style_meter()
@@ -335,11 +333,17 @@ class StylerTTK:
 
         # default style
         self.settings.update(self.style_button(self.theme, style="TButton"))
+        self.settings.update(self.style_scrollbar(self.theme, style="Vertical.TScrollbar"))
+        self.settings.update(self.style_scrollbar(self.theme, style="Rounded.Vertical.TScrollbar"))
+        self.settings.update(self.style_scrollbar(self.theme, orient="horizontal", style="Horizontal.TScrollbar"))
+        self.settings.update(
+            self.style_scrollbar(self.theme, orient="horizontal", style="Rounded.Horizontal.TScrollbar")
+        )
         self.settings.update(self.style_outline_button(self.theme, style="Outline.TButton"))
         self.settings.update(self.style_link_button(self.theme, style="Link.TButton"))
         self.settings.update(self.style_sizegrip(self.theme, style="TSizegrip"))
         self.settings.update(self.style_separator(self.theme, orient="vertical", style="Vertical.TSeparator"))
-        self.settings.update(self.style_separator(self.theme))
+        self.settings.update(self.style_separator(self.theme, style="Horizontal.TSeparator"))
         self.settings.update(self.style_checkbutton(self.theme, style="TCheckbutton"))
         self.settings.update(self.style_radiobutton(self.theme, style="TRadiobutton"))
         self.settings.update(self.style_toolbutton(self.theme, style="Toolbutton"))
@@ -374,6 +378,22 @@ class StylerTTK:
             self.settings.update(self.style_panedwindow(self.theme, sashcolor=color, style=f"{color}.TPanedwindow"))
             self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
             self.settings.update(self.style_notebook(self.theme, background=color, style=f"{color}.TNotebook"))
+            self.settings.update(
+                self.style_scrollbar(self.theme, thumbcolor=color, style=f"{color}.Vertical.TScrollbar")
+            )
+            self.settings.update(
+                self.style_scrollbar(
+                    self.theme, thumbcolor=color, orient="horizontal", style=f"{color}.Horizontal.TScrollbar"
+                )
+            )
+            self.settings.update(
+                self.style_scrollbar(self.theme, thumbcolor=color, style=f"{color}.Rounded.Vertical.TScrollbar")
+            )
+            self.settings.update(
+                self.style_scrollbar(
+                    self.theme, thumbcolor=color, orient="horizontal", style=f"{color}.Rounded.Horizontal.TScrollbar"
+                )
+            )
             self.settings.update(
                 self.style_outline_menubutton(self.theme, foreground=color, style=f"{color}.Outline.TMenubutton")
             )
@@ -529,7 +549,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_separator(theme, background=None, orient="horizontal", sashthickness=1, style="Horizontal.TSeparator"):
+    def style_separator(theme, background=None, orient="horizontal", sashthickness=1, style=None):
         """Create style configuration for ttk separator: *ttk.Separator*. The default style for light will be border,
         but dark will be primary, as this makes the most sense for general use. However, all other colors will be
         available as well through styling.
@@ -882,64 +902,6 @@ class StylerTTK:
                 }
             )
 
-    def _create_scrollbar_images(self):
-        """Create assets needed for scrollbar arrows. The assets are saved to the ``theme_images`` property."""
-        font_size = 13
-        with importlib.resources.open_binary("ttkbootstrap.core.files", "Symbola.ttf") as font_path:
-            fnt = ImageFont.truetype(font_path, font_size)
-
-        # up arrow
-        vs_upim = Image.new("RGBA", (font_size, font_size))
-        up_draw = ImageDraw.Draw(vs_upim)
-        up_draw.text(
-            (1, 5),
-            "🞁",
-            font=fnt,
-            fill=self.theme.colors.inputfg
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.35, sd=-0.1),
-        )
-        self.theme_images["vsup"] = ImageTk.PhotoImage(vs_upim)
-
-        # down arrow
-        hsdown_im = Image.new("RGBA", (font_size, font_size))
-        down_draw = ImageDraw.Draw(hsdown_im)
-        down_draw.text(
-            (1, -4),
-            "🞃",
-            font=fnt,
-            fill=self.theme.colors.inputfg
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.35, sd=-0.1),
-        )
-        self.theme_images["vsdown"] = ImageTk.PhotoImage(hsdown_im)
-
-        # left arrow
-        vs_upim = Image.new("RGBA", (font_size, font_size))
-        up_draw = ImageDraw.Draw(vs_upim)
-        up_draw.text(
-            (1, 1),
-            "🞀",
-            font=fnt,
-            fill=self.theme.colors.inputfg
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.35, sd=-0.1),
-        )
-        self.theme_images["hsleft"] = ImageTk.PhotoImage(vs_upim)
-
-        # right arrow
-        vs_upim = Image.new("RGBA", (font_size, font_size))
-        up_draw = ImageDraw.Draw(vs_upim)
-        up_draw.text(
-            (1, 1),
-            "🞂",
-            font=fnt,
-            fill=self.theme.colors.inputfg
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.35, sd=-0.1),
-        )
-        self.theme_images["hsright"] = ImageTk.PhotoImage(vs_upim)
-
     def _style_floodgauge(self):
         """Create a style configuration for the *ttk.Progressbar* that makes it into a floodgauge. Which is essentially
         a very large progress bar with text in the middle.
@@ -1048,59 +1010,170 @@ class StylerTTK:
                 }
             )
 
-    def _style_scrollbar(self):
-        """Create style configuration for ttk scrollbar: *ttk.Scrollbar*. This theme uses elements from the *alt* theme
-        tobuild the widget layout.
+    @staticmethod
+    def style_scrollbar(theme, style=None, thickness=12, thumbcolor=None, troughcolor=None, orient="vertical"):
+        """Create a default scrollbar style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            style (str, optional): The style used to render the widget.
+            thumbcolor (str, optional): The color of the scrollbar thumb.
+            thickness (str, optional): The thickness along the short side.
+            troughcolor (str, optional): The color of the scrollbar trough.
+            orient (str, optional): The orientation of the scrollbar; either horizontal or vertical.
 
-            - Scrollbar.trough: orient, troughborderwidth, troughcolor, troughrelief, groovewidth
-            - Scrollbar.uparrow: arrowsize, background, bordercolor, relief, arrowcolor
-            - Scrollbar.downarrow: arrowsize, background, bordercolor, relief, arrowcolor
-            - Scrollbar.thumb: width, background, bordercolor, relief, orient
+        Thickness does not work well with the rounded style because the border also needs to be adjusted to allow for
+        the repeating section when the image is repeated.
+
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self._create_scrollbar_images()
+        settings = dict()
 
-        self.settings.update(
+        # fallback colors
+        if theme.type == "light":
+            fallback = ThemeColors.update_hsv(theme.colors.bg, vd=-0.15)
+            thumbcolor = ThemeColors.normalize(thumbcolor, fallback, theme.colors)
+        else:
+            fallback = ThemeColors.update_hsv(theme.colors.selectbg, vd=0.25, sd=-0.1)
+            thumbcolor = ThemeColors.normalize(thumbcolor, fallback, theme.colors)
+        troughcolor = ThemeColors.normalize(troughcolor, ThemeColors.update_hsv(theme.colors.bg, vd=0.2), theme.colors)
+
+        # images
+        element = style.replace("TScrollbar", "Scrollbar")
+
+        if "rounded" in style.lower():
+            StylerTTK.style_rounded_scrollbar_images(thumbcolor, troughcolor, thickness, element)
+        else:
+            StylerTTK.style_default_scrollbar_images(thumbcolor, troughcolor, thickness, element)
+        
+        thumb_normal = StylerTTK.theme_images[f"{element}.normal"]
+        thumb_pressed = StylerTTK.theme_images[f"{element}.pressed"]
+        thumb_active = StylerTTK.theme_images[f"{element}.active"]
+        trough = StylerTTK.theme_images[f"{element}.trough"]
+
+        settings.update(
             {
-                "Vertical.Scrollbar.trough": {"element create": ("from", "alt")},
-                "Vertical.Scrollbar.thumb": {"element create": ("from", "alt")},
-                "Vertical.Scrollbar.uparrow": {"element create": ("image", self.theme_images["vsup"])},
-                "Vertical.Scrollbar.downarrow": {"element create": ("image", self.theme_images["vsdown"])},
-                "Horizontal.Scrollbar.trough": {"element create": ("from", "alt")},
-                "Horizontal.Scrollbar.thumb": {"element create": ("from", "alt")},
-                "Horizontal.Scrollbar.leftarrow": {"element create": ("image", self.theme_images["hsleft"])},
-                "Horizontal.Scrollbar.rightarrow": {"element create": ("image", self.theme_images["hsright"])},
-                "TScrollbar": {
-                    "configure": {
-                        "troughrelief": "flat",
-                        "relief": "flat",
-                        "troughborderwidth": 2,
-                        "troughcolor": ThemeColors.update_hsv(self.theme.colors.bg, vd=-0.05),
-                        "background": ThemeColors.update_hsv(self.theme.colors.bg, vd=-0.15)
-                        if self.theme.type == "light"
-                        else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.25, sd=-0.1),
-                        "width": 16,
-                    },
-                    "map": {
-                        "background": [
-                            (
-                                "pressed",
-                                ThemeColors.update_hsv(self.theme.colors.bg, vd=-0.35)
-                                if self.theme.type == "light"
-                                else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.05),
-                            ),
-                            (
-                                "active",
-                                ThemeColors.update_hsv(self.theme.colors.bg, vd=-0.25)
-                                if self.theme.type == "light"
-                                else ThemeColors.update_hsv(self.theme.colors.selectbg, vd=0.15),
-                            ),
-                        ]
-                    },
-                },
-            }
-        )
+                f"{element}.thumb": {
+                    "element create": ("image", thumb_normal, ("pressed", thumb_pressed), ("active", thumb_active),
+                        {"border": 5, "padding": 2})},
+                f"{element}.trough": {
+                    "element create": ("image", trough, {"border": 5, "padding": 2})}})
+
+        if orient.lower() == "horizontal":
+            settings.update(
+                {
+                    style: {
+                        "layout": [
+                            (f"{element}.trough", {"sticky": "we", "children": [
+                                (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
+        else:
+            settings.update({
+                style: {
+                    "layout": [
+                        (f"{element}.trough", {"sticky": "ns", "children": [
+                            (f"{element}.thumb", {"expand": "1", "sticky": "nswe"})]})]}})
+        return settings
+
+    @staticmethod
+    def style_default_scrollbar_images(thumbcolor, troughcolor, thickness, element):
+        """Create image assets for squared scrollbar widget
+
+        Args:
+            thumbcolor (str): The color of the scrollbar thumb.
+            troughcolor (str): The color of the scrollbar trough.
+            thickness (int): The thickness of the short side in pixels.
+            element (str): A unique style element identifier.
+        """
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        w = thickness
+        h = thickness * 2
+
+        if "vertical" in element.lower():
+            img_normal = ImageTk.PhotoImage(Image.new("RGB", (w, h), thumbcolor))
+            StylerTTK.theme_images[f"{element}.normal"] = img_normal
+            
+            img_pressed = ImageTk.PhotoImage(Image.new("RGB", (w, h), pressed))
+            StylerTTK.theme_images[f"{element}.pressed"] = img_pressed
+            
+            img_active = ImageTk.PhotoImage(Image.new("RGB", (w, h), active))
+            StylerTTK.theme_images[f"{element}.active"] = img_active
+            
+            img_trough = ImageTk.PhotoImage(Image.new("RGB", (w, h), troughcolor))
+            StylerTTK.theme_images[f"{element}.trough"] = img_trough
+        
+        else:
+            img_normal = ImageTk.PhotoImage(Image.new("RGB", (h, w), thumbcolor))
+            StylerTTK.theme_images[f"{element}.normal"] = img_normal
+            
+            img_pressed = ImageTk.PhotoImage(Image.new("RGB", (h, w), pressed))
+            StylerTTK.theme_images[f"{element}.pressed"] = img_pressed
+            
+            img_active = ImageTk.PhotoImage(Image.new("RGB", (h, w), active))
+            StylerTTK.theme_images[f"{element}.active"] = img_active
+
+            img_trough = ImageTk.PhotoImage(Image.new("RGB", (h, w), troughcolor))
+            StylerTTK.theme_images[f"{element}.trough"] = img_trough
+
+    @staticmethod
+    def style_rounded_scrollbar_images(thumbcolor, troughcolor, thickness, element):
+        """Create image assets for rounded scrollbar widget
+
+        Args:
+            thumbcolor (str): The color of the scrollbar thumb.
+            troughcolor (str): The color of the scrollbar trough.
+            thickness (int): The thickness of the short side in pixels.
+            element (str): A unique style element identifier.
+        """
+        pressed = ThemeColors.update_hsv(thumbcolor, vd=-0.35)
+        active = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        troughoutline = ThemeColors.update_hsv(troughcolor, vd=-0.25)
+        thumboutline = ThemeColors.update_hsv(thumbcolor, vd=-0.25)
+        w = thickness
+        h = thickness * 2
+
+        if "vertical" in element.lower():
+            img = Image.new("RGBA", (500, 1000))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=thumbcolor, outline=thumboutline, width=10)
+            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (500, 1000))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=pressed)
+            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (500, 1000))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=active)
+            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((w//2, h//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (500, 1000))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=troughcolor, outline=troughoutline, width=10)
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((w, h), Image.CUBIC))
+
+        else:
+            img = Image.new("RGBA", (1000, 500))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=thumbcolor, outline=thumboutline, width=10)
+            StylerTTK.theme_images[f"{element}.normal"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (1000, 500))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=pressed)
+            StylerTTK.theme_images[f"{element}.pressed"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (1000, 500))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=active)
+            StylerTTK.theme_images[f"{element}.active"] = ImageTk.PhotoImage(img.resize((h//2, w//2), Image.CUBIC))
+
+            img = Image.new("RGBA", (1000, 500))
+            draw = ImageDraw.Draw(img)
+            draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=troughcolor, outline=troughoutline, width=10)
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
 
     @staticmethod
     def style_spinbox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
@@ -1131,20 +1204,20 @@ class StylerTTK:
             disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
 
         # use Entry field from dark theme to prevent corners from shining through
-        widget_id = uuid4()
+        element = uuid4()
         if theme.type == "dark":
-            settings.update({f"{widget_id}.Spinbox.field": {"element create": ("from"< "default")}})
-        
+            settings.update({f"{element}.Spinbox.field": {"element create": ("from", "default")}})
+
         # use the arrows from the default theme ... they just look better.
-        settings.update({f"{widget_id}.Spinbox.uparrow": {"element create": ("from", "default")}})
-        settings.update({f"{widget_id}.Spinbox.downarrow": {"element create": ("from", "default")}})
+        settings.update({f"{element}.Spinbox.uparrow": {"element create": ("from", "default")}})
+        settings.update({f"{element}.Spinbox.downarrow": {"element create": ("from", "default")}})
 
         settings.update(
             {
                 style: {
                     "layout": [
                         (
-                            f"{widget_id}.Spinbox.field",
+                            f"{element}.Spinbox.field",
                             {
                                 "side": "top",
                                 "sticky": "we",
@@ -1155,8 +1228,8 @@ class StylerTTK:
                                             "side": "right",
                                             "sticky": "",
                                             "children": [
-                                                (f"{widget_id}.Spinbox.uparrow", {"side": "top", "sticky": "e"}),
-                                                (f"{widget_id}.Spinbox.downarrow", {"side": "bottom", "sticky": "e"}),
+                                                (f"{element}.Spinbox.uparrow", {"side": "top", "sticky": "e"}),
+                                                (f"{element}.Spinbox.downarrow", {"side": "bottom", "sticky": "e"}),
                                             ],
                                         },
                                     ),
