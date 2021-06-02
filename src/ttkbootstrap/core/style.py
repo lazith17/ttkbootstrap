@@ -1,6 +1,6 @@
 import colorsys
 import importlib.resources
-from tkinter import PhotoImage, ttk
+from tkinter import ttk
 from uuid import uuid4
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
