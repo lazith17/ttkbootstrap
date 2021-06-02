@@ -40,6 +40,8 @@ WIDGET_LOOKUP = {
     "separator": "TSeparator",
     "scrollbar": "TScrollbar",
     "sizegrip": "TSizegrip",
+    "scale": "TScale",
+    "slider": "TScale",
     "squaretoggle": "Squaretoggle.Toolbutton",
     "toggle": "Roundtoggle.Toolbutton",
     "toolbutton": "Toolbutton",
