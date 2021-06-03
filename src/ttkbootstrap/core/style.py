@@ -330,12 +330,16 @@ class StylerTTK:
         self._style_exit_button()
         self._style_calendar()
         self._style_meter()
-        self._style_progressbar()
-        self._style_striped_progressbar()
         self._style_floodgauge()
         self._style_treeview()
 
         # default style
+        self.settings.update(self.style_progressbar(self.theme, style="Horizontal.TProgressbar"))
+        self.settings.update(self.style_progressbar(self.theme, style="Striped.Horizontal.TProgressbar"))
+        self.settings.update(self.style_progressbar(self.theme, orient="vertical", style="Vertical.TProgressbar"))
+        self.settings.update(
+            self.style_progressbar(self.theme, orient="vertical", style="Striped.Vertical.TProgressbar")
+        )
         self.settings.update(self.style_button(self.theme, style="TButton"))
         self.settings.update(self.style_scrollbar(self.theme, style="Vertical.TScrollbar"))
         self.settings.update(self.style_scrollbar(self.theme, style="Rounded.Vertical.TScrollbar"))
@@ -385,6 +389,22 @@ class StylerTTK:
             self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
             self.settings.update(self.style_notebook(self.theme, background=color, style=f"{color}.TNotebook"))
             self.settings.update(
+                self.style_progressbar(self.theme, barcolor=color, style=f"{color}.Horizontal.TProgressbar")
+            )
+            self.settings.update(
+                self.style_progressbar(self.theme, barcolor=color, style=f"{color}.Striped.Horizontal.TProgressbar")
+            )
+            self.settings.update(
+                self.style_progressbar(
+                    self.theme, orient="vertical", barcolor=color, style=f"{color}.Vertical.TProgressbar"
+                )
+            )
+            self.settings.update(
+                self.style_progressbar(
+                    self.theme, orient="vertical", barcolor=color, style=f"{color}.Striped.Vertical.TProgressbar"
+                )
+            )
+            self.settings.update(
                 self.style_scrollbar(self.theme, thumbcolor=color, style=f"{color}.Vertical.TScrollbar")
             )
             self.settings.update(
@@ -401,14 +421,10 @@ class StylerTTK:
                 )
             )
             self.settings.update(
-                self.style_scale(
-                    self.theme, slidercolor=color, orient="vertical", style=f"{color}.Vertical.TScale"
-                )
+                self.style_scale(self.theme, slidercolor=color, orient="vertical", style=f"{color}.Vertical.TScale")
             )
             self.settings.update(
-                self.style_scale(
-                    self.theme, slidercolor=color, orient="horizontal", style=f"{color}.Horizontal.TScale"
-                )
+                self.style_scale(self.theme, slidercolor=color, orient="horizontal", style=f"{color}.Horizontal.TScale")
             )
             self.settings.update(
                 self.style_outline_menubutton(self.theme, foreground=color, style=f"{color}.Outline.TMenubutton")
@@ -486,7 +502,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
-        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -574,16 +590,16 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        fallback = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
+        fallback = theme.colors.border if theme.type == "light" else theme.colors.selectbg
         background = ThemeColors.normalize(background, fallback, theme.colors)
 
         # separator images
         element = uuid4()
         hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, sashthickness), background))
-        StylerTTK.theme_images[f'{element}.h.separator'] = hs_im
+        StylerTTK.theme_images[f"{element}.h.separator"] = hs_im
 
         vs_im = ImageTk.PhotoImage(Image.new("RGB", (sashthickness, 40), background))
-        StylerTTK.theme_images[f'{element}.v.separator'] = vs_im
+        StylerTTK.theme_images[f"{element}.v.separator"] = vs_im
 
         # style settings
         settings = dict()
@@ -592,7 +608,7 @@ class StylerTTK:
             settings.update(
                 {
                     f"{element}.Horizontal.Separator.separator": {
-                        "element create": ("image", StylerTTK.theme_images[f'{element}.h.separator'])
+                        "element create": ("image", StylerTTK.theme_images[f"{element}.h.separator"])
                     },
                     f"{style}": {"layout": [(f"{element}.Horizontal.Separator.separator", {"sticky": "we"})]},
                 }
@@ -601,154 +617,142 @@ class StylerTTK:
             settings.update(
                 {
                     f"{element}.Vertical.Separator.separator": {
-                        "element create": ("image", StylerTTK.theme_images[f'{element}.v.separator'])
+                        "element create": ("image", StylerTTK.theme_images[f"{element}.v.separator"])
                     },
                     f"{style}": {"layout": [(f"{element}.Vertical.Separator.separator", {"sticky": "ns"})]},
                 }
             )
         return settings
 
-    def _style_striped_progressbar(self):
-        """Apply a striped theme to the progressbar"""
-        self.theme_images.update(self._create_striped_progressbar_image("primary"))
-        self.settings.update(
-            {
-                "Striped.Horizontal.Progressbar.pbar": {
-                    "element create": (
-                        "image",
-                        self.theme_images["primary_striped_hpbar"],
-                        {"width": 20, "sticky": "ew"},
-                    )
-                },
-                "Striped.Horizontal.TProgressbar": {
-                    "layout": [
-                        (
-                            "Horizontal.Progressbar.trough",
-                            {
-                                "sticky": "nswe",
-                                "children": [("Striped.Horizontal.Progressbar.pbar", {"side": "left", "sticky": "ns"})],
-                            },
-                        )
-                    ],
-                    "configure": {
-                        "troughcolor": self.theme.colors.inputbg,
-                        "thickness": 20,
-                        "borderwidth": 1,
-                        "lightcolor": self.theme.colors.border
-                        if self.theme.type == "light"
-                        else self.theme.colors.inputbg,
-                    },
-                },
-            }
-        )
+    @staticmethod
+    def style_progressbar(theme, barcolor=None, troughcolor=None, orient="horizontal", style=None):
+        """Create a default progressbar style.
 
-        for color in self.theme.colors:
-            self.theme_images.update(self._create_striped_progressbar_image(color))
-            self.settings.update(
+        Args:
+            theme (str): The theme name.
+            troughcolor (str): The color of the trough.
+            orient (str): One of 'horizontal' or 'vertical'
+            slidercolor (str): The color of the round slider.
+            style (str): The style used to render the widget.
+
+        Returns:
+            dict: A dictionary of theme settings.
+        """
+        # fallback colors
+        barcolor = ThemeColors.normalize(barcolor, theme.colors.primary, theme.colors)
+        bordercolor = theme.colors.border if theme.type == "light" else theme.colors.inputbg
+        troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
+
+        # style settings
+        settings = dict()
+        element = style.replace("TProgressbar", "Progressbar")
+
+        if "stripe" in style.lower():
+            StylerTTK.style_striped_progressbar_images(barcolor, orient, element)
+        else:
+            StylerTTK.style_default_progressbar_images(barcolor, orient, element)
+
+        ## horizontal progressbar
+        if orient.lower() == "horizontal":
+            settings.update(
                 {
-                    f"{color}.Striped.Horizontal.Progressbar.pbar": {
+                    f"{element}.pbar": {
                         "element create": (
                             "image",
-                            self.theme_images[f"{color}_striped_hpbar"],
+                            StylerTTK.theme_images[f"{element}.hbar"],
                             {"width": 20, "sticky": "ew"},
                         )
                     },
-                    f"{color}.Striped.Horizontal.TProgressbar": {
+                    style: {
                         "layout": [
                             (
                                 "Horizontal.Progressbar.trough",
                                 {
                                     "sticky": "nswe",
-                                    "children": [
-                                        (
-                                            f"{color}.Striped.Horizontal.Progressbar.pbar",
-                                            {"side": "left", "sticky": "ns"},
-                                        )
-                                    ],
+                                    "children": [(f"{element}.pbar", {"side": "left", "sticky": "ns"})],
                                 },
                             )
                         ],
                         "configure": {
-                            "troughcolor": self.theme.colors.inputbg,
+                            "troughcolor": troughcolor,
                             "thickness": 20,
                             "borderwidth": 1,
-                            "lightcolor": self.theme.colors.border
-                            if self.theme.type == "light"
-                            else self.theme.colors.inputbg,
+                            "lightcolor": bordercolor,
                         },
                     },
                 }
             )
 
-    def _create_striped_progressbar_image(self, colorname):
-        """Create the striped progressbar image and return as a ``PhotoImage``
-
-        Args:
-            colorname (str): the color label assigned to the colors property; eg. `primary`, `secondary`, `success`.
-
-        Returns:
-            dict: a dictionary containing the widget images.
-        """
-        bar_primary = self.theme.colors.get(colorname)
-
-        # calculate value of light color
-        brightness = colorsys.rgb_to_hsv(*ThemeColors.hex_to_rgb(bar_primary))[2]
-        if brightness < 0.4:
-            value_delta = 0.3
-        elif brightness > 0.8:
-            value_delta = 0
+        ## vertical progressbar
         else:
-            value_delta = 0.1
-        bar_secondary = ThemeColors.update_hsv(bar_primary, sd=-0.2, vd=value_delta)
-
-        # need to check the darkness of the color before setting the secondary
-
-        # horizontal progressbar
-        h_im = Image.new("RGBA", (100, 100), bar_secondary)
-        draw = ImageDraw.Draw(h_im)
-        draw.polygon([(0, 0), (48, 0), (100, 52), (100, 100), (100, 100)], fill=bar_primary)
-        draw.polygon([(0, 52), (48, 100), (0, 100)], fill=bar_primary)
-        horizontal_img = ImageTk.PhotoImage(h_im.resize((22, 22), Image.LANCZOS))
-
-        # TODO vertical progressbar
-
-        return {f"{colorname}_striped_hpbar": horizontal_img}
-
-    def _style_progressbar(self):
-        """Create style configuration for ttk progressbar: *ttk.Progressbar*
-
-        The options available in this widget include:
-
-            - Progressbar.trough: borderwidth, troughcolor, troughrelief
-            - Progressbar.pbar: orient, thickness, barsize, pbarrelief, borderwidth, background
-        """
-        self.settings.update(
-            {
-                "Progressbar.trough": {"element create": ("from", "clam")},
-                "Progressbar.pbar": {"element create": ("from", "default")},
-                "TProgressbar": {
-                    "configure": {
-                        "thickness": 20,
-                        "borderwidth": 1,
-                        "bordercolor": self.theme.colors.border
-                        if self.theme.type == "light"
-                        else self.theme.colors.inputbg,
-                        "lightcolor": self.theme.colors.border,
-                        "pbarrelief": "flat",
-                        "troughcolor": self.theme.colors.inputbg,
-                        "background": self.theme.colors.primary,
-                    }
-                },
-            }
-        )
-
-        for color in self.theme.colors:
-            self.settings.update(
+            settings.update(
                 {
-                    f"{color}.Horizontal.TProgressbar": {"configure": {"background": self.theme.colors.get(color)}},
-                    f"{color}.Vertical.TProgressbar": {"configure": {"background": self.theme.colors.get(color)}},
+                    f"{element}.pbar": {
+                        "element create": (
+                            "image",
+                            StylerTTK.theme_images[f"{element}.vbar"],
+                            {"width": 20, "sticky": "ns"},
+                        )
+                    },
+                    style: {
+                        "layout": [
+                            (
+                                "Vertical.Progressbar.trough",
+                                {
+                                    "sticky": "nswe",
+                                    "children": [(f"{element}.pbar", {"side": "bottom", "sticky": "we"})],
+                                },
+                            )
+                        ],
+                        "configure": {
+                            "troughcolor": troughcolor,
+                            "thickness": 20,
+                            "borderwidth": 1,
+                            "lightcolor": bordercolor,
+                        },
+                    },
                 }
             )
+        return settings
+
+    @staticmethod
+    def style_default_progressbar_images(barcolor, orient, element):
+        """Create images for default progressbar
+
+        Args:
+            barcolor (str): The color of the progressbar.
+            orient (str): One of 'horizontal' or 'vertical'.
+            element (str): A unique widget id to associate with the images.
+        """
+        im = Image.new("RGBA", (22, 22), barcolor)
+        pbar_image = ImageTk.PhotoImage(im)
+        StylerTTK.theme_images[f"{element}.{orient[0].lower()}bar"] = pbar_image
+
+    @staticmethod
+    def style_striped_progressbar_images(barcolor, orient, element):
+        """Create images for the striped progressbar
+
+        Args:
+            barcolor (str): The color of the progressbar.
+            orient (str): One of 'horizontal' or 'vertical'.
+            element (str): A unique widget id to associate with the images.
+        """
+        # calculate the light color value
+        b = colorsys.rgb_to_hsv(*ThemeColors.hex_to_rgb(barcolor))[2]
+        if b < 0.4:
+            vd = 0.3
+        elif b > 0.9:
+            vd = 0
+        else:
+            vd = 0.1
+        lightcolor = ThemeColors.update_hsv(barcolor, sd=-0.2, vd=vd)
+
+        im = Image.new("RGBA", (100, 100), lightcolor)
+        draw = ImageDraw.Draw(im)
+        draw.polygon([(0, 0), (48, 0), (100, 52), (100, 100), (100, 100)], fill=barcolor)
+        draw.polygon([(0, 52), (48, 100), (0, 100)], fill=barcolor)
+        pbar_image = ImageTk.PhotoImage(im.resize((22, 22), Image.LANCZOS))
+        StylerTTK.theme_images[f"{element}.{orient[0].lower()}bar"] = pbar_image
 
     @staticmethod
     def style_scale(theme, troughcolor=None, slidercolor=None, orient="horizontal", style=None):
@@ -767,7 +771,7 @@ class StylerTTK:
         # fallback colors
         slidercolor = ThemeColors.normalize(slidercolor, theme.colors.primary, theme.colors)
         troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # images
         element = style.replace("TScale", "Scale")
@@ -784,11 +788,16 @@ class StylerTTK:
         if orient.lower() == "horizontal":
             settings.update(
                 {
-                    f"{element}.Horizontal.Scale.track": {"element create": ("image", img_trough, {'border': 5})},
-                    f"{element}.Horizontal.Scale.slider": {"element create": ("image", img_normal, 
-                        ("disabled", img_disabled),
-                        ("pressed", img_pressed),
-                        ("hover", img_hover))},                     
+                    f"{element}.Horizontal.Scale.track": {"element create": ("image", img_trough, {"border": 5})},
+                    f"{element}.Horizontal.Scale.slider": {
+                        "element create": (
+                            "image",
+                            img_normal,
+                            ("disabled", img_disabled),
+                            ("pressed", img_pressed),
+                            ("hover", img_hover),
+                        )
+                    },
                     style: {
                         "layout": [
                             (
@@ -810,11 +819,16 @@ class StylerTTK:
         else:
             settings.update(
                 {
-                    f"{element}.Vertical.Scale.track": {"element create": ("image", img_trough, {'border': 5})},
-                    f"{element}.Vertical.Scale.slider": {"element create": ("image", img_normal, 
-                        ("disabled", img_disabled),
-                        ("pressed", img_pressed),
-                        ("hover", img_hover))},
+                    f"{element}.Vertical.Scale.track": {"element create": ("image", img_trough, {"border": 5})},
+                    f"{element}.Vertical.Scale.slider": {
+                        "element create": (
+                            "image",
+                            img_normal,
+                            ("disabled", img_disabled),
+                            ("pressed", img_pressed),
+                            ("hover", img_hover),
+                        )
+                    },
                     style: {
                         "layout": [
                             (
@@ -1288,7 +1302,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
-        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -1506,9 +1520,9 @@ class StylerTTK:
         # fallback colors
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
         background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
-        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == 'light' else 0.2)
-        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == 'light' else 0.1)
-        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == "light" else 0.2)
+        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == "light" else 0.1)
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
         disabled_fg = theme.colors.inputfg
 
         # style settings
@@ -1574,9 +1588,9 @@ class StylerTTK:
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
-        pressed = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == 'light' else 0.1)
+        pressed = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == "light" else 0.1)
         select_fg = theme.colors.selectfg
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -1638,7 +1652,7 @@ class StylerTTK:
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -1695,7 +1709,7 @@ class StylerTTK:
         background_on = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
         background_off = ThemeColors.update_hsv(background_on, sd=-0.5, vd=0.1)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
         disabled_fg = theme.colors.inputfg
 
         # style settings
@@ -1749,7 +1763,9 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_toolbutton(theme, anchor="center", background=None, font=DEFAULT_FONT, indicatorcolor=None, style=None):
+    def style_outline_toolbutton(
+        theme, anchor="center", background=None, font=DEFAULT_FONT, indicatorcolor=None, style=None
+    ):
         """Apply an outline style to widgets that use the Toolbutton style (radiobutton, checkbutton)
 
         Args:
@@ -1769,7 +1785,7 @@ class StylerTTK:
         background_over = ThemeColors.update_hsv(background_on, vd=-0.1)
         foreground_off = ThemeColors.normalize(indicatorcolor, theme.colors.selectfg, theme.colors)
         foreground_on = background_off
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -1842,7 +1858,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
-        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == "light" else -0.3)
 
         # style settings
         settings = dict()
@@ -1903,7 +1919,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # images
         element = uuid4()
@@ -1972,9 +1988,9 @@ class StylerTTK:
             element (UUID): A unique element identification number.
         """
         outline = theme.colors.selectbg
-        fill = theme.colors.inputbg if theme.type == 'light' else theme.colors.selectfg
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
-        disabled_bg = theme.colors.inputbg if theme.type == 'light' else disabled_fg
+        fill = theme.colors.inputbg if theme.type == "light" else theme.colors.selectfg
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
+        disabled_bg = theme.colors.inputbg if theme.type == "light" else disabled_fg
 
         # radiobutton off
         radio_off = Image.new("RGBA", (134, 134))
@@ -2293,7 +2309,7 @@ class StylerTTK:
         """
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        fallbackfg = theme.colors.selectfg if 'inverse' in style.lower() else theme.colors.fg
+        fallbackfg = theme.colors.selectfg if "inverse" in style.lower() else theme.colors.fg
         foreground = ThemeColors.normalize(foreground, fallbackfg, theme.colors)
 
         # style settings
@@ -2320,7 +2336,7 @@ class StylerTTK:
         # fallback values
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-        borderfallback = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
+        borderfallback = theme.colors.border if theme.type == "light" else theme.colors.selectbg
         bordercolor = ThemeColors.normalize(bordercolor, borderfallback, theme.colors)
 
         # style settings
@@ -2360,7 +2376,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # create widget images
         element = uuid4()
@@ -2433,11 +2449,11 @@ class StylerTTK:
             element (UUID): A unique element identification number.
         """
         # fallback colors
-        outline = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
+        outline = theme.colors.selectbg if theme.type == "light" else theme.colors.inputbg
         indicator_on = theme.colors.selectfg
-        indicator_off = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
+        indicator_off = theme.colors.selectbg if theme.type == "light" else theme.colors.inputbg
         fill = theme.colors.bg
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # toggle off
         toggle_off = Image.new("RGBA", (226, 130))
@@ -2486,7 +2502,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # create widget images
         element = uuid4()
@@ -2559,10 +2575,10 @@ class StylerTTK:
             element (UUID): A unique element identification number.
         """
         # fallback colors
-        outline = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
+        outline = theme.colors.selectbg if theme.type == "light" else theme.colors.inputbg
         indicator_on = theme.colors.selectfg
-        indicator_off = theme.colors.selectbg if theme.type == 'light' else theme.colors.inputbg
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        indicator_off = theme.colors.selectbg if theme.type == "light" else theme.colors.inputbg
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
         fill = theme.colors.bg
 
         # toggle off
@@ -2612,7 +2628,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
-        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
 
         # create widget images
         element = uuid4()
@@ -2681,9 +2697,9 @@ class StylerTTK:
             element (str): A unique element identification number.
         """
         outline = theme.colors.selectbg
-        fill = theme.colors.inputbg if theme.type == 'light' else theme.colors.selectfg
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
-        disabled_bg = theme.colors.inputbg if theme.type == 'light' else disabled_fg
+        fill = theme.colors.inputbg if theme.type == "light" else theme.colors.selectfg
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
+        disabled_bg = theme.colors.inputbg if theme.type == "light" else disabled_fg
 
         # checkbutton off
         cb_off = Image.new("RGBA", (134, 134))
@@ -2745,11 +2761,11 @@ class StylerTTK:
         """
         # fallback colors
         disabled_fg = theme.colors.inputfg
-        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
         background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
-        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == 'light' else 0.2)
-        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == 'light' else 0.1)
+        pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == "light" else 0.2)
+        hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == "light" else 0.1)
 
         # style settings
         settings = dict()
@@ -2815,11 +2831,11 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == "light" else -0.3)
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
-        pressed = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else 0.2)
-        hover = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == 'light' else 0.1)
+        pressed = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == "light" else 0.2)
+        hover = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == "light" else 0.1)
         selected = theme.colors.selectfg
 
         # style settings
@@ -2882,9 +2898,9 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
-        bordercolor = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
-        fg_fallback = theme.colors.inputfg if theme.type == 'light' else theme.colors.selectfg
-        bg_fallback = theme.colors.inputbg if theme.type == 'light' else bordercolor
+        bordercolor = theme.colors.border if theme.type == "light" else theme.colors.selectbg
+        fg_fallback = theme.colors.inputfg if theme.type == "light" else theme.colors.selectfg
+        bg_fallback = theme.colors.inputbg if theme.type == "light" else bordercolor
         foreground = ThemeColors.normalize(foreground, fg_fallback, theme.colors)
         background = ThemeColors.normalize(background, bg_fallback, theme.colors)
 
@@ -2934,7 +2950,7 @@ class StylerTTK:
         """
         # fallback colors
         sashcolor = ThemeColors.normalize(sashcolor, theme.colors.bg, theme.colors)
-        
+
         # style settings
         settings = dict()
         settings.update(
@@ -2968,7 +2984,7 @@ class StylerTTK:
         """
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        fg_fallback = theme.colors.border if theme.type == 'light' else theme.colors.inputbg
+        fg_fallback = theme.colors.border if theme.type == "light" else theme.colors.inputbg
         foreground = ThemeColors.normalize(foreground, fg_fallback, theme.colors)
 
         # images
@@ -2998,17 +3014,17 @@ class StylerTTK:
         """
         im = Image.new("RGBA", (14, 14))
         draw = ImageDraw.Draw(im)
-        
+
         # top row
         draw.rectangle((9, 3, 10, 4), fill=color)
-        
+
         # middle row
         draw.rectangle((6, 6, 7, 7), fill=color)  # middle row
         draw.rectangle((9, 6, 10, 7), fill=color)
-        
+
         # bottom row
         draw.rectangle((3, 9, 4, 10), fill=color)  # bottom row
         draw.rectangle((6, 9, 7, 10), fill=color)
         draw.rectangle((9, 9, 10, 10), fill=color)
-        
+
         return ImageTk.PhotoImage(im)

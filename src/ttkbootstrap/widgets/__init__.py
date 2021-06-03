@@ -13,6 +13,7 @@ from .labelframe import Labelframe
 from .menubutton import Menubutton
 from .notebook import Notebook
 from .panedwindow import PanedWindow
+from .progressbar import Progressbar
 from .radiobutton import Radiobutton
 from .separator import Separator
 from .scrollbar import Scrollbar

@@ -15,12 +15,13 @@ from tkinter.ttk import _script_from_settings as script_from_settings
 from ttkbootstrap.core.themes import DEFINITIONS
 from ttkbootstrap.core.themes import COLOR_PATTERN
 
-STYLE_PATTERN = re.compile(r"outline|link|inverse|rounded")
+STYLE_PATTERN = re.compile(r"outline|link|inverse|rounded|striped")
 ORIENT_PATTERN = re.compile(r"horizontal|vertical")
 WIDGET_LOOKUP = {
     "button": "TButton",
     "btn": "TButton",
     "progressbar": "TProgressbar",
+    "progress": "TProgressbar",
     "check": "TCheckbutton",
     "checkbutton": "TCheckbutton",
     "checkbtn": "TCheckbutton",
@@ -31,7 +32,7 @@ WIDGET_LOOKUP = {
     "lbl": "TLabel",
     "label": "TLabel",
     "labelframe": "TLabelframe",  # labelframe could conflict with label, but this api
-    "lblframe": "TLabelframe",  # is not likely to be used in that way... so ok for now.
+    "lblframe": "TLabelframe",    # is not likely to be used in that way... so ok for now.
     "lblfrm": "TLabelframe",
     "radio": "TRadiobutton",
     "radiobutton": "TRadiobutton",
