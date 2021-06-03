@@ -20,88 +20,58 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
     def __init__(
         self,
+        
+        # widget options
         master=None,
-        background=None,
         bootstyle="default",
         command=None,
         compound=None,
         cursor=None,
         default=False,
-        font=None,
-        foreground=None,
         image=None,
-        indicatorcolor=None,
         offvalue=0,
         onvalue=1,
         padding=None,
         state="normal",
-        style=None,
         takefocus=True,
         textvariable=None,
         text=None,
         underline=None,
         variable=None,
         width=None,
+        style=None,
+
+        # custom style options
+        background=None,
+        foreground=None,
+        font=None,
+        indicatorcolor=None,
         **kw,
     ):
         """
         Args:
-            master (Widget, optional): The parent widget.
-            background (str, optional): The normal background color to use when displaying the widget. Setting this
-                option will override all other style-based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            command (func, optional): A callback function to evaluate when the widget is invoked.
-            compound (str, optional): Specifies if the widget should display text and bitmaps/images at the same time,
-                and if so, where the bitmap/image should be placed relative to the text. Must be one of the values
-                **none**, **bottom**, **top**, **left**, **right**, or **center**. For example, the (default) value
-                **none** specifies that the bitmap or image should (if defined) be displayed `instead` of the text, the
-                value **left** specifies that the bitmap or image should be displayed to the `left` of the text, and
-                the value **center** specifies  that the bitmap or image should be displayed `underneath` the text.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            default (bool, optional): If ``True``, the widget will initialize as selected.
-            font (str, Font, optional): The font to use when drawing text inside the widget.
-            foreground (str, optional): The text color. Setting this option will override all other style based 
-                foreground settings.
-            image (PhotoImage, optional): Specifies an image to display in the widget, which must have been created
-                with ``tk.PhotoImage`` or `TkPhotoImage`` if using **pillow**. Can also be a string representing the
-                name of the photo if the photo has been given a name using the ``name`` parameter.  Typically, if
-                the ``image`` option is specified then it overrides other options that specify a bitmap or textual
-                value to display in the widget, though this is controlled by the ``compound`` option; the ``image``
-                option may be reset to an empty string to re-enable a bitmap or text display.
-            indicatorcolor (str, optional): The normal color to use for the widget indicator. Setting this option will
-                override all other styled based indicatorcolor options.
-            offvalue (Any, optional): By default, when a checkbutton is in the off (unchecked) state, the value of the 
-                variable is 0. You can use the ``offvalue`` option to specify a different value for the off state.
-            onvalue (Any, optional): By default, when a checkbutton is in the on (checked) state, the value of the 
-                variable is 1. You can use the ``onvalue`` option to specify a different value for the on state.
-            padding (str, optional): Specifies the internal padding for the widget. The padding is a list of up to four
-                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
-                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
-                vertical padding; a single number specifies the same padding all the way around the widget.
-            state (str, optional): May be set to ``normal`` or ``disabled`` to control the disabled state bit. This is
-                a write-only option: setting it changes the widget state, but the state widget command does not affect
-                the ``state`` option.
-            style (str, optional): May be used to specify a custom widget style.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). To remove the widget from focus traversal, use ``takefocus=False``.
-            text (str, optional): Specifies a string to be displayed inside the widget.
-            textvariable (Variable, optional): Specifies the name or instance of a tkinter variable whose value will be
-                used in place of the ``text`` resource.
-            underline (int, optional): Specifies the integer index of a character to underline in the widget. This
-                option is used by the default bindings to implement keyboard traversal for menu buttons and menu
-                entries. 0 corresponds to the first character of the text displayed in the widget, 1 to the next
-                character, and so on.
-            variable (Variable, optional): A control variable that tracks the current state of the checkbutton. If a 
-                variable is not provided, one is created by default and can be set and accessed directly or via the 
-                ``value`` property.
-            width (int, optional): If the label is text, this option specifies the absolute width of the text area on
-                the button, as a number of characters; the actual width is that number multiplied by the average width
-                of a character in the current font. For image labels, this option is ignored. The option may also be
-                configured in a style.
+            master: The parent widget.
+            bootstyle (str): A string of keywords that control the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            command (func): A function that is called when the checkbutton is invoked.
+            compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.  
+            default (bool): Sets the initial widget value to ``True`` or ``False``, which corresponds to ``selected`` or ``deselected``.
+            image (PhotoImage): An image to display on the checkbutton. The position of the image is controlled by the ``compound`` option.            
+            offvalue (Any): The value of the checkbutton when in the (unchecked) state. Default is 0.
+            onvalue (Any): The value of the checkbutton when in the (checked) state. Default is 1.
+            padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            
+            state (str): Either 'normal' or 'disabled'. A disabled state will prevent user input.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            takefocus (bool): Adds or removes the checkbutton from focus traversal.
+            text (str): The text to display in the checkbutton label.
+            textvariable (Variable): A tkinter variable whose value is used in place of the checkbutton label text.
+            underline (int): The index of the character to underline in the checkbutton label.
+            variable (Variable): A tkinter variable whose value is used to control the checkbutton value. If none is provided, it is generated automatically and can be accessed directly or via the ``value`` property.
+            width (int): The absolute width of the text area; avg character size if text or pixels if an image.
+            background (str): The checkbutton background color; setting this option will override the theme settings.
+            foreground (str): The checkbutton text color; setting this option will override theme settings.
+            font (str): The font used to draw text inside the widget; setting this option will override theme settings.
+            indicatorcolor (str): The color of the checkbutton indicator; setting this option will override the theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
