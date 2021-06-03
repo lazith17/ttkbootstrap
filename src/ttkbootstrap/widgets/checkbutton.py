@@ -51,7 +51,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         """
         Args:
             master: The parent widget.
-            bootstyle (str): A string of keywords that control the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             command (func): A function that is called when the checkbutton is invoked.
             compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.  
@@ -60,7 +60,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
             offvalue (Any): The value of the checkbutton when in the (unchecked) state. Default is 0.
             onvalue (Any): The value of the checkbutton when in the (checked) state. Default is 1.
             padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            
-            state (str): Either 'normal' or 'disabled'. A disabled state will prevent user input.
+            state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             takefocus (bool): Adds or removes the checkbutton from focus traversal.
             text (str): The text to display in the checkbutton label.

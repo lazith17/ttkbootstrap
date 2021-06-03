@@ -21,65 +21,52 @@ class Combobox(Widget, ttk.Combobox):
 
     def __init__(
         self,
+        
+        # widget options
         master=None,
-        background=None,
         bootstyle="default",
         cursor=None,
-        defaultvalue=None,
+        default=None,
         exportselection=False,
-        focuscolor=None,
         font=None,
-        foreground=None,
         height=None,
         justify=None,
         padding=None,
         postcommand=None,
         state="normal",
-        style=None,
         takefocus=True,
         textvariable=None,
         values=None,
         width=None,
+        style=None,
+
+        # custom style options
+        background=None,
+        focuscolor=None,
+        foreground=None,
         **kw,
     ):
         """
         Args:
             master: The parent widget.
-            background (str, optional): The normal background color to use for the Combobox. Setting this option will
-                override all other style-based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            defaultvalue (Any, optional): The initial value shown in the combobox.
-            exportselection (bool, optional): Boolean value. If set, the widget selection is linked to the X selection.
-            focuscolor (str, optional): The color of the focus ring when the widget has focus.
-            font (str or Font, optional): The font used to render the widget text.
-            foreground (str, optional): The color of the text inside the Combobox widget. Setting this option will
-                override all other style-based foreground setting.
-            height (int, optional): Specifies the height of the pop-down listbox, in rows.
-            justify (str, optional): Specifies how the text is aligned within the widget. Must be one of left, center,
-                or right.
-            padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
-                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
-                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
-                vertical padding; a single number specifies the same padding all the way around the widget.
-            postcommand (func, optional): A script to evaluate immediately before displaying the listbox. The
-                ``postcommand`` script may specify the ``values`` to display.
-            state (str, optional): One of `normal`, `readonly`, or `disabled`. In the readonly state, the value may not
-                be edited directly, and the user can only select one of the -values from the dropdown list. In the
-                normal state, the text field is directly editable. In the disabled state, no interaction is possible.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
-            textvariable (Variable, optional): Specifies the name of a variable whose value is linked to the widget 
-                value. Whenever the variable changes value the widget value is updated, and vice versa. If a variable
-                is not provided, one is created by default and can be access via the ``value`` property.
-            values (List or Tuple, optional): Specifies the list of values to display in the drop-down listbox. 
-            width (int, optional): Specifies an integer value indicating the desired width of the entry window, in 
-                average-size characters of the widget's font. 
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            default (Any): The initial value shown in the combobox.
+            exportselection (bool): If set, the widget selection is linked to the X selection.
+            font (str): The font used to draw text inside the widget; setting this option will override theme settings.
+            height (int): The height of the combobox in `rows`.
+            justify (str): Aligns text within the widget. Legal values include: `left`, `center`, `right`.
+            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            postcommand (func): A function to invoke immediately before displaying the listbox. The ``postcommand`` function may specify the ``values`` to display.
+            state (str): Either `normal`, `disabled`, or `readonly`. A disabled state will prevent user input; in the readonly state, the value may not be edited directly.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            textvariable (Variable): A tkinter variable whose value is linked to the selected widget value.
+            values (List or Tuple): The list of values to display in the drop-down listbox.
+            width (int): The absolute width of the text area using the average character size of the widget font.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            background (str): The button background color; setting this options will override theme settings.
+            focuscolor (str): The color of the focus ring when the widget has focus; setting this option will override theme settings.
+            foreground (str): The entry text color; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
@@ -87,7 +74,7 @@ class Combobox(Widget, ttk.Combobox):
 
         self.tk = master.tk
         self.background = background
-        self.defaultvalue = defaultvalue
+        self.default = default
         self.focuscolor = focuscolor
         self.foreground = foreground
         self.font = font or DEFAULT_FONT
@@ -142,10 +129,10 @@ class Combobox(Widget, ttk.Combobox):
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
-        if self.values and not self.defaultvalue:
+        if self.values and not self.default:
             self.value = self.values[0]
-        elif self.defaultvalue:
-            self.value = self.defaultvalue
+        elif self.default:
+            self.value = self.default
 
     @property
     def value(self):
