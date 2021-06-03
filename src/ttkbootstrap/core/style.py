@@ -468,7 +468,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_combobox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+    def style_combobox(theme, background=None, font=DEFAULT_FONT, foreground=None, focuscolor=None, style=None):
         """Create a combobox style.
 
         Args:
@@ -482,27 +482,22 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        settings = dict()
-
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
-        element_id = uuid4()
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
+        # style settings
+        settings = dict()
+        element = uuid4()
 
-        # use spinbox field from dark theme to prevent corners from shining through
-        if theme.type == "dark":
+        if theme.type == "dark":  # prevents corners from shining through on clam theme.
             settings.update({"combo.Spinbox.field": {"element create": ("from", "default")}})
 
         settings.update(
             {
-                f"{element_id}.Combobox.downarrow": {"element create": ("from", "default")},
+                f"{element}.Combobox.downarrow": {"element create": ("from", "default")},
                 style: {
                     "layout": [
                         (
@@ -511,7 +506,7 @@ class StylerTTK:
                                 "side": "top",
                                 "sticky": "we",
                                 "children": [
-                                    (f"{element_id}.Combobox.downarrow", {"side": "right", "sticky": "ns"}),
+                                    (f"{element}.Combobox.downarrow", {"side": "right", "sticky": "ns"}),
                                     (
                                         "Combobox.padding",
                                         {
@@ -530,7 +525,7 @@ class StylerTTK:
                         "lightcolor": background,
                         "arrowcolor": foreground,
                         "foreground": foreground,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "fieldbackground ": background,
                         "background ": background,
                         "relief": "flat",
@@ -566,52 +561,49 @@ class StylerTTK:
 
     @staticmethod
     def style_separator(theme, background=None, orient="horizontal", sashthickness=1, style=None):
-        """Create style configuration for ttk separator: *ttk.Separator*. The default style for light will be border,
-        but dark will be primary, as this makes the most sense for general use. However, all other colors will be
-        available as well through styling.
+        """Create a separator style.
 
         Args:
-            theme (str): The theme name.
-            background (str, optional): The color of the sizegrip background.
+            theme (str): The color theme.
+            background (str, optional): The color of the separator.
             orient (str, optional): One of 'horizontal' or 'vertical'
-            sashthickness (int, optional): The thickness of the separator line.
+            sashthickness (int, optional): The thickness of the separator.
             style (str, optional): The style used to render the widget.
 
         Returns:
             dict: A dictionary of theme settings.
         """
-        if theme.type == "light":
-            background = ThemeColors.normalize(background, theme.colors.border, theme.colors)
-        else:
-            background = ThemeColors.normalize(background, theme.colors.selectbg, theme.colors)
+        # fallback colors
+        fallback = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
+        background = ThemeColors.normalize(background, fallback, theme.colors)
 
-        # create separator images
-        hs_image_id = uuid4()
+        # separator images
+        element = uuid4()
         hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, sashthickness), background))
-        StylerTTK.theme_images[hs_image_id] = hs_im
+        StylerTTK.theme_images[f'{element}.h.separator'] = hs_im
 
-        vs_image_id = uuid4()
         vs_im = ImageTk.PhotoImage(Image.new("RGB", (sashthickness, 40), background))
-        StylerTTK.theme_images[vs_image_id] = vs_im
+        StylerTTK.theme_images[f'{element}.v.separator'] = vs_im
 
+        # style settings
         settings = dict()
 
         if orient.lower() == "horizontal":
             settings.update(
                 {
-                    f"{hs_image_id}.Horizontal.Separator.separator": {
-                        "element create": ("image", StylerTTK.theme_images[hs_image_id])
+                    f"{element}.Horizontal.Separator.separator": {
+                        "element create": ("image", StylerTTK.theme_images[f'{element}.h.separator'])
                     },
-                    f"{style}": {"layout": [(f"{hs_image_id}.Horizontal.Separator.separator", {"sticky": "we"})]},
+                    f"{style}": {"layout": [(f"{element}.Horizontal.Separator.separator", {"sticky": "we"})]},
                 }
             )
         else:
             settings.update(
                 {
-                    f"{vs_image_id}.Vertical.Separator.separator": {
-                        "element create": ("image", StylerTTK.theme_images[vs_image_id])
+                    f"{element}.Vertical.Separator.separator": {
+                        "element create": ("image", StylerTTK.theme_images[f'{element}.v.separator'])
                     },
-                    f"{style}": {"layout": [(f"{vs_image_id}.Vertical.Separator.separator", {"sticky": "ns"})]},
+                    f"{style}": {"layout": [(f"{element}.Vertical.Separator.separator", {"sticky": "ns"})]},
                 }
             )
         return settings
@@ -774,24 +766,21 @@ class StylerTTK:
         """
         # fallback colors
         slidercolor = ThemeColors.normalize(slidercolor, theme.colors.primary, theme.colors)
-        if theme.type == "light":
-            troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-
-        settings = dict()
+        troughcolor = ThemeColors.normalize(troughcolor, theme.colors.inputbg, theme.colors)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # images
         element = style.replace("TScale", "Scale")
         StylerTTK.style_scale_images(slidercolor, troughcolor, disabled, orient, element, theme)
+
         img_disabled = StylerTTK.theme_images[f"{element}.disabled"]
         img_normal = StylerTTK.theme_images[f"{element}.normal"]
         img_pressed = StylerTTK.theme_images[f"{element}.pressed"]
         img_hover = StylerTTK.theme_images[f"{element}.hover"]
         img_trough = StylerTTK.theme_images[f"{element}.trough"]
 
+        # style settings
+        settings = dict()
         if orient.lower() == "horizontal":
             settings.update(
                 {
@@ -825,7 +814,7 @@ class StylerTTK:
                     f"{element}.Vertical.Scale.slider": {"element create": ("image", img_normal, 
                         ("disabled", img_disabled),
                         ("pressed", img_pressed),
-                        ("hover", img_hover))},                    
+                        ("hover", img_hover))},
                     style: {
                         "layout": [
                             (
@@ -859,8 +848,8 @@ class StylerTTK:
             theme (str): The current theme.
         """
         outline = ThemeColors.update_hsv(troughcolor, vd=-0.10)
-        pressed = ThemeColors.update_hsv(slidercolor, vd=-0.10 if theme.type == "light" else 0.35)
-        hover = ThemeColors.update_hsv(slidercolor, vd=-0.20 if theme.type == "light" else 0.25)
+        pressed = ThemeColors.update_hsv(slidercolor, vd=-0.20 if theme.type == "light" else 0.35)
+        hover = ThemeColors.update_hsv(slidercolor, vd=-0.10 if theme.type == "light" else 0.25)
         size = (16, 16)
 
         im = Image.new("RGBA", (100, 100))
@@ -1281,7 +1270,7 @@ class StylerTTK:
             StylerTTK.theme_images[f"{element}.rightarrow"] = ImageTk.PhotoImage(img.rotate(-90))
 
     @staticmethod
-    def style_spinbox(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+    def style_spinbox(theme, background=None, font=DEFAULT_FONT, foreground=None, focuscolor=None, style=None):
         """Create a spinbox style.
 
         Args:
@@ -1295,22 +1284,16 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        settings = dict()
-
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
-
-        # use Entry field from dark theme to prevent corners from shining through
+        # style settings
+        settings = dict()
         element = uuid4()
-        if theme.type == "dark":
+        if theme.type == "dark":  # prevent corners from shining through on dark theme
             settings.update({f"{element}.Spinbox.field": {"element create": ("from", "default")}})
 
         # use the arrows from the default theme ... they just look better.
@@ -1356,7 +1339,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "lightcolor": background,
                         "foreground": foreground,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "fieldbackground ": background,
                         "background ": background,
                         "relief": "flat",
@@ -1506,7 +1489,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+    def style_button(theme, anchor="center", background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create a solid button style.
 
         Args:
@@ -1525,11 +1508,7 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.primary, theme.colors)
         pressed = ThemeColors.update_hsv(background, vd=-0.2 if theme.type == 'light' else 0.2)
         hover = ThemeColors.update_hsv(background, vd=-0.1 if theme.type == 'light' else 0.1)
-
-        if theme.type == 'light':
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
         disabled_fg = theme.colors.inputfg
 
         # style settings
@@ -1545,7 +1524,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "lightcolor": background,
                         "relief": "raised",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1578,11 +1557,8 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
-        """Apply an outline style to ttk button: *ttk.Button*.
-
-        The outline and text are colored with the ``foreground``, and the remaining fill is set with the ``background``
-        color. When hovered, the widget inverts ``foreground`` and ``background`` colors.
+    def style_outline_button(theme, anchor="center", background=None, font=DEFAULT_FONT, foreground=None, style=None):
+        """Create an outline button style.
 
         Args:
             theme (str): The theme name.
@@ -1600,11 +1576,7 @@ class StylerTTK:
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
         pressed = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == 'light' else 0.1)
         select_fg = theme.colors.selectfg
-
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
         # style settings
         settings = dict()
@@ -1619,7 +1591,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "lightcolor": background,
                         "relief": "raised",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1649,7 +1621,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_link_button(theme, anchor="center", background=None, font=None, foreground=None, style=None):
+    def style_link_button(theme, anchor="center", background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Apply a hyperlink style to ttk button: *ttk.Button*
 
         Args:
@@ -1666,13 +1638,9 @@ class StylerTTK:
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled color settings
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -1685,7 +1653,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "lightcolor": background,
                         "relief": "raised",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1708,7 +1676,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_toolbutton(theme, anchor="center", font=None, foreground=None, indicatorcolor=None, style=None):
+    def style_toolbutton(theme, anchor="center", font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
         """Apply a solid color style to ttk widgets that use the Toolbutton style (for example, a checkbutton:
         *ttk.Checkbutton*)
 
@@ -1727,14 +1695,10 @@ class StylerTTK:
         background_on = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
         background_off = ThemeColors.update_hsv(background_on, sd=-0.5, vd=0.1)
         foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-
-        # disabled colors
+        disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
         disabled_fg = theme.colors.inputfg
-        if theme.type == "light":
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_bg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
 
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -1747,7 +1711,7 @@ class StylerTTK:
                         "darkcolor": background_off,
                         "lightcolor": background_off,
                         "relief": "raised",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1785,7 +1749,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_toolbutton(theme, anchor="center", background=None, font=None, indicatorcolor=None, style=None):
+    def style_outline_toolbutton(theme, anchor="center", background=None, font=DEFAULT_FONT, indicatorcolor=None, style=None):
         """Apply an outline style to widgets that use the Toolbutton style (radiobutton, checkbutton)
 
         Args:
@@ -1799,22 +1763,15 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        # pressed and hover settings
-        vd = -0.1
-
         # fallback colors
         background_on = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
         background_off = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        background_over = ThemeColors.update_hsv(background_on, vd=vd)
+        background_over = ThemeColors.update_hsv(background_on, vd=-0.1)
         foreground_off = ThemeColors.normalize(indicatorcolor, theme.colors.selectfg, theme.colors)
         foreground_on = background_off
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -1827,7 +1784,7 @@ class StylerTTK:
                         "darkcolor": background_off,
                         "lightcolor": background_off,
                         "relief": "raised",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -1867,7 +1824,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_entry(theme, background=None, font=None, foreground=None, focuscolor=None, style=None):
+    def style_entry(theme, background=None, font=DEFAULT_FONT, foreground=None, focuscolor=None, style=None):
         """Create an entry style.
 
         Args:
@@ -1881,21 +1838,15 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        settings = dict()
-
         # fallback colors
         background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
         focuscolor = ThemeColors.normalize(focuscolor, theme.colors.primary, theme.colors)
+        disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(foreground, vd=-0.3)
-
-        # use Entry field from dark theme to prevent corners from shining through
-        if theme.type == "dark":
+        # style settings
+        settings = dict()
+        if theme.type == "dark":  # use Entry field from dark theme to prevent corners from shining through
             settings.update({"Entry.field": {"element create": ("from", "default")}})
 
         settings.update(
@@ -1906,7 +1857,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "lightcolor": background,
                         "foreground": foreground,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "fieldbackground ": background,
                         "background ": background,
                         "relief": "flat",
@@ -1934,7 +1885,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_radiobutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+    def style_radiobutton(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
         """Create an image-based radiobutton style.
 
         Args:
@@ -1952,25 +1903,20 @@ class StylerTTK:
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.fg, theme.colors)
         indicatorcolor = ThemeColors.normalize(indicatorcolor, theme.colors.primary, theme.colors)
+        disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
 
-        # disabled colors
-        if theme.type == "light":
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
+        # images
+        element = uuid4()
+        StylerTTK.style_radiobutton_images(theme, indicatorcolor, element)
+        radio_off = StylerTTK.theme_images[f"{element}_radio_off"]
+        radio_on = StylerTTK.theme_images[f"{element}_radio_on"]
+        radio_disabled = StylerTTK.theme_images[f"{element}_radio_disabled"]
 
-        # create widget images
-        element_id = uuid4()
-        StylerTTK.style_radiobutton_images(theme, indicatorcolor, element_id)
-        radio_off = StylerTTK.theme_images[f"{element_id}_radio_off"]
-        radio_on = StylerTTK.theme_images[f"{element_id}_radio_on"]
-        radio_disabled = StylerTTK.theme_images[f"{element_id}_radio_disabled"]
-
-        # create the widget style
+        # style settings
         settings = dict()
         settings.update(
             {
-                f"{element_id}.Radiobutton.indicator": {
+                f"{element}.Radiobutton.indicator": {
                     "element create": (
                         "image",
                         radio_on,
@@ -1991,7 +1937,7 @@ class StylerTTK:
                             "Radiobutton.padding",
                             {
                                 "children": [
-                                    (f"{element_id}.Radiobutton.indicator", {"side": "left", "sticky": ""}),
+                                    (f"{element}.Radiobutton.indicator", {"side": "left", "sticky": ""}),
                                     (
                                         "Radiobutton.focus",
                                         {
@@ -2026,14 +1972,9 @@ class StylerTTK:
             element (UUID): A unique element identification number.
         """
         outline = theme.colors.selectbg
-        if theme.type == "light":
-            fill = theme.colors.inputbg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-            disabled_bg = theme.colors.inputbg
-        else:
-            fill = theme.colors.selectfg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-            disabled_bg = disabled_fg
+        fill = theme.colors.inputbg if theme.type == 'light' else theme.colors.selectfg
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_bg = theme.colors.inputbg if theme.type == 'light' else disabled_fg
 
         # radiobutton off
         radio_off = Image.new("RGBA", (134, 134))
@@ -2527,7 +2468,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_squaretoggle(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+    def style_squaretoggle(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
         """Create an image-based square togglebutton style.
 
         Args:
@@ -2574,7 +2515,7 @@ class StylerTTK:
                         "borderwidth": 0,
                         "relief": "flat",
                         "padding": 0,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                     },
                     "layout": [
                         (
@@ -2653,7 +2594,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_checkbutton(theme, background=None, font=None, foreground=None, indicatorcolor=None, style=None):
+    def style_checkbutton(theme, background=None, font=DEFAULT_FONT, foreground=None, indicatorcolor=None, style=None):
         """Create an image-based checkbutton style.
 
         Args:
@@ -2698,7 +2639,7 @@ class StylerTTK:
                         "background": background,
                         "foreground": foreground,
                         "focuscolor": "",
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                     },
                     "layout": [
                         (
@@ -2740,14 +2681,9 @@ class StylerTTK:
             element (str): A unique element identification number.
         """
         outline = theme.colors.selectbg
-        if theme.type == "light":
-            fill = theme.colors.inputbg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-            disabled_bg = theme.colors.inputbg
-        else:
-            fill = theme.colors.selectfg
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-            disabled_bg = disabled_fg
+        fill = theme.colors.inputbg if theme.type == 'light' else theme.colors.selectfg
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
+        disabled_bg = theme.colors.inputbg if theme.type == 'light' else disabled_fg
 
         # checkbutton off
         cb_off = Image.new("RGBA", (134, 134))
@@ -2777,7 +2713,7 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_outline_menubutton(theme, background=None, font=None, foreground=None, style=None):
+    def style_outline_menubutton(theme, background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create a solid menubutton style.
 
         Args:
@@ -2793,7 +2729,7 @@ class StylerTTK:
         pass
 
     @staticmethod
-    def style_menubutton(theme, arrowsize=4, background=None, font=None, foreground=None, style=None):
+    def style_menubutton(theme, arrowsize=4, background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create a solid menubutton style.
 
         Args:
@@ -2829,7 +2765,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "foreground": foreground,
                         "lightcolor": background,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -2864,7 +2800,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_menubutton(theme, arrowsize=4, background=None, font=None, foreground=None, style=None):
+    def style_outline_menubutton(theme, arrowsize=4, background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create an outline menubutton style.
 
         Args:
@@ -2879,20 +2815,14 @@ class StylerTTK:
             dict: A dictionary of theme settings.
         """
         # fallback colors
+        disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2 if theme.type == 'light' else -0.3)
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
         foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
+        pressed = ThemeColors.update_hsv(foreground, vd=-0.2 if theme.type == 'light' else 0.2)
+        hover = ThemeColors.update_hsv(foreground, vd=-0.1 if theme.type == 'light' else 0.1)
         selected = theme.colors.selectfg
 
-        # disabled colors
-        if theme.type == "light":
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.2)
-        else:
-            disabled_fg = ThemeColors.update_hsv(theme.colors.inputbg, vd=-0.3)
-
-        # pressed and hover color settings
-        pressed_vd = -0.2
-        hover_vd = -0.1
-
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -2906,7 +2836,7 @@ class StylerTTK:
                         "darkcolor": background,
                         "foreground": foreground,
                         "lightcolor": background,
-                        "font": font or DEFAULT_FONT,
+                        "font": font,
                         "focusthickness": 0,
                         "focuscolor": "",
                         "padding": (10, 5),
@@ -2916,19 +2846,19 @@ class StylerTTK:
                         "arrowcolor": [("disabled", disabled_fg), ("pressed", selected), ("hover", selected)],
                         "foreground": [("disabled", disabled_fg), ("pressed", selected), ("hover", selected)],
                         "background": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "bordercolor": [
-                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
+                            ("hover !disabled", hover),
                         ],
                         "darkcolor": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                         "lightcolor": [
-                            ("pressed !disabled", ThemeColors.update_hsv(foreground, vd=pressed_vd)),
-                            ("hover !disabled", ThemeColors.update_hsv(foreground, vd=hover_vd)),
+                            ("pressed !disabled", pressed),
+                            ("hover !disabled", hover),
                         ],
                     },
                 }
@@ -2951,18 +2881,15 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
-        settings = dict()
-
         # fallback colors
-        if theme.type == "light":
-            bordercolor = theme.colors.border
-            foreground = ThemeColors.normalize(foreground, theme.colors.inputfg, theme.colors)
-            background = ThemeColors.normalize(background, theme.colors.inputbg, theme.colors)
-        else:
-            bordercolor = theme.colors.selectbg
-            foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
-            background = ThemeColors.normalize(background, bordercolor, theme.colors)
+        bordercolor = theme.colors.border if theme.type == 'light' else theme.colors.selectbg
+        fg_fallback = theme.colors.inputfg if theme.type == 'light' else theme.colors.selectfg
+        bg_fallback = theme.colors.inputbg if theme.type == 'light' else bordercolor
+        foreground = ThemeColors.normalize(foreground, fg_fallback, theme.colors)
+        background = ThemeColors.normalize(background, bg_fallback, theme.colors)
 
+        # style settings
+        settings = dict()
         settings.update(
             {
                 style: {
@@ -3005,7 +2932,10 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
+        # fallback colors
         sashcolor = ThemeColors.normalize(sashcolor, theme.colors.bg, theme.colors)
+        
+        # style settings
         settings = dict()
         settings.update(
             {
@@ -3036,17 +2966,18 @@ class StylerTTK:
         Returns:
             dict: A dictionary of theme settings.
         """
+        # fallback colors
         background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
-        if theme.type == "light":
-            foreground = ThemeColors.normalize(foreground, theme.colors.border, theme.colors)
-        else:
-            foreground = ThemeColors.normalize(foreground, theme.colors.inputbg, theme.colors)
+        fg_fallback = theme.colors.border if theme.type == 'light' else theme.colors.inputbg
+        foreground = ThemeColors.normalize(foreground, fg_fallback, theme.colors)
 
-        settings = dict()
+        # images
         element_id = uuid4()
         StylerTTK.theme_images.update({element_id: StylerTTK.style_sizegrip_images(foreground)})
         sizegrip_image = StylerTTK.theme_images[element_id]
 
+        # style settings
+        settings = dict()
         settings.update(
             {
                 f"{style}": {
@@ -3067,13 +2998,17 @@ class StylerTTK:
         """
         im = Image.new("RGBA", (14, 14))
         draw = ImageDraw.Draw(im)
+        
         # top row
         draw.rectangle((9, 3, 10, 4), fill=color)
+        
         # middle row
         draw.rectangle((6, 6, 7, 7), fill=color)  # middle row
         draw.rectangle((9, 6, 10, 7), fill=color)
+        
         # bottom row
         draw.rectangle((3, 9, 4, 10), fill=color)  # bottom row
         draw.rectangle((6, 9, 7, 10), fill=color)
         draw.rectangle((9, 9, 10, 10), fill=color)
+        
         return ImageTk.PhotoImage(im)
