@@ -40,7 +40,7 @@ class Frame(Widget, ttk.Frame):
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            takefocus (bool): Determines whether the window accepts the focus during keyboard traversal
             width (int): The widget's requested width in pixels.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
-            background (str): The frame background color; setting this options will override theme settings.
+            background (str): The frame background color; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
