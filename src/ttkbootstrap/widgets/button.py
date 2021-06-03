@@ -57,13 +57,14 @@ class Button(Widget, ttk.Button):
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
             state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
             takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): Specifies a string to be displayed inside the widget.
             textvariable (Variable): A tkinter variable whose value is used in place of the button text.
             underline (int): The index of the character to underline.
             width (int): The absolute width of the text area; avg character size if text or pixels if an image.
             wraplength (int): The maximum line length in pixels.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             anchor (str): Controls how the text or image is positioned relative to the inner margins. Legal values include: `n`, `ne`, `e`, `se`, `s`, `sw`, `w`, `nw`, and `center`.
-            background (str): The button background color; setting this options will override theme settings.
+            background (str): The button background color; setting this option will override theme settings.
             foreground (str): The button text color; setting this option will override theme settings.
             font (str): The font used to draw text inside the widget; setting this option will override theme settings.
 

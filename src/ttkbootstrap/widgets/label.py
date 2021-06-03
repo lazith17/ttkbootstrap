@@ -18,67 +18,52 @@ class Label(Widget, ttk.Label):
 
     def __init__(
         self,
+        
+        # widget options
         master=None,
         anchor=None,
-        background=None,
         bootstyle="default",
         compound=None,
         cursor=None,
         font=None,
-        foreground=None,
         image=None,
         justify=None,
         padding=None,
         state="normal",
-        style=None,
         takefocus=False,
         text=None,
         textvariable=None,
         underline=None,
         width=None,
         wraplength=None,
+        style=None,
+
+        # custom style options
+        background=None,
+        foreground=None,
         **kw,
     ):
         """
         Args:
             master: The parent widget.
-            anchor (str, optional): Specifies how the information in the widget is positioned relative to the inner
-                margins. Legal values are n, ne, e, se, s, sw, w, nw, and center.
-            background (str, optional): The normal color to use on the Label when displaying the widget. Setting
-                this option will override all other style-based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            compound (str, optional): Specifies how to display the image relative to the text, in the case both
-                ``text`` and ``image`` are present. Valid values are: text, image, center, top, bottom, left, right,
-                none.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            font (str or Font, optional): The font to use for text displayed by the widget.
-            foreground (str, optional): The text color.
-            image (PhotoImage, optional): Specifies an image to display.
-            justify (str, optional): If there are multiple lines of text, specifies how the lines are laid out
-                relative to one another. One of left, center, or right.
-            padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
-                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
-                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
-                vertical padding; a single number specifies the same padding all the way around the widget.
-            state (str, optional): May be set to `normal` or `disabled`. If disabled, the user cannot change the content.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
-            text (str, optional): Specifies a text string to be displayed inside the widget (unless overridden by
-                ``textvariable``). This is also a property which can be used to access and set the value of the label.
-            textvariable (Variable, optional): Specifies the name of a variable whose value will be used in place of
-                the ``text`` resource. If not assigned, this is created by default and can be accessed directly or via
-                the ``text`` property.
-            underline (int, optional): If set, specifies the integer index (0-based) of a character to underline in the
-                text string. The underlined character is used for mnemonic activation.
-            width (int, optional): The widget's requested width in pixels.
-            wraplength (int, optional): Specifies the maximum line length (in pixels). If this option is less than or
-                equal to zero, then automatic wrapping is not performed; otherwise the text is split into lines such
-                that no line is longer than the specified value.
+            anchor (str): Controls how the text or image is positioned relative to the inner margins. Legal values include: `n`, `ne`, `e`, `se`, `s`, `sw`, `w`, `nw`, and `center`.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            image (PhotoImage): An image to display on the label. The position of the image is controlled by the ``compound`` option.
+            font (str): The font used to draw text inside the label; setting this option will override theme settings.
+            justify (str): Aligns text within the widget. Legal values include: `left`, `center`, `right`.
+            padding (Any): Sets the internal label padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            state (str): May be set to `normal` or `disabled`. If disabled, the user cannot change the content.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): Specifies a text string to be displayed inside label (unless overridden by ``textvariable``).
+            textvariable (Variable): A tkinter variable whose value is used in place of the label text. If not provided, one is create by default. The value can be accessed or set directly or via the ``text`` property.
+            underline (int): The index of the character to underline.
+            width (int): The absolute width of the text area; avg character size if text or pixels if an image.
+            wraplength (int): The maximum line length in pixels.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            background (str): The label background color; setting this option will override theme settings.
+            foreground (str, optional): The label text color; setting this option will override the theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """

@@ -12,89 +12,63 @@ from ttkbootstrap.widgets import Widget
 
 
 class Menubutton(Widget, ttk.Menubutton):
-    """A ttk.Menubutton widget displays a textual label and/or image, and displays a menu when pressed.
+    """A Menubutton widget displays a textual label and/or image, and displays a menu when pressed.
     """
 
     def __init__(
         self,
+
+        # widget options
         master=None,
-        background=None,
         bootstyle="default",
         compound=None,
         cursor=None,
         direction=None,
         font=None,
-        hidearrow=False,
-        foreground=None,
         image=None,
         menu=None,
         padding=None,
+        showarrow=True,
         state="normal",
-        style=None,
         takefocus=True,
         textvariable=None,
         text=None,
         underline=None,
         width=None,
+        style=None,
+
+        # style options
+        background=None,
+        foreground=None,
         **kw,
     ):
         """
         Args:
-            master (Widget, optional): The parent widget.
-            background (str, optional): The normal background color to use when displaying the widget. Setting this
-                option will override all other style based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            compound (str, optional): Specifies if the widget should display text and bitmaps/images at the same time,
-                and if so, where the bitmap/image should be placed relative to the text. Must be one of the values
-                **none**, **bottom**, **top**, **left**, **right**, or **center**. For example, the (default) value
-                **none** specifies that the bitmap or image should (if defined) be displayed `instead` of the text, the
-                value **left** specifies that the bitmap or image should be displayed to the `left` of the text, and
-                the value **center** specifies  that the bitmap or image should be displayed `underneath` the text.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            direction (str, optional): Specifies where the menu is to be popped up relative to the menubutton. One of: 
-                above, below, left, right, or flush. The default is below. flush pops the menu up directly over the 
-                menubutton. 
-            font (str or Font, optional): The font to use when drawing text inside the widget.
-            foreground (str, optional): The normal foreground color to use when displaying the widget. Setting this
-                option will override all other style based foreground settings.
-            hidearrow (bool, optional): Hides the downarrow that is shown on the button by default.
-            image (PhotoImage, optional): Specifies an image to display in the widget, which must have been created
-                with ``tk.PhotoImage`` or `TkPhotoImage`` if using **pillow**. Can also be a string representing the
-                name of the photo if the photo has been given a name using the ``name`` parameter.  Typically, if
-                the ``image`` option is specified then it overrides other options that specify a bitmap or textual
-                value to display in the widget, though this is controlled by the ``compound`` option; the ``image``
-                option may be reset to an empty string to re-enable a bitmap or text display.
-            padding (str, optional): Specifies the internal padding for the widget. The padding is a list of up to four
-                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
-                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
-                vertical padding; a single number specifies the same padding all the way around the widget.
-            state (str, optional): May be set to ``normal`` or ``disabled`` to control the disabled state bit. This is
-                a write-only option: setting it changes the widget state, but the state widget command does not affect
-                the ``state`` option.
-            style (str, optional): May be used to specify a custom widget style.
-            takefocus (bool, optional): Determines whether the widget accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). To remove the widget from focus traversal, use ``takefocus=False``.
-            text (str, optional): Specifies a string to be displayed inside the widget.
-            textvariable (Variable, optional): Specifies the name or instance of a tkinter variable whose value will be
-                used in place of the ``text`` resource.
-            underline (int, optional): Specifies the integer index of a character to underline in the widget. This
-                option is used by the default bindings to implement keyboard traversal for menu buttons and menu
-                entries. 0 corresponds to the first character of the text displayed in the widget, 1 to the next
-                character, and so on.
-            width (int, optional): If greater than zero, specifies how much space, in character widths, to allocate for
-                the text label. If less than zero, specifies a minimum width. If zero or unspecified, the natural width
-                of the text label is used.
+            master (Widget): The parent widget.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.            
+            compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            direction (str): Specifies where the menu is to be popped up relative to the menubutton. Legal values include: `above`, `below`, `left`, `right`, or `flush`.
+            image (PhotoImage): An image to display on the button. The position of the image is controlled by the ``compound`` option.
+            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            showarrow (bool): Shows or hides the arrow on the combobox button.
+            state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): Specifies a string to be displayed inside the widget.
+            textvariable (Variable): A tkinter variable whose value is used in place of the button text.
+            underline (int): The index of the character to underline.
+            width (int): The absolute width of the text area; avg character size if text or pixels if an image.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            background (str): The button background color; setting this option will override theme settings.
+            foreground (str): The button text color; setting this option will override theme settings.
+            font (str): The font used to draw text inside the widget; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TMenubutton", master=master, bootstyle=bootstyle, style=style)
 
         self.tk = master.tk
-        self.arrowsize = 0 if hidearrow else 4
+        self.arrowsize = 0 if showarrow else 4
         self.background = background
         self.font = font
         self.foreground = foreground
@@ -124,7 +98,7 @@ class Menubutton(Widget, ttk.Menubutton):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.font != None, self.arrowsize == 0]):
+        if any([self.background != None, self.foreground != None, self.font != None]):
             self.customized = True
 
             if not self.widget_id:
@@ -134,7 +108,6 @@ class Menubutton(Widget, ttk.Menubutton):
         if self.customized:
             options = {
                 "theme": self.theme,
-                "arrowsize": self.arrowsize,
                 "background": self.background,
                 "foreground": self.foreground,
                 "font": self.font,

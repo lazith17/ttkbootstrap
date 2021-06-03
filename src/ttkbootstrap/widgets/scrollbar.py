@@ -20,45 +20,42 @@ class Scrollbar(Widget, ttk.Scrollbar):
 
     def __init__(
         self,
+
+        # widget options
         master=None,
-        arrows=True,
         bootstyle="default",
         command=None,
         cursor=None,
         orient="vertical",
         style=None,
         takefocus=False,
+        
+        # custom style options
+        showarrows=True,
         thumbcolor=None,
         troughcolor=None,
         **kw,
+
     ):
         """
         Args:
             master: The parent widget.
-            arrows (bool, optional): Show or hide the arrows; ignored for 'rounded' scrollbar.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            command (func, optional): A script prefix to evaluate to change the view in the widget associated with the
-                scrollbar. Additional arguments are appended to the value of this option whenever the user requests a 
-                view change by manipulating the scrollbar.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            orient (str, optional): One of horizontal or vertical. Specifies the orientation of the scrollbar.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
-            thumbcolor (str, optional): The normal color used on the Scrollbar thumb. Setting this option will override
-                all other style-based thumbcolor settings.
-            troughcolor (str, optional): The normal color to use on the Scrollbar trough. Setting this option will 
-                override all other style-based troughcolor settings.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            command (func): A function that is called when the view in the associate widget changes.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            orient (str): One of horizontal or vertical. Specifies the orientation of the scrollbar.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            showarrows (bool, optional): Show or hide the arrow buttons on the scrollbar; this option is ignored for 'rounded' scrollbar.
+            thumbcolor (str, optional): The color of the scrollbar thumb; setting this option will override theme settings.
+            troughcolor (str, optional): The color of the scrollbar trough; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TScrollbar", master=master, bootstyle=bootstyle, style=style, orient=orient)
 
         self.tk = master.tk
-        self.arrows = arrows
+        self.showarrows = showarrows
         self.thumbcolor = thumbcolor
         self.troughcolor = troughcolor
         self.widget_id = None
@@ -79,7 +76,7 @@ class Scrollbar(Widget, ttk.Scrollbar):
 
     def _customize_widget(self):
         """Create a custom widget style if custom settings are used"""
-        if any([self.troughcolor != None, self.thumbcolor != None, not self.arrows]):
+        if any([self.troughcolor != None, self.thumbcolor != None, not self.showarrows]):
             self.customized = True
 
             if not self.widget_id:
@@ -93,7 +90,7 @@ class Scrollbar(Widget, ttk.Scrollbar):
                 "troughcolor": self.troughcolor,
                 "orient": self.orient,
                 "style": self.style,
-                "arrows": self.arrows
+                "showarrows": self.showarrows
             }
             settings = StylerTTK.style_scrollbar(**options)
             self.update_ttk_style(settings)

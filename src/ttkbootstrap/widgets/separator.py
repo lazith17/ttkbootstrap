@@ -12,42 +12,42 @@ from ttkbootstrap.widgets import Widget
 
 
 class Separator(Widget, ttk.Separator):
-    """A ttk.Separator widget displays a horizontal or vertical separator bar"""
+    """A Separator widget displays a horizontal or vertical separator bar"""
 
     def __init__(
         self,
+
+        # widget options
         master=None,
-        background=None,
         bootstyle="default",
         cursor=None,
         orient='horizontal',
-        sashthickness = 1,
-        style=None,
         takefocus=False,
+        style=None,
+
+        # style options
+        sashcolor=None,
+        sashthickness = 1,
         **kw,
     ):
         """
         Args:
             master: The parent widget.
-            background (str, optional): The normal color to use on the separator when displaying the widget. Setting 
-                this option will override all other style-based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             orient (str, optional): One of 'horizontal' or 'vertical'.  Specifies the orientation of the separator.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            sashcolor (str, optional): The normal color to use on the separator when displaying the widget. Setting 
+                this option will override all other style-based background settings.
             sashthickness (int, optional): The thickness of the separator line in pixels. Default is 1.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
         
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TSeparator", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
         self.tk = master.tk
-        self.background = background
+        self.sashcolor = sashcolor
         self.sashthickness = sashthickness
         self.orient = orient
         self.widget_id = None
@@ -76,7 +76,7 @@ class Separator(Widget, ttk.Separator):
         if self.customized:
             options = {
                 "theme": self.theme,
-                "background": self.background or self.themed_color,
+                "sashcolor": self.sashcolor or self.themed_color,
                 "sashthickness": self.sashthickness,
                 "style": self.style,
             }

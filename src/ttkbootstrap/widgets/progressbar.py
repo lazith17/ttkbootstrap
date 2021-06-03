@@ -19,6 +19,8 @@ class Progressbar(Widget, ttk.Progressbar):
 
     def __init__(
         self,
+
+        # widget options
         master=None,
         bootstyle="default",
         cursor=None,
@@ -27,10 +29,12 @@ class Progressbar(Widget, ttk.Progressbar):
         mode="determinate",
         orient="horizontal",
         phase=None,
+        takefocus=False,
         value=0,
         variable=None,
         style=None,
-        takefocus=False,
+
+        # custom style options
         barcolor=None,
         troughcolor=None,
         **kw,
@@ -38,28 +42,19 @@ class Progressbar(Widget, ttk.Progressbar):
         """
         Args:
             master: The parent widget.
-            barcolor (str): The color of the progressbar. Setting this value will override any bootstrap styles for
-                barcolor.
-            bootstyle (str): The **ttkbootstrap** style used to render the widget. This is a short-hand API for setting
-                the widget style. You may also use the ``style`` option directly using the standard ``ttk`` API. Using
-                the ``Style`` option will overwrite the ``bootstyle``.
-            cursor (str): Specifies the `mouse cursor`_ to be used for the widget. Names and values will vary according
-                to your operating system.
-            length (int): Specifies the length of the long axis of the progress bar.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.            
+            length (int): The length of the long axis of the progress bar in pixels.
             maximum (int): A floating point number specifying the maximum ``value``. Defaults to 100.
+            mode (str): One of `determinate` or `indeterminate`.
             orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Progressbar.
-            slidercolor (str): The color of the round slider; setting this will override the ``bootstyle`` settings.
-            style (str): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool): Determines whether the widget accepts the focus during keyboard traversal (e.g., Tab and
-                Shift-Tab).
-            troughcolor (str): The color of the trough. Using this will override ``bootstyle`` settings.
-            value (float): The current value of the progress bar. In determinate mode, this represents the amount of
-                work completed. In indeterminate mode, it is interpreted modulo ``maximum``; that is, the progress bar
-                completes one “cycle” when the ``value`` increases by ``maximum``. If ``variable`` is set to an
-                existing variable, specifying ``value`` has no effect (the variable value takes precedence).
-            variable (Variable): A variable which is linked to the ``value``. If specified to an existing variable, the
-                ``value`` of the progress bar is automatically set to the value of the variable whenever the latter is
-                modified. If not provided, one is created by default.
+            phase (str): Read-only option. The widget periodically increments the value of this option whenever the ``value`` is greater than 0 and, in determinate mode, less than ``maximum``. This option may be used by the current theme to provide additional animation effects. 
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            value (float): The current value of the progress bar.
+            variable (Variable): A variable which is linked to the ``value``. If associated to an existing variable, the ``value`` of the progress bar is automatically set to the value of the variable whenever the latter is modified. If not provided, one is created by default.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            barcolor (str): The color of the progressbar; setting this option will override theme settings.
+            troughcolor (str): The color of the trough; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """

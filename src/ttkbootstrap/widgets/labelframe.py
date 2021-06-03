@@ -18,53 +18,44 @@ class Labelframe(Widget, ttk.Label):
 
     def __init__(
         self,
+        
+        # widget options
         master=None,
-        background=None,
         bootstyle="default",
-        bordercolor=None,
         cursor=None,
-        foreground=None,
         height=None,
         labelanchor=None,
         labelwidget=None,
         padding=None,
-        style=None,
         takefocus=False,
         text=None,
         underline=None,
         width=None,
+        style=None,
+
+        # custom style options
+        background=None,
+        bordercolor=None,
+        foreground=None,
         **kw,
     ):
         """
         Args:
             master: The parent widget.
-            background (str, optional): The normal color of the widget background. Setting this option will override 
-                all other style-based background settings.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            bordercolor (str, optional): The color of the labelframe border.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            foreground (str, optional): The label text color.
-            height (int, optional): If specified, the widget's requested height in pixels.
-            labelanchor (str, optional): Specifies where to place the label. Allowed values are (clockwise from the top
-                upper left corner): nw, n, ne, en, e, es, se, s,sw, ws, w and wn. 
-            labelwidget (str, optional): The name of a widget to use for the label. If set, overrides the ``text`` 
-                option. The ``labelwidget`` must be a child of the labelframe widget or one of the labelframe's 
-                ancestors, and must belong to the same top-level widget as the labelframe.
-            padding (Any, optional): Specifies the internal padding for the widget. The padding is a list of up to four
-                length specifications left top right bottom. If fewer than four elements are specified, bottom defaults
-                to top, right defaults to left, and top defaults to left. In other words, a list of three numbers
-                specify the left, vertical, and right padding; a list of two numbers specify the horizontal and the
-                vertical padding; a single number specifies the same padding all the way around the widget.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the window accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). This widget does not accept traversal by default.
-            text (str, optional): Specifies the text of the label. 
-            underline (int, optional): If set, specifies the integer index (0-based) of a character to underline in the
-                text string. The underlined character is used for mnemonic activation.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            bordercolor (str, optional): The labelframe border color; setting this option will override theme settings.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            height (int, optional): The widget's requested height in pixels.
+            labelanchor (str, optional): The position of the label. Legal values include: `nw`,`n`,`ne`,`en`,`e`,`es`,`se`,`s`,`sw`, `ws`, `w` and `wn`. 
+            labelwidget (str, optional): The widget to use for the label. If set, overrides the ``text`` option; must be a child of the ancestors, and must belong to the same top-level widget as the labelframe.
+            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): Specifies a text string to be displayed inside the label.
+            underline (int): The index of the character to underline.
             width (int, optional): The widget's requested width in pixels.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            background (str): The labelframe background color; setting this option will override theme settings.
+            foreground (str, optional): The label text color; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """

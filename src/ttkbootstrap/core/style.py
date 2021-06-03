@@ -445,11 +445,11 @@ class StylerTTK:
                 self.style_radiobutton(self.theme, indicatorcolor=color, style=f"{color}.TRadiobutton")
             )
             self.settings.update(
-                self.style_separator(self.theme, background=color, style=f"{color}.Horizontal.TSeparator")
+                self.style_separator(self.theme, sashcolor=color, style=f"{color}.Horizontal.TSeparator")
             )
             self.settings.update(
                 self.style_separator(
-                    self.theme, background=color, orient="vertical", style=f"{color}.Vertical.TSeparator"
+                    self.theme, sashcolor=color, orient="vertical", style=f"{color}.Vertical.TSeparator"
                 )
             )
             self.settings.update(
@@ -576,13 +576,13 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_separator(theme, background=None, orient="horizontal", sashthickness=1, style=None):
+    def style_separator(theme, orient="horizontal", sashcolor=None, sashthickness=1, style=None):
         """Create a separator style.
 
         Args:
             theme (str): The color theme.
-            background (str, optional): The color of the separator.
             orient (str, optional): One of 'horizontal' or 'vertical'
+            sashcolor (str, optional): The color of the separator.
             sashthickness (int, optional): The thickness of the separator.
             style (str, optional): The style used to render the widget.
 
@@ -591,14 +591,14 @@ class StylerTTK:
         """
         # fallback colors
         fallback = theme.colors.border if theme.type == "light" else theme.colors.selectbg
-        background = ThemeColors.normalize(background, fallback, theme.colors)
+        sashcolor = ThemeColors.normalize(sashcolor, fallback, theme.colors)
 
         # separator images
         element = uuid4()
-        hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, sashthickness), background))
+        hs_im = ImageTk.PhotoImage(Image.new("RGB", (40, sashthickness), sashcolor))
         StylerTTK.theme_images[f"{element}.h.separator"] = hs_im
 
-        vs_im = ImageTk.PhotoImage(Image.new("RGB", (sashthickness, 40), background))
+        vs_im = ImageTk.PhotoImage(Image.new("RGB", (sashthickness, 40), sashcolor))
         StylerTTK.theme_images[f"{element}.v.separator"] = vs_im
 
         # style settings
@@ -1006,7 +1006,7 @@ class StylerTTK:
             )
 
     @staticmethod
-    def style_scrollbar(theme, style=None, thumbcolor=None, troughcolor=None, orient="vertical", arrows=True):
+    def style_scrollbar(theme, style=None, thumbcolor=None, troughcolor=None, orient="vertical", showarrows=True):
         """Create a default scrollbar style.
 
         Args:
@@ -1015,7 +1015,7 @@ class StylerTTK:
             thumbcolor (str, optional): The color of the scrollbar thumb.
             troughcolor (str, optional): The color of the scrollbar trough.
             orient (str, optional): The orientation of the scrollbar; either 'horizontal' or 'vertical'.
-            arrows (bool, optional): Whether to include or exclude arrow buttons. Ignored for rounded styles.
+            showarrows (bool, optional): Whether to include or exclude arrow buttons. Ignored for rounded styles.
 
         Returns:
             dict: A dictionary of theme settings.
@@ -1064,7 +1064,7 @@ class StylerTTK:
         ## horizontal orientation
         if orient.lower() == "horizontal":
             ### without arrow buttons
-            if not arrows:
+            if not showarrows:
                 settings.update(
                     {
                         style: {
@@ -1110,7 +1110,7 @@ class StylerTTK:
         ## vertical orientation
         else:
             ### without arrow buttons
-            if not arrows:
+            if not showarrows:
                 settings.update(
                     {
                         style: {
@@ -2729,15 +2729,16 @@ class StylerTTK:
         )
 
     @staticmethod
-    def style_outline_menubutton(theme, background=None, font=DEFAULT_FONT, foreground=None, style=None):
+    def style_outline_menubutton(theme, arrowsize=4, background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create a solid menubutton style.
 
         Args:
             theme (str): The theme name.
-            background (str, optional): The color of the button background.
-            font (str, optional): The font used to render the button text.
-            foreground (str, optional): The color of the button text.
-            style (str, optional): The style used to render the widget.
+            arrowsize (int): The size of the down arrow.
+            background (str): The color of the button background.
+            font (str): The font used to render the button text.
+            foreground (str): The color of the button text.
+            style (str): The style used to render the widget.
 
         Returns:
             dict: A dictionary of theme settings.
@@ -2750,11 +2751,11 @@ class StylerTTK:
 
         Args:
             theme (str): The theme name.
-            arrowsize (int, optional): The size of the down arrow.
-            background (str, optional): The color of the button background.
-            font (str, optional): The font used to render the button text.
-            foreground (str, optional): The color of the button text.
-            style (str, optional): The style used to render the widget.
+            arrowsize (int): The size of the down arrow.
+            background (str): The color of the button background.
+            font (str): The font used to render the button text.
+            foreground (str): The color of the button text.
+            style (str): The style used to render the widget.
 
         Returns:
             dict: A dictionary of theme settings.
@@ -2773,7 +2774,7 @@ class StylerTTK:
             {
                 f"{style}": {
                     "configure": {
-                        "arrowsize": arrowsize,
+                        "arrowsize": 4,
                         "arrowcolor": foreground,
                         "arrowpadding": (0, 0, 15, 0),
                         "background": background,
@@ -2821,11 +2822,11 @@ class StylerTTK:
 
         Args:
             theme (str): The theme name.
-            arrowsize (int, optional): The size of the down arrow.
-            background (str, optional): The color of the button background.
-            font (str, optional): The font used to render the button text.
-            foreground (str, optional): The color of the button text and outline.
-            style (str, optional): The style used to render the widget.
+            arrowsize (int): The size of the down arrow.
+            background (str): The color of the button background.
+            font (str): The font used to render the button text.
+            foreground (str): The color of the button text and outline.
+            style (str): The style used to render the widget.
 
         Returns:
             dict: A dictionary of theme settings.
