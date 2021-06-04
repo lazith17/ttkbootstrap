@@ -20,3 +20,4 @@ from .scrollbar import Scrollbar
 from .scale import Scale
 from .sizegrip import Sizegrip
 from .spinbox import Spinbox
+from .treeview import Treeview

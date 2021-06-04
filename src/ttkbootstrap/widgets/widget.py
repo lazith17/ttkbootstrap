@@ -47,6 +47,8 @@ WIDGET_LOOKUP = {
     "toggle": "Roundtoggle.Toolbutton",
     "toolbutton": "Toolbutton",
     "tool": "Toolbutton",
+    "tree": "Treeview",
+    "treeview": "Treeview"
 }
 WIDGET_PATTERN = "|".join(WIDGET_LOOKUP.keys())
 

@@ -331,9 +331,10 @@ class StylerTTK:
         self._style_calendar()
         self._style_meter()
         self._style_floodgauge()
-        self._style_treeview()
 
         # default style
+        self.settings.update(self.style_treeitem())
+        self.settings.update(self.style_treeview(self.theme, style="Treeview"))
         self.settings.update(self.style_progressbar(self.theme, style="Horizontal.TProgressbar"))
         self.settings.update(self.style_progressbar(self.theme, style="Striped.Horizontal.TProgressbar"))
         self.settings.update(self.style_progressbar(self.theme, orient="vertical", style="Vertical.TProgressbar"))
@@ -374,6 +375,7 @@ class StylerTTK:
 
         # themed style
         for color in self.theme.colors:
+            self.settings.update(self.style_treeview(self.theme, headerbackground=color, style=f"{color}.Treeview"))
             self.settings.update(self.style_button(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_button(self.theme, foreground=color, style=f"{color}.Link.TButton"))
             self.settings.update(self.style_sizegrip(self.theme, foreground=color, style=f"{color}.TSizegrip"))
@@ -677,7 +679,7 @@ class StylerTTK:
                             "troughcolor": troughcolor,
                             "thickness": 20,
                             "borderwidth": 1,
-                            "lightcolor": bordercolor,
+                            "bordercolor": bordercolor,
                         },
                     },
                 }
@@ -1386,60 +1388,43 @@ class StylerTTK:
         )
         return settings
 
-    def _style_treeview(self):
-        """Create style configuration for ttk treeview: *ttk.Treeview*. This widget uses elements from the *alt* and
-        *clam* theme to create the widget layout.
+    @staticmethod
+    def style_treeitem():
+        """Create a global adjustment for the tree item indicator. This widget is only created once per theme."""
+        return {"Treeitem.indicator": {"element create": ("from", "alt")}}
 
-        The options available in this widget include:
+    @staticmethod
+    def style_treeview(theme, headerbackground=None, headerfont='helvetica 10 bold', headerforeground=None, inputbackground=None, inputfont=DEFAULT_FONT, inputforeground=None,  style=None):
+        """Create at treeview style.
 
-            Treeview:
+        Args:
+            theme (str): The theme name.
+            headerbackground (str): The header background color.
+            headerfont (str): The font used to render the widget text.
+            headerforeground (str): The header text color.
+            inputbackground (str): The field background color.
+            inputfont (str): The field cell font.
+            inputforeground (str): The field text color.
+            style (str): The style used to render the widget.
 
-                - Treeview.field: bordercolor, lightcolor, darkcolor, fieldbackground
-                - Treeview.padding: padding, relief, shiftrelief
-                - Treeview.treearea
-
-            Item:
-
-                - Treeitem.padding: padding, relief, shiftrelief
-                - Treeitem.indicator: foreground, diameter, indicatormargins
-                - Treeitem.image: image, stipple, background
-                - Treeitem.focus: focuscolor, focusthickness
-                - Treeitem.text: text, font, foreground, underline, width, anchor, justify, wraplength, embossed
-
-            Heading:
-
-                - Treeheading.cell: background, rownumber
-                - Treeheading.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-                - Treeheading.padding: padding, relief, shiftrelief
-                - Treeheading.image: image, stipple, background
-                - Treeheading.text: text, font, foreground, underline, width, anchor, justify, wraplength, embossed
-
-            Cell:
-                - Treedata.padding: padding, relief, shiftrelief
-                - Treeitem.text: text, font, foreground, underline, width, anchor, justify, wraplength, embossed
-
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        disabled_fg = (
-            ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.2)
-            if self.theme.type == "light"
-            else ThemeColors.update_hsv(self.theme.colors.inputbg, vd=-0.3)
-        )
+        # fallback colors
+        headerbackground = ThemeColors.normalize(headerbackground, theme.colors.primary, theme.colors)
+        headerforeground = ThemeColors.normalize(headerforeground, theme.colors.selectfg, theme.colors)
+        inputbackground = ThemeColors.normalize(inputbackground, theme.colors.inputbg, theme.colors)
+        inputforeground = ThemeColors.normalize(inputforeground, theme.colors.inputfg, theme.colors)
+        disabled_fg = ThemeColors.update_hsv(inputforeground, vd=-0.2 if theme.type == "light" else -0.3)
 
-        self.settings.update(
-            {
-                "Treeview": {
-                    "layout": [
-                        (
-                            "Button.border",
-                            {
-                                "sticky": "nswe",
-                                "border": "1",
-                                "children": [
-                                    (
-                                        "Treeview.padding",
-                                        {
-                                            "sticky": "nswe",
-                                            "children": [("Treeview.treearea", {"sticky": "nswe"})],
+        # style settings
+        settings = dict()
+        settings.update({
+            style: {
+                "layout": [
+                    ("Button.border", {"sticky": "nswe", "border": "1", "children": [
+                            ("Treeview.padding", {"sticky": "nswe", "children": [
+                                    ("Treeview.treearea", {"sticky": "nswe"})],
                                         },
                                     )
                                 ],
@@ -1447,43 +1432,28 @@ class StylerTTK:
                         )
                     ],
                     "configure": {
-                        "background": self.theme.colors.inputbg,
-                        "foreground": self.theme.colors.inputfg,
-                        "bordercolor": self.theme.colors.bg,
-                        "lightcolor": self.theme.colors.border,
-                        "darkcolor": self.theme.colors.border,
-                        "relief": "raised" if self.theme.type == "light" else "flat",
-                        "padding": 0 if self.theme.type == "light" else -2,
+                        "background": inputbackground,
+                        "foreground": inputforeground,
+                        "font": inputfont,
+                        "borderwidth": 0,
+                        "padding": 0,
                     },
                     "map": {
-                        "background": [("selected", self.theme.colors.selectbg)],
-                        "foreground": [("disabled", disabled_fg), ("selected", self.theme.colors.selectfg)],
+                        "background": [("selected", theme.colors.selectbg)],
+                        "foreground": [("disabled", disabled_fg), ("selected", theme.colors.selectfg)],
                     },
                 },
-                "Treeview.Heading": {
+                f"{style}.Heading": {
                     "configure": {
-                        "background": self.theme.colors.primary,
-                        "foreground": self.theme.colors.selectfg,
-                        "relief": "flat",
-                        "padding": 5,
+                        "background": headerbackground,
+                        "foreground": headerforeground,
+                        "padding": (0, 5),
+                        "font": headerfont,
                     }
                 },
-                "Treeitem.indicator": {"element create": ("from", "alt")},
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Treeview.Heading": {
-                        "configure": {"background": self.theme.colors.get(color)},
-                        "map": {
-                            "foreground": [("disabled", disabled_fg)],
-                            "bordercolor": [("focus !disabled", self.theme.colors.get(color))],
-                        },
-                    }
-                }
-            )
+        return settings
 
     @staticmethod
     def style_frame(theme, background=None, style=None):
