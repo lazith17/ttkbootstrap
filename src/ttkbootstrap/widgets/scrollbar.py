@@ -41,14 +41,14 @@ class Scrollbar(Widget, ttk.Scrollbar):
         Args:
             master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
-            command (func): A function that is called when the view in the associate widget changes.
+            command (func): A reference to the ``xview`` or ``yview`` command of a scrollable widget.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             orient (str): One of horizontal or vertical. Specifies the orientation of the scrollbar.
             takefocus (bool): Adds or removes the widget from focus traversal.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
-            showarrows (bool, optional): Show or hide the arrow buttons on the scrollbar; this option is ignored for 'rounded' scrollbar.
-            thumbcolor (str, optional): The color of the scrollbar thumb; setting this option will override theme settings.
-            troughcolor (str, optional): The color of the scrollbar trough; setting this option will override theme settings.
+            showarrows (bool): Show or hide the arrow buttons on the scrollbar; this option is ignored for 'rounded' scrollbar.
+            thumbcolor (str): The color of the scrollbar thumb; setting this option will override theme settings.
+            troughcolor (str): The color of the scrollbar trough; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """

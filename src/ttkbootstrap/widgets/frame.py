@@ -37,7 +37,8 @@ class Frame(Widget, ttk.Frame):
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             height (int): The widget's requested height in pixels.
-            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            takefocus (bool): Determines whether the window accepts the focus during keyboard traversal
+            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            takefocus (bool): Determines whether the window accepts the focus during keyboard traversal
             width (int): The widget's requested width in pixels.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             background (str): The frame background color; setting this option will override theme settings.

@@ -44,7 +44,7 @@ class Menubutton(Widget, ttk.Menubutton):
     ):
         """
         Args:
-            master (Widget): The parent widget.
+            master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.            
             compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.

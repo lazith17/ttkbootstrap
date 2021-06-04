@@ -19,58 +19,51 @@ class Scale(Widget, ttk.Scale):
 
     def __init__(
         self,
+
+        # widget options
         master=None,
         bootstyle="default",
         command=None,
         cursor=None,
-        defaultvalue=0,
         format='%0.2f',
         from_=0,
         length=None,
         orient='horizontal',
-        slidercolor=None,
         style=None,
         takefocus=False,
         to=100,
-        troughcolor=None,
         value=0,
         variable=None,
+
+        # custom style options
+        slidercolor=None,
+        troughcolor=None,
         **kw,
     ):
         """
         Args:
             master: The parent widget.
-            bootstyle (str, optional): The **ttkbootstrap** style used to render the widget. This is a short-hand
-                API for setting the widget style. You may also use the ``style`` option directly using the standard
-                ``ttk`` API. Using the ``Style`` option will overwrite the ``bootstyle``.
-            command (func, optional): Specifies the function to invoke whenever the scale's value is changed.
-            cursor (str, optional): Specifies the `mouse cursor`_ to be used for the widget. Names and values will
-                vary according to your operating system.
-            defaultvalue (float, optional): The starting value of the widget.
-            format (str, optional): A format specifier when returning value from the ``value`` property. To get the
-                unformatted number, use the ``.variable.get()`` method. NOT IMPLEMENTED.
-            from_ (float, optional): A real value corresponding to the left or top end of the scale. 
-            length (int, optional): Specifies the desired long dimension of the scale in screen units.
-            orient (str, optional): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Scale.
-            slidercolor (str, optional): The color of the round slider; setting this will override the ``bootstyle``
-                settings.
-            style (str, optional): May be used to specify a style using the ``ttk`` style api.
-            takefocus (bool, optional): Determines whether the widget accepts the focus during keyboard traversal
-                (e.g., Tab and Shift-Tab). 
-            to (float, optional):
-            troughcolor (str, optional): The color of the trough. Using this will override ``bootstyle`` settings.
-            value (float, optional): 
-            variable (Variable, optional): Specifies the variable to link to the scale. Whenever the value of the 
-                variable changes, the scale will update to reflect this value. Whenever the scale is manipulated 
-                interactively, the variable will be modified to reflect the scale's new value. If none is provided, one
-                will be created automatically, and can be accessed or set via the ``value`` property.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            command (func): A function to invoke whenever the scale's value is changed.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            format (str): A format specifier when returning value from the ``value`` property. To get the unformatted number, use the ``.variable.get()`` method.
+            from_ (float): A real value corresponding to the left or top end of the scale. 
+            length (int): Specifies the desired long dimension of the scale in screen units.
+            orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Scale.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            value (float): The current value of the scale widget.
+            to (float): Specifies a real value corresponding to the right or bottom end of the scale. This value may be either less than or greater than the ``from`` option.
+            value (float): Specifies the current floating-point value of the variable. If ``variable`` is set to an existing variable, specifying ``value`` has no effect (the variable value takes precedence).
+            variable (Variable): The variable to link to the scale. Whenever the value of the variable changes, the scale will update to reflect this value. Whenever the scale is manipulated interactively, the variable will be modified to reflect the scale's new value. If none is provided, one will be created automatically, and can be accessed or set via the ``value`` property.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            slidercolor (str): The color of the round slider; setting this will override theme settings.
+            troughcolor (str): The color of the trough; setting this will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TScale", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
         self.tk = master.tk
-        self.defaultvalue = defaultvalue or value
         self.format = format
         self.from_ = from_
         self.to_ = to
@@ -78,7 +71,7 @@ class Scale(Widget, ttk.Scale):
         self.troughcolor = troughcolor
         self.orient = orient
         self.widget_id = None
-        self.variable = Variable(value=self.defaultvalue) or variable
+        self.variable = Variable(value=value) or variable
 
         self.customized = False
         self._customize_widget()
@@ -92,6 +85,7 @@ class Scale(Widget, ttk.Scale):
             length=length,
             orient=orient,
             variable=self.variable,
+            value=value,
             style=self.style,
             takefocus=takefocus,
             to=to,
@@ -101,12 +95,12 @@ class Scale(Widget, ttk.Scale):
     @property
     def value(self):
         """Get the current value of the spinbox widget"""
-        return self.format.format(self.textvariable.get())
+        return self.format.format(self.variable.get())
 
     @value.setter
     def value(self, value):
         """Set the current value of the spinbox widget"""
-        self.textvariable.set(value)
+        self.variable.set(value)
 
     def _customize_widget(self):
 

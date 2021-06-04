@@ -43,19 +43,19 @@ class Labelframe(Widget, ttk.Label):
         Args:
             master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
-            bordercolor (str, optional): The labelframe border color; setting this option will override theme settings.
+            bordercolor (str): The labelframe border color; setting this option will override theme settings.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
-            height (int, optional): The widget's requested height in pixels.
-            labelanchor (str, optional): The position of the label. Legal values include: `nw`,`n`,`ne`,`en`,`e`,`es`,`se`,`s`,`sw`, `ws`, `w` and `wn`. 
-            labelwidget (str, optional): The widget to use for the label. If set, overrides the ``text`` option; must be a child of the ancestors, and must belong to the same top-level widget as the labelframe.
+            height (int): The widget's requested height in pixels.
+            labelanchor (str): The position of the label. Legal values include: `nw`,`n`,`ne`,`en`,`e`,`es`,`se`,`s`,`sw`, `ws`, `w` and `wn`. 
+            labelwidget (str): The widget to use for the label. If set, overrides the ``text`` option; must be a child of the ancestors, and must belong to the same top-level widget as the labelframe.
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
             takefocus (bool): Adds or removes the widget from focus traversal.
             text (str): Specifies a text string to be displayed inside the label.
             underline (int): The index of the character to underline.
-            width (int, optional): The widget's requested width in pixels.
+            width (int): The widget's requested width in pixels.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             background (str): The labelframe background color; setting this option will override theme settings.
-            foreground (str, optional): The label text color; setting this option will override theme settings.
+            foreground (str): The label text color; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """

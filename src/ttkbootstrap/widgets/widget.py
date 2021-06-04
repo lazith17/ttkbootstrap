@@ -52,16 +52,15 @@ WIDGET_PATTERN = "|".join(WIDGET_LOOKUP.keys())
 
 
 class Widget(Widget, ABC):
-    """An abstract base class for all **ttkbootstrap** widgets."""
+    """An abstract base class for **ttkbootstrap** widgets."""
 
     def __init__(self, widgetclass, master=None, bootstyle=None, orient=None, style=None, **kw):
         """
         Args:
             widgetclass (str): The base ``ttk`` style class, which can be found with the ``.winfo_class`` method.
-            master (Widget, optional): The parent widget.
-            bootstyle (str, optional): A string of **ttkbootstrap** style keywords.
-            style (str, optional): A ``ttk`` style; will override ``bootstyle`` options.
-            **kw (optional): Other widget options.
+            master: The parent widget.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
         """
         self.widgetclass = widgetclass
         self.master = setup_master(master)
@@ -84,20 +83,21 @@ class Widget(Widget, ABC):
         return NotImplementedError
 
     def on_theme_change(self, event):
-        """Callback for <<ThemeChanged>> virtual event"""
+        """Callback for <<ThemeChanged>> virtual event
+        
+        Args:
+            event (Event): The event initiating the callback
+        """
         if not self.customized:
             return
         if not self.style_exists(self.style):
             self._customize_widget()
 
     def update_ttk_style(self, settings):
-        """Temporarily sets the current theme to themename, apply specified settings and then restore the previous
-        theme.
+        """Update a ttk theme using the settings dictionary.
 
         Args:
-            settings (dict): Each key in settings is a style and each value may contain the keys `configure`, `map`,
-                `layout` and `element create` and they are expected to have the same format as specified by the methods
-                configure, map, layout and element_create respectively.
+            settings (dict): A dictionary of settings used to create, configure, and map ttk styles.
         """
         script = script_from_settings(settings)
         theme_name = self.tk.call("ttk::style", "theme", "use")
@@ -109,6 +109,9 @@ class Widget(Widget, ABC):
 
         Args:
             style (str): A ttk style to check.
+        
+        Returns:
+            bool or ''
         """
         return self.tk.call("ttk::style", "configure", style, None)
 
@@ -130,7 +133,7 @@ class Widget(Widget, ABC):
         """Identity themed style in the style name. Returns the matched name if found, otherwise None.
 
         Returns:
-            str: The themed style found in the style name; ie. `outline`, `link`, etc...
+            str or None: The themed style found in the style name; ie. `outline`, `link`, etc...
         """
         if not self.bootstyle:
             return
@@ -157,7 +160,7 @@ class Widget(Widget, ABC):
         """Identity widget type in the style name. Returns the matched name if found, otherwise None.
 
         Returns:
-            str: The themed style found in the style name; ie. `TButton`, `TLabel`, etc...
+            str or None: The themed style found in the style name; ie. `TButton`, `TLabel`, etc...
         """
         if not self.bootstyle:
             return

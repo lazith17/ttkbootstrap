@@ -59,7 +59,7 @@ class Entry(Widget, ttk.Entry):
             show (str): A character to use as a mask; such as "*" for passwords.
             state (str): Either `normal`, `disabled`, or `readonly`. A disabled state will prevent user input; in the readonly state, the value may not be edited directly.
             takefocus (bool): Adds or removes the widget from focus traversal.
-            textvariable (Variable): A tkinter variable whose value is linked to the widget value. # TODO does this work?
+            textvariable (Variable): A tkinter variable whose value is linked to the widget value.
             validate (str): The validation mode. Legal values include: `none`, `focus`, `focusin`, `focusout`, `key`, or `all`; Default is `none`.
             validatecommand (func): A function to evaluate whenever validation is triggered.
             width (int): The absolute width of the text area using the average character size of the widget font.

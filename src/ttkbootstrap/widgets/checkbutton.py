@@ -43,8 +43,8 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
         # custom style options
         background=None,
-        foreground=None,
         font=None,
+        foreground=None,
         indicatorcolor=None,
         **kw,
     ):
@@ -61,13 +61,13 @@ class Checkbutton(Widget, ttk.Checkbutton):
             onvalue (Any): The value of the checkbutton when in the (checked) state. Default is 1.
             padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            
             state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
-            style (str): A ttk style api. Use ``bootstyle`` if possible.
             takefocus (bool): Adds or removes the checkbutton from focus traversal.
             text (str): The text to display in the checkbutton label.
             textvariable (Variable): A tkinter variable whose value is used in place of the checkbutton label text.
             underline (int): The index of the character to underline in the checkbutton label.
             variable (Variable): A tkinter variable whose value is used to control the checkbutton value. If none is provided, it is generated automatically and can be accessed directly or via the ``value`` property.
             width (int): The absolute width of the text area; avg character size if text or pixels if an image.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
             background (str): The checkbutton background color; setting this option will override the theme settings.
             foreground (str): The checkbutton text color; setting this option will override theme settings.
             font (str): The font used to draw text inside the widget; setting this option will override theme settings.
