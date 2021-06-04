@@ -23,7 +23,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
         bootstyle="default",
         cursor=None,
         height=None,
-        orient='horizontal',
+        orient='vertical',
         padding=None,
         takefocus=False,
         width=None,
