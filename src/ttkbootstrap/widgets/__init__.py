@@ -9,7 +9,7 @@ from .combobox import Combobox
 from .entry import Entry
 from .frame import Frame
 from .label import Label
-from .labelframe import Labelframe
+from .labelframe import LabelFrame
 from .menubutton import Menubutton
 from .notebook import Notebook
 from .panedwindow import PanedWindow

@@ -12,7 +12,7 @@ from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 
-class Labelframe(Widget, ttk.Label):
+class LabelFrame(Widget, ttk.Label):
     """A Labelframe widget is a container used to group other widgets together. It has an optional label, which may be 
     a plain text string or another widget."""
 
