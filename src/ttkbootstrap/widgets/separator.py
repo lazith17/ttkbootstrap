@@ -66,7 +66,7 @@ class Separator(Widget, ttk.Separator):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.sashthickness != 1]):
+        if any([self.sashcolor != None, self.sashthickness != 1]):
             self.customized = True
 
             if not self.widget_id:
