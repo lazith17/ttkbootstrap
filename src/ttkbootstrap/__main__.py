@@ -5,7 +5,8 @@ Copyright (c) 2021 Israel Dryer
 """
 from ttkbootstrap import Style
 import tkinter
-from tkinter import ttk
+from tkinter.ttk import OptionMenu
+import ttkbootstrap.widgets as ttk
 
 # for taking screenshots
 from PIL import ImageGrab
@@ -82,9 +83,9 @@ class Demo(Style):
         pw.pack(fill="x")
 
         # Available Colors
-        color_frame = ttk.Labelframe(pw, text="Colors available in this theme", padding=(5, 15))
+        color_frame = ttk.LabelFrame(pw, text="Colors available in this theme", padding=(5, 15))
         for color in colors:
-            btn = ttk.Button(color_frame, text=color.title(), style=f"{color.lower()}.TButton")
+            btn = ttk.Button(color_frame, text=color.title(), bootstyle=color)
             btn.pack(side="left", fill="x", expand="yes", padx=2, pady=5)
 
         pw.add(color_frame)
@@ -120,13 +121,13 @@ class Demo(Style):
         b1 = ttk.Button(btn_frame, text="Solid Button")
         b1.pack(side="left", fill="x", expand="yes", padx=(0, 5))
 
-        b2 = ttk.Button(btn_frame, text="Outline Button", style="Outline.TButton")
+        b2 = ttk.Button(btn_frame, text="Outline Button", bootstyle='outline')
         b2.pack(side="left", fill="x", expand="yes")
         btn_frame.pack(fill="x", pady=5)
 
         # Option Menu
         om_var = tkinter.StringVar()
-        om = ttk.OptionMenu(btn_frame, om_var, "Option Menu", *list(self.themes))
+        om = OptionMenu(btn_frame, om_var, "Option Menu", *list(self.themes))
         om.pack(side="right", fill="x", padx=(5, 0), pady=5)
 
         # Labelframe
@@ -162,11 +163,10 @@ class Demo(Style):
 
         # Scale
         scale_frame = ttk.Frame(widget_frame)
-        self.scale_var = tkinter.IntVar(value=25)
-        scale = ttk.Scale(scale_frame, variable=self.scale_var, from_=1, to=100)
+        scale = ttk.Scale(scale_frame, value=25)
         scale.pack(side="left", fill="x", expand="yes", padx=(0, 2))
         scale_frame.pack(side="top", fill="x", pady=5)
-        entry = ttk.Entry(scale_frame, textvariable=self.scale_var, width=4)
+        entry = ttk.Entry(scale_frame, textvariable=scale.variable, width=4)
         entry.pack(side="right")
 
         # Combobox
@@ -175,9 +175,7 @@ class Demo(Style):
         cbo.pack(fill="x", pady=5)
 
         # Progressbar
-        ttk.Progressbar(widget_frame, variable=self.scale_var, style="Striped.Horizontal.TProgressbar").pack(
-            fill="x", pady=10
-        )
+        ttk.Progressbar(widget_frame, variable=scale.variable).pack(fill="x", pady=10)
         return tab
 
     def run(self):
