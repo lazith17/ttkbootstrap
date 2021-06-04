@@ -71,7 +71,7 @@ class Scale(Widget, ttk.Scale):
         self.troughcolor = troughcolor
         self.orient = orient
         self.widget_id = None
-        self.variable = Variable(value=value) or variable
+        self.variable = variable or Variable(value=value)
 
         self.customized = False
         self._customize_widget()

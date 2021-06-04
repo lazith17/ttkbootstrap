@@ -63,7 +63,7 @@ class Progressbar(Widget, ttk.Progressbar):
         self.tk = master.tk
         self.orient = orient
         self.widget_id = None
-        self.variable = Variable(value=value) or variable
+        self.variable = variable or Variable(value=value)
         self.barcolor = barcolor
         self.troughcolor = troughcolor
 

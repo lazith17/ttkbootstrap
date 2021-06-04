@@ -4,11 +4,14 @@
     Created: 2021-05-28
     Author: Israel Dryer, israel.dryer@gmail.com
 
+
 """
 from uuid import uuid4
 from tkinter import ttk
+from tkinter import Variable
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
+
 
 
 class Menubutton(Widget, ttk.Menubutton):
@@ -90,7 +93,7 @@ class Menubutton(Widget, ttk.Menubutton):
             style=self.style,
             takefocus=takefocus,
             text=text,
-            textvariable=textvariable,
+            textvariable=textvariable or Variable(),
             underline=underline,
             width=width,
             **kw,
@@ -122,3 +125,8 @@ class Menubutton(Widget, ttk.Menubutton):
                 settings = StylerTTK.style_menubutton(**options)
 
             self.update_ttk_style(settings)
+
+    @property
+    def value(self):
+        """Get the current value selected"""
+        return self.textvariable.get()
