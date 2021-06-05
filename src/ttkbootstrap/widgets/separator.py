@@ -46,13 +46,9 @@ class Separator(Widget, ttk.Separator):
         """
         Widget.__init__(self, "TSeparator", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.tk = master.tk
         self.sashcolor = sashcolor
         self.sashthickness = sashthickness
         self.orient = orient
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Separator.__init__(

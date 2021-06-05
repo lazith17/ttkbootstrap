@@ -9,7 +9,7 @@ import re
 from abc import ABC, abstractmethod
 
 from tkinter.ttk import setup_master
-from tkinter.ttk import Widget
+from tkinter import ttk
 from tkinter.ttk import _script_from_settings as script_from_settings
 
 from ttkbootstrap.core.themes import DEFINITIONS
@@ -53,7 +53,7 @@ WIDGET_LOOKUP = {
 WIDGET_PATTERN = "|".join(WIDGET_LOOKUP.keys())
 
 
-class Widget(Widget, ABC):
+class Widget(ttk.Widget, ABC):
     """An abstract base class for **ttkbootstrap** widgets."""
 
     def __init__(self, widgetclass, master=None, bootstyle=None, orient=None, style=None, **kw):
@@ -68,6 +68,7 @@ class Widget(Widget, ABC):
         self.master = setup_master(master)
         self.bootstyle = bootstyle.lower()
         self.customized = False
+        self.widget_id = None
         self.orient = orient
         self.style = style
         self.tk = self.master.tk

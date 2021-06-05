@@ -1501,7 +1501,7 @@ class StylerTTK:
             {
                 f"{style}": {
                     "configure": {
-                        "anchor": anchor or "center",
+                        "anchor": anchor,
                         "foreground": foreground,
                         "background": background,
                         "bordercolor": background,
@@ -1541,7 +1541,7 @@ class StylerTTK:
         return settings
 
     @staticmethod
-    def style_outline_button(theme, anchor="center", background=None, font=DEFAULT_FONT, foreground=None, style=None):
+    def style_outline_button(theme, anchor='center', background=None, font=DEFAULT_FONT, foreground=None, style=None):
         """Create an outline button style.
 
         Args:
@@ -1568,7 +1568,7 @@ class StylerTTK:
             {
                 f"{style}": {
                     "configure": {
-                        "anchor": anchor or "center",
+                        "anchor": anchor,
                         "foreground": foreground,
                         "background": background,
                         "bordercolor": foreground,
@@ -1630,7 +1630,7 @@ class StylerTTK:
             {
                 f"{style}": {
                     "configure": {
-                        "anchor": anchor or "center",
+                        "anchor": anchor,
                         "foreground": foreground,
                         "background": background,
                         "bordercolor": background,

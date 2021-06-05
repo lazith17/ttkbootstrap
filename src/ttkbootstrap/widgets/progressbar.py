@@ -60,14 +60,10 @@ class Progressbar(Widget, ttk.Progressbar):
         """
         Widget.__init__(self, "TProgressbar", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.tk = master.tk
         self.orient = orient
-        self.widget_id = None
         self.variable = variable or Variable(value=value)
         self.barcolor = barcolor
         self.troughcolor = troughcolor
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Progressbar.__init__(

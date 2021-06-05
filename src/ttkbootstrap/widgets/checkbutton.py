@@ -77,15 +77,11 @@ class Checkbutton(Widget, ttk.Checkbutton):
         """
         Widget.__init__(self, "TCheckbutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.font = font
         self.foreground = foreground
         self.indicatorcolor = indicatorcolor
-        self.widget_id = None
         self.variable = variable or Variable(value=onvalue if default else offvalue)
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Checkbutton.__init__(

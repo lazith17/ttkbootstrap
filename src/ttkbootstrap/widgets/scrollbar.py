@@ -54,13 +54,9 @@ class Scrollbar(Widget, ttk.Scrollbar):
         """
         Widget.__init__(self, "TScrollbar", master=master, bootstyle=bootstyle, style=style, orient=orient)
 
-        self.tk = master.tk
         self.showarrows = showarrows
         self.thumbcolor = thumbcolor
         self.troughcolor = troughcolor
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Scrollbar.__init__(

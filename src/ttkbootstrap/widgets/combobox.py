@@ -72,18 +72,13 @@ class Combobox(Widget, ttk.Combobox):
         """
         Widget.__init__(self, "TCombobox", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.default = default
         self.focuscolor = focuscolor
         self.foreground = foreground
         self.font = font or DEFAULT_FONT
-        self.textvariable = textvariable or Variable()
+        self.textvariable = textvariable or Variable(value=default)
         self.values = values
-        self.widget_id = None
-
-        self.customized = False
-
         self._set_variable()
         self._customize_widget()
 
@@ -100,7 +95,7 @@ class Combobox(Widget, ttk.Combobox):
             state=state,
             style=self.style,
             takefocus=takefocus,
-            textvariable=textvariable,
+            textvariable=self.textvariable,
             values=values,
             width=width,
             **kw,

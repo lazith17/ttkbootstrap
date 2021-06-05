@@ -41,7 +41,7 @@ class Spinbox(Widget, ttk.Spinbox):
         validate=None,
         validatecommand=None,
         values=None,
-        wrap=None,
+        wrap=False,
         xscrollcommand=None,
 
         # style options
@@ -68,7 +68,7 @@ class Spinbox(Widget, ttk.Spinbox):
             validate (str): The validation mode. Legal values include: `none`, `focus`, `focusin`, `focusout`, `key`, or `all`; Default is `none`.
             validatecommand (func): A function to evaluate whenever validation is triggered.
             values (List or Tuple): The values to use in the spinbox. This will override any range set using the ``from``, ``to`` and ``increment`` options.
-            wrap (bool): Cycle through the values of the spinbox when reaching the end of the range.
+            wrap (bool): Cycle through the values of the spinbox when reaching the end of the range instead of stopping at the min or max value.
             xscrollcommmand (func): A reference to ``xscrollbar.set`` method; used to communicate with horizontal scrollbars.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             background (str): The field background color; setting this options will override theme settings.
@@ -80,7 +80,6 @@ class Spinbox(Widget, ttk.Spinbox):
         """
         Widget.__init__(self, "TSpinbox", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.focuscolor = focuscolor
         self.foreground = foreground
@@ -91,9 +90,6 @@ class Spinbox(Widget, ttk.Spinbox):
         self.default = default
         self.values = values
         self.textvariable = textvariable or StringVar()
-        self.widget_id = None
-
-        self.customized = False
         self._set_variable()
         self._customize_widget()
 

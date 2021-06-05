@@ -76,7 +76,7 @@ class Demo(Style):
             mb.menu.add_command(label=t, command=lambda theme_name=t: self.change_theme(theme_name))
 
         # Separator
-        ttk.Separator(tab, orient="horizontal").pack(fill="x", pady=(10, 15))
+        ttk.Separator(tab).pack(fill="x", pady=(10, 15))
 
         # Paned Window
         pw = ttk.PanedWindow(tab)
@@ -106,14 +106,13 @@ class Demo(Style):
         entry_spin_frame.pack(fill="x", pady=5)
 
         # Entry
-        entry = ttk.Entry(entry_spin_frame)
-        entry.insert("end", "An entry field with focus ring")
+        entry = ttk.Entry(entry_spin_frame, text="An entry field")
         entry.pack(side="left", fill="x", expand="yes")
+        entry.text = "An entry field with focus ring"
 
         # Spinbox
         spinner_options = ["Spinner option 1", "Spinner option 2", "Spinner option 3"]
-        spinner = ttk.Spinbox(entry_spin_frame, values=spinner_options)
-        spinner.set("Spinner option 1")
+        spinner = ttk.Spinbox(entry_spin_frame, values=spinner_options, wrap=True)
         spinner.pack(side="right", fill="x", expand="yes", padx=(5, 0))
 
         # Button
@@ -135,21 +134,18 @@ class Demo(Style):
         options_frame.pack(fill="x", pady=5)
 
         # Radio
-        r1 = ttk.Radiobutton(options_frame, value=1, text="Radio one")
+        r1 = ttk.Radiobutton(options_frame, value=1, group='radio-options', default=True, text="Radio one")
         r1.pack(side="left", fill="x", expand="yes")
-        r1.invoke()
-        r2 = ttk.Radiobutton(options_frame, value=2, text="Radio two")
+        r2 = ttk.Radiobutton(options_frame, value=2, group='radio-options', text="Radio two")
         r2.pack(side="left", fill="x", expand="yes")
 
         # Checkbutton
-        cb1 = ttk.Checkbutton(options_frame, text="Option 1")
+        cb1 = ttk.Checkbutton(options_frame, text="Option 1", default=True)
         cb1.pack(side="left", fill="x", expand="yes")
-        cb1.invoke()
 
         cb2 = ttk.Checkbutton(options_frame, text="Option 2")
         cb2.pack(side="left", fill="x", expand="yes")
-        cb2.invoke()
-        cb2.invoke()
+
 
         # Treeview
         tv = ttk.Treeview(widget_frame, height=3)
@@ -170,8 +166,7 @@ class Demo(Style):
         entry.pack(side="right")
 
         # Combobox
-        cbo = ttk.Combobox(widget_frame, values=colors)
-        cbo.current(0)
+        cbo = ttk.Combobox(widget_frame, values=colors, default='primary')
         cbo.pack(fill="x", pady=5)
 
         # Progressbar

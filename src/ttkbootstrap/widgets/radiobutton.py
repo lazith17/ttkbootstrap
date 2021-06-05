@@ -79,17 +79,13 @@ class Radiobutton(Widget, ttk.Radiobutton):
         """
         Widget.__init__(self, "TRadiobutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.default = default
         self.font = font
         self.foreground = foreground
         self.group = group
         self.indicatorcolor = indicatorcolor
-        self.widget_id = None
         self.variable = variable
-        self.customized = False
-
         self._set_variable(value)
         self._customize_widget()
 

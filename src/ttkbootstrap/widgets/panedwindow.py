@@ -53,12 +53,8 @@ class PanedWindow(Widget, ttk.PanedWindow):
         """
         Widget.__init__(self, "TPanedwindow", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.sashcolor = sashcolor
         self.sashthickness = sashthickness
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.PanedWindow.__init__(

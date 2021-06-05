@@ -70,14 +70,11 @@ class Menubutton(Widget, ttk.Menubutton):
         """
         Widget.__init__(self, "TMenubutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.arrowsize = 0 if showarrow else 4
         self.background = background
         self.font = font
         self.foreground = foreground
-        self.widget_id = None
-
-        self.customized = False
+        self.textvariable = textvariable or Variable(value=text)
         self._customize_widget()
 
         ttk.Menubutton.__init__(
@@ -93,7 +90,7 @@ class Menubutton(Widget, ttk.Menubutton):
             style=self.style,
             takefocus=takefocus,
             text=text,
-            textvariable=textvariable or Variable(),
+            textvariable=self.textvariable,
             underline=underline,
             width=width,
             **kw,
@@ -127,6 +124,11 @@ class Menubutton(Widget, ttk.Menubutton):
             self.update_ttk_style(settings)
 
     @property
-    def value(self):
-        """Get the current value selected"""
+    def text(self):
+        """Return the button text"""
         return self.textvariable.get()
+
+    @text.setter
+    def text(self, value):
+        """Set the button text"""
+        self.textvariable.set(value=value)

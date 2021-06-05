@@ -51,12 +51,8 @@ class Notebook(Widget, ttk.Notebook):
         """
         Widget.__init__(self, "TNotebook", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.foreground = foreground
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Notebook.__init__(

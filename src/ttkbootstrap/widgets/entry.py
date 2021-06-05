@@ -7,7 +7,7 @@
 """
 from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
-from tkinter import ttk
+from tkinter import Variable, ttk
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
@@ -32,6 +32,7 @@ class Entry(Widget, ttk.Entry):
         show=None,
         state="normal",
         takefocus=True,
+        text=None,
         textvariable=None,
         validate=None,
         validatecommand=None,
@@ -59,6 +60,7 @@ class Entry(Widget, ttk.Entry):
             show (str): A character to use as a mask; such as "*" for passwords.
             state (str): Either `normal`, `disabled`, or `readonly`. A disabled state will prevent user input; in the readonly state, the value may not be edited directly.
             takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): The initial value of the entry text.
             textvariable (Variable): A tkinter variable whose value is linked to the widget value.
             validate (str): The validation mode. Legal values include: `none`, `focus`, `focusin`, `focusout`, `key`, or `all`; Default is `none`.
             validatecommand (func): A function to evaluate whenever validation is triggered.
@@ -73,14 +75,11 @@ class Entry(Widget, ttk.Entry):
         """
         Widget.__init__(self, "TEntry", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.focuscolor = focuscolor
         self.foreground = foreground
         self.font = font or DEFAULT_FONT
-        self.widget_id = None
-
-        self.customized = False
+        self.textvariable = textvariable or Variable(value=text)
         self._customize_widget()
 
         ttk.Entry.__init__(
@@ -96,7 +95,7 @@ class Entry(Widget, ttk.Entry):
             state=state,
             style=self.style,
             takefocus=takefocus,
-            textvariable=textvariable,
+            textvariable=self.textvariable,
             validate=validate,
             validatecommand=validatecommand,
             width=width,
@@ -124,3 +123,13 @@ class Entry(Widget, ttk.Entry):
             settings = StylerTTK.style_entry(**options)
 
             self.update_ttk_style(settings)
+
+    @property
+    def text(self):
+        """Return the entry text"""
+        return self.textvariable.get()
+
+    @text.setter
+    def text(self, value):
+        """Set the value of the text"""
+        self.textvariable.set(value=value)

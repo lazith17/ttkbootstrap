@@ -63,17 +63,13 @@ class Scale(Widget, ttk.Scale):
         """
         Widget.__init__(self, "TScale", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.tk = master.tk
         self.format = format
         self.from_ = from_
         self.to_ = to
         self.slidercolor = slidercolor
         self.troughcolor = troughcolor
         self.orient = orient
-        self.widget_id = None
         self.variable = variable or Variable(value=value)
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Scale.__init__(

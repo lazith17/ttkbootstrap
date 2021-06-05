@@ -47,11 +47,7 @@ class Frame(Widget, ttk.Frame):
         """
         Widget.__init__(self, "TFrame", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Frame.__init__(

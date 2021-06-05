@@ -44,12 +44,8 @@ class Sizegrip(Widget, ttk.Sizegrip):
 
         Widget.__init__(self, "TSizegrip", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.foreground = foreground
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Sizegrip.__init__(

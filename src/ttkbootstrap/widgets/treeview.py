@@ -83,16 +83,12 @@ widget commands."""
         """
         Widget.__init__(self, "Treeview", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.headerbackground = headerbackground
         self.headerfont = headerfont
         self.headerforeground = headerforeground
         self.inputbackground = inputbackground
         self.inputfont = inputfont
         self.inputforeground = inputforeground
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Treeview.__init__(

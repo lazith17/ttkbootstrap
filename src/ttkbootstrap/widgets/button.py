@@ -5,8 +5,10 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
+from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
+from tkinter import Variable
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
@@ -40,10 +42,10 @@ class Button(Widget, ttk.Button):
         style=None,
         
         # custom style options
-        anchor=None,
+        anchor='center',
         background=None,
+        font='Helvetica 10',
         foreground=None,
-        font=None,
         **kw,
     ):
         """
@@ -55,36 +57,33 @@ class Button(Widget, ttk.Button):
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             image (PhotoImage): An image to display on the button. The position of the image is controlled by the ``compound`` option.
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
-            state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
+            state (str): Either `normal` or `disabled`. A disabled state will prevent the button from being pushed.
             takefocus (bool): Adds or removes the widget from focus traversal.
             text (str): Specifies a string to be displayed inside the widget.
-            textvariable (Variable): A tkinter variable whose value is used in place of the button text.
+            textvariable (Variable): A tkinter variable whose value is used in place of the button text. One is created automatically if not specified.
             underline (int): The index of the character to underline.
             width (int): The absolute width of the text area; avg character size if text or pixels if an image.
             wraplength (int): The maximum line length in pixels.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             anchor (str): Controls how the text or image is positioned relative to the inner margins. Legal values include: `n`, `ne`, `e`, `se`, `s`, `sw`, `w`, `nw`, and `center`.
             background (str): The button background color; setting this option will override theme settings.
-            foreground (str): The button text color; setting this option will override theme settings.
             font (str): The font used to draw text inside the widget; setting this option will override theme settings.
+            foreground (str): The button text color; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TButton", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.anchor = anchor
         self.background = background
         self.font = font
         self.foreground = foreground
-        self.widget_id = None
-
-        self.customized = False
+        self.textvariable = textvariable or Variable(value=text)
         self._customize_widget()
 
         ttk.Button.__init__(
             self,
-            master=master,
+            master=self.master,
             command=command,
             compound=compound,
             cursor=cursor,
@@ -94,7 +93,7 @@ class Button(Widget, ttk.Button):
             style=self.style,
             takefocus=takefocus,
             text=text,
-            textvariable=textvariable,
+            textvariable=self.textvariable,
             underline=underline,
             width=width,
             wraplength=wraplength,
@@ -103,7 +102,7 @@ class Button(Widget, ttk.Button):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.anchor != None, self.font != None]):
+        if any([self.background != None, self.foreground != None, self.anchor != 'center', self.font != DEFAULT_FONT]):
             self.customized = True
 
             if not self.widget_id:
@@ -114,9 +113,9 @@ class Button(Widget, ttk.Button):
             options = {
                 "theme": self.theme,
                 "anchor": self.anchor,
-                "background": self.background,
-                "foreground": self.foreground,
+                "background": self.background or self.themed_color,
                 "font": self.font,
+                "foreground": self.foreground,
                 "style": self.style,
             }
 
@@ -131,3 +130,13 @@ class Button(Widget, ttk.Button):
                 settings = StylerTTK.style_button(**options)
 
             self.update_ttk_style(settings)
+
+    @property
+    def text(self):
+        """Return the value of the button text"""
+        return self.textvariable.get()
+
+    @text.setter
+    def text(self, value):
+        """Set the value of the button text"""
+        self.textvariable.set(value=value)

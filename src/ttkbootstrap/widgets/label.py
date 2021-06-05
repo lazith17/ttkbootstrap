@@ -69,13 +69,9 @@ class Label(Widget, ttk.Label):
         """
         Widget.__init__(self, "TLabel", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.foreground = foreground
         self.textvariable = textvariable or Variable(value=text)
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Label.__init__(

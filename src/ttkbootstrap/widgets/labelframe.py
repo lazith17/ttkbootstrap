@@ -61,13 +61,9 @@ class LabelFrame(Widget, ttk.Label):
         """
         Widget.__init__(self, "TLabelframe", master=master, bootstyle=bootstyle, style=style)
 
-        self.tk = master.tk
         self.background = background
         self.bordercolor = bordercolor
         self.foreground = foreground
-        self.widget_id = None
-
-        self.customized = False
         self._customize_widget()
 
         ttk.Labelframe.__init__(
