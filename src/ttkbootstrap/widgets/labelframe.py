@@ -61,9 +61,10 @@ class LabelFrame(Widget, ttk.Label):
         """
         Widget.__init__(self, "TLabelframe", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.bordercolor = bordercolor
-        self.foreground = foreground
+        self._background = background
+        self._bordercolor = bordercolor
+        self._foreground = foreground
+        self._bsoptions = ['background', 'bordercolor', 'foreground', 'bootstyle']
         self._customize_widget()
 
         ttk.Labelframe.__init__(
@@ -84,19 +85,19 @@ class LabelFrame(Widget, ttk.Label):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.bordercolor != None]):
+        if any([self._background != None, self._foreground != None, self._bordercolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background or self.themed_color,
-                "bordercolor": self.bordercolor,
-                "foreground": self.foreground,
+                "theme": self._theme,
+                "background": self._background or self.themed_color,
+                "bordercolor": self._bordercolor,
+                "foreground": self._foreground,
                 "style": self.style,
             }
 

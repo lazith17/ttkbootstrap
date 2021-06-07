@@ -80,16 +80,17 @@ class Spinbox(Widget, ttk.Spinbox):
         """
         Widget.__init__(self, "TSpinbox", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.focuscolor = focuscolor
-        self.foreground = foreground
-        self.font = font or DEFAULT_FONT
-        self.format = format
-        self.from_ = from_
-        self.to = to
-        self.default = default
-        self.values = values
         self.textvariable = textvariable or StringVar()
+        self._background = background
+        self._focuscolor = focuscolor
+        self._foreground = foreground
+        self._font = font or DEFAULT_FONT
+        self._format = format
+        self._from = from_
+        self._to = to
+        self._default = default
+        self._values = values
+        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
         self._set_variable()
         self._customize_widget()
 
@@ -118,19 +119,19 @@ class Spinbox(Widget, ttk.Spinbox):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.focuscolor != None]):
+        if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "focuscolor": self.focuscolor or self.themed_color,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
             settings = StylerTTK.style_spinbox(**options)
@@ -139,19 +140,19 @@ class Spinbox(Widget, ttk.Spinbox):
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
-        if self.values and not self.default:
-            self.value = self.format % self.values[0] if isinstance(self.values[0], Number) else self.values[0]
-        elif self.default:
-            self.value = self.format % self.default if isinstance(self.default, Number) else self.default
+        if self._values and not self._default:
+            self.value = self._format % self._values[0] if isinstance(self._values[0], Number) else self._values[0]
+        elif self._default:
+            self.value = self._format % self._default if isinstance(self._default, Number) else self._default
         else:
-            self.value = self.format % self.from_
+            self.value = self._format % self._from
 
     @property
     def value(self):
-        """Get the current value of the spinbox widget"""
+        """Get the current value of the spinbox widget. Alias for ``Spinbox.get``"""
         return self.textvariable.get()
 
     @value.setter
     def value(self, value):
-        """Set the current value of the spinbox widget"""
+        """Set the current value of the spinbox widget. Alias for ``Spinbox.set``"""
         self.textvariable.set(value)

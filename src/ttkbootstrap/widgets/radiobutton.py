@@ -79,13 +79,14 @@ class Radiobutton(Widget, ttk.Radiobutton):
         """
         Widget.__init__(self, "TRadiobutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.default = default
-        self.font = font
-        self.foreground = foreground
-        self.group = group
-        self.indicatorcolor = indicatorcolor
         self.variable = variable
+        self._background = background
+        self._default = default
+        self._font = font
+        self._foreground = foreground
+        self._group = group
+        self._indicatorcolor = indicatorcolor
+        self._bsoptions = ['background', 'font', 'foreground', 'indicatorcolor', 'bootstyle']
         self._set_variable(value)
         self._customize_widget()
 
@@ -126,32 +127,32 @@ class Radiobutton(Widget, ttk.Radiobutton):
             value (Any): The default value of the widget when selected (Default is 1).
         """
         if self.variable:
-            self.group = self.variable._name
+            self._group = self.variable._name
         else:
-            if self.group:
-                self.variable = Variable(name=self.group)
+            if self._group:
+                self.variable = Variable(name=self._group)
             else:
                 self.variable = Variable()
-                self.group = self.variable._name
-        if self.default:
+                self._group = self.variable._name
+        if self._default:
             self.value = value
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.font != None, self.indicatorcolor != None]):
+        if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "indicatorcolor": self.indicatorcolor,
-                "font": self.font or DEFAULT_FONT,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "indicatorcolor": self._indicatorcolor,
+                "font": self._font or DEFAULT_FONT,
                 "style": self.style,
             }
 

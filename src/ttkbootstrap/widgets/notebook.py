@@ -51,8 +51,9 @@ class Notebook(Widget, ttk.Notebook):
         """
         Widget.__init__(self, "TNotebook", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.foreground = foreground
+        self._background = background
+        self._foreground = foreground
+        self._bsoptions = ['background', 'foreground', 'bootstyle']
         self._customize_widget()
 
         ttk.Notebook.__init__(
@@ -69,18 +70,18 @@ class Notebook(Widget, ttk.Notebook):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None]):
+        if any([self._background != None, self._foreground != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
                 "style": self.style,
             }
             settings = StylerTTK.style_notebook(**options)

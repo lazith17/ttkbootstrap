@@ -47,7 +47,8 @@ class Frame(Widget, ttk.Frame):
         """
         Widget.__init__(self, "TFrame", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
+        self._background = background
+        self._bsoptions = ['background', 'bootstyle']
         self._customize_widget()
 
         ttk.Frame.__init__(
@@ -64,17 +65,17 @@ class Frame(Widget, ttk.Frame):
 
     def _customize_widget(self):
 
-        if self.background != None:
+        if self._background != None:
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background or self.themed_color,
+                "theme": self._theme,
+                "background": self._background or self.themed_color,
                 "style": self.style,
             }
             settings = StylerTTK.style_frame(**options)

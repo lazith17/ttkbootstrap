@@ -60,10 +60,11 @@ class Progressbar(Widget, ttk.Progressbar):
         """
         Widget.__init__(self, "TProgressbar", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.orient = orient
-        self.variable = variable or Variable(value=value)
-        self.barcolor = barcolor
-        self.troughcolor = troughcolor
+        self._orient = orient
+        self._variable = variable or Variable(value=value)
+        self._barcolor = barcolor
+        self._troughcolor = troughcolor
+        self._bsoptions = ['barcolor', 'troughcolor', 'bootstyle']
         self._customize_widget()
 
         ttk.Progressbar.__init__(
@@ -75,7 +76,7 @@ class Progressbar(Widget, ttk.Progressbar):
             mode=mode,
             orient=orient,
             phase=phase,
-            variable=self.variable,
+            variable=self._variable,
             style=self.style,
             takefocus=takefocus,
             **kw,
@@ -84,28 +85,28 @@ class Progressbar(Widget, ttk.Progressbar):
     @property
     def value(self):
         """Get the current value of the widget"""
-        return self.variable.get()
+        return self._variable.get()
 
     @value.setter
     def value(self, value):
         """Set the current value of the widget"""
-        self.variable.set(value)
+        self._variable.set(value)
 
     def _customize_widget(self):
 
-        if any([self.barcolor != None, self.troughcolor != None]):
+        if any([self._barcolor != None, self._troughcolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "barcolor": self.barcolor or self.themed_color,
-                "troughcolor": self.troughcolor,
-                "orient": self.orient,
+                "theme": self._theme,
+                "barcolor": self._barcolor or self.themed_color,
+                "troughcolor": self._troughcolor,
+                "orient": self._orient,
                 "style": self.style,
             }
             settings = StylerTTK.style_progressbar(**options)

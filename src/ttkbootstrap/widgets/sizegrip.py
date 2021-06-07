@@ -44,8 +44,9 @@ class Sizegrip(Widget, ttk.Sizegrip):
 
         Widget.__init__(self, "TSizegrip", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.foreground = foreground
+        self._background = background
+        self._foreground = foreground
+        self._bsoptions = ['background', 'foreground', 'bootstyle']
         self._customize_widget()
 
         ttk.Sizegrip.__init__(
@@ -59,18 +60,18 @@ class Sizegrip(Widget, ttk.Sizegrip):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None]):
+        if any([self._background != None, self._foreground != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground or self.themed_color,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground or self.themed_color,
                 "style": self.style,
             }
             settings = StylerTTK.style_sizegrip(**options)

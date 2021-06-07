@@ -77,11 +77,12 @@ class Checkbutton(Widget, ttk.Checkbutton):
         """
         Widget.__init__(self, "TCheckbutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.font = font
-        self.foreground = foreground
-        self.indicatorcolor = indicatorcolor
         self.variable = variable or Variable(value=onvalue if default else offvalue)
+        self._background = background
+        self._font = font
+        self._foreground = foreground
+        self._indicatorcolor = indicatorcolor
+        self._bsoptions = ['background', 'font', 'foreground', 'indicatorcolor', 'bootstyle']
         self._customize_widget()
 
         ttk.Checkbutton.__init__(
@@ -117,20 +118,20 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.font != None, self.indicatorcolor != None]):
+        if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "indicatorcolor": self.indicatorcolor,
-                "font": self.font or DEFAULT_FONT,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "indicatorcolor": self._indicatorcolor,
+                "font": self._font or DEFAULT_FONT,
                 "style": self.style,
             }
 

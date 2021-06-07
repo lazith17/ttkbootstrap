@@ -63,13 +63,14 @@ class Scale(Widget, ttk.Scale):
         """
         Widget.__init__(self, "TScale", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.format = format
-        self.from_ = from_
-        self.to_ = to
-        self.slidercolor = slidercolor
-        self.troughcolor = troughcolor
-        self.orient = orient
         self.variable = variable or Variable(value=value)
+        self._format = format
+        self._from = from_
+        self._slidercolor = slidercolor
+        self._to = to
+        self._troughcolor = troughcolor
+        self._orient = orient
+        self._bsoptions = ['slidercolor', 'troughcolor', 'bootstyle']
         self._customize_widget()
 
         ttk.Scale.__init__(
@@ -90,29 +91,29 @@ class Scale(Widget, ttk.Scale):
 
     @property
     def value(self):
-        """Get the current value of the spinbox widget"""
-        return self.format.format(self.variable.get())
+        """Get the current value of the spinbox widget. Alias for ``Scale.get``"""
+        return self._format.format(self.variable.get())
 
     @value.setter
     def value(self, value):
-        """Set the current value of the spinbox widget"""
+        """Set the current value of the spinbox widget. Alias for ``Scale.set``"""
         self.variable.set(value)
 
     def _customize_widget(self):
 
-        if any([self.troughcolor != None, self.slidercolor != None]):
+        if any([self._troughcolor != None, self._slidercolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "slidercolor": self.slidercolor or self.themed_color,
-                "troughcolor": self.troughcolor,
-                "orient": self.orient,
+                "theme": self._theme,
+                "slidercolor": self._slidercolor or self.themed_color,
+                "troughcolor": self._troughcolor,
+                "orient": self._orient,
                 "style": self.style,
             }
             settings = StylerTTK.style_scale(**options)

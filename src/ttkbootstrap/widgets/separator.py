@@ -46,9 +46,10 @@ class Separator(Widget, ttk.Separator):
         """
         Widget.__init__(self, "TSeparator", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.sashcolor = sashcolor
-        self.sashthickness = sashthickness
-        self.orient = orient
+        self._sashcolor = sashcolor
+        self._sashthickness = sashthickness
+        self._orient = orient
+        self._bsoptions = ['sashcolor', 'sashthickness', 'bootstyle']
         self._customize_widget()
 
         ttk.Separator.__init__(
@@ -62,18 +63,18 @@ class Separator(Widget, ttk.Separator):
 
     def _customize_widget(self):
 
-        if any([self.sashcolor != None, self.sashthickness != 1]):
+        if any([self._sashcolor != None, self._sashthickness != 1]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "sashcolor": self.sashcolor or self.themed_color,
-                "sashthickness": self.sashthickness,
+                "theme": self._theme,
+                "sashcolor": self._sashcolor or self.themed_color,
+                "sashthickness": self._sashthickness,
                 "style": self.style,
             }
             settings = StylerTTK.style_separator(**options)

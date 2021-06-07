@@ -70,11 +70,12 @@ class Menubutton(Widget, ttk.Menubutton):
         """
         Widget.__init__(self, "TMenubutton", master=master, bootstyle=bootstyle, style=style)
 
-        self.arrowsize = 0 if showarrow else 4
-        self.background = background
-        self.font = font
-        self.foreground = foreground
         self.textvariable = textvariable or Variable(value=text)
+        self._arrowsize = 0 if showarrow else 4
+        self._background = background
+        self._font = font
+        self._foreground = foreground
+        self._bsoptions = ['background', 'foreground', 'bootstyle']
         self._customize_widget()
 
         ttk.Menubutton.__init__(
@@ -98,27 +99,27 @@ class Menubutton(Widget, ttk.Menubutton):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.font != None]):
+        if any([self._background != None, self._foreground != None, self._font != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "font": self.font,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "font": self._font,
                 "style": self.style,
             }
 
             if "Outline" in self.style:
-                self.foreground = self.foreground or self.themed_color
+                self._foreground = self._foreground or self.themed_color
                 settings = StylerTTK.style_outline_menubutton(**options)
             else:
-                self.background = self.background or self.themed_color
+                self._background = self._background or self.themed_color
                 settings = StylerTTK.style_menubutton(**options)
 
             self.update_ttk_style(settings)

@@ -54,9 +54,10 @@ class Scrollbar(Widget, ttk.Scrollbar):
         """
         Widget.__init__(self, "TScrollbar", master=master, bootstyle=bootstyle, style=style, orient=orient)
 
-        self.showarrows = showarrows
-        self.thumbcolor = thumbcolor
-        self.troughcolor = troughcolor
+        self._showarrows = showarrows
+        self._thumbcolor = thumbcolor
+        self._troughcolor = troughcolor
+        self._bsoptions = ['showarrows', 'thumbcolor', 'troughcolor', 'bootstyle']
         self._customize_widget()
 
         ttk.Scrollbar.__init__(
@@ -72,21 +73,21 @@ class Scrollbar(Widget, ttk.Scrollbar):
 
     def _customize_widget(self):
         """Create a custom widget style if custom settings are used"""
-        if any([self.troughcolor != None, self.thumbcolor != None, not self.showarrows]):
+        if any([self._troughcolor != None, self._thumbcolor != None, not self._showarrows]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "thumbcolor": self.thumbcolor or self.themed_color,
-                "troughcolor": self.troughcolor,
-                "orient": self.orient,
+                "theme": self._theme,
+                "thumbcolor": self._thumbcolor or self.themed_color,
+                "troughcolor": self._troughcolor,
+                "orient": self._orient,
                 "style": self.style,
-                "showarrows": self.showarrows
+                "showarrows": self._showarrows
             }
             settings = StylerTTK.style_scrollbar(**options)
             self.update_ttk_style(settings)

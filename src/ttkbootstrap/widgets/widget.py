@@ -66,24 +66,51 @@ class Widget(ttk.Widget, ABC):
         """
         self.widgetclass = widgetclass
         self.master = setup_master(master)
-        self.bootstyle = bootstyle.lower()
-        self.customized = False
-        self.widget_id = None
-        self.orient = orient
-        self.style = style
         self.tk = self.master.tk
-        self.settings = {}
-        self.images = {}
-        self.theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
-        self.colors = self.theme.colors
-        self.themed_color = self.get_style_color()
+        self.style = style
+        self._bootstyle = bootstyle.lower()
+        self.customized = False
+        self._widget_id = None
+        self._orient = orient
+        self._settings = {}
+        self._images = {}
+        self._theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
+        self._colors = self._theme.colors
+        self._bsoptions = []
+
         self.set_ttk_style()
         self.after(100, lambda: self.bind("<<ThemeChanged>>", self.on_theme_change))
+
+        # tkinter compatability
+        self.config = self.configure
 
     @abstractmethod
     def _customize_widget(self):
         """Apply color customizations"""
         return NotImplementedError
+
+    def configure(self, cnf=None, **kw):
+        """Modify or query widget options."""
+        options = set(self._bsoptions) & set(kw.keys())
+
+        if not options:
+            # adjust standard ttk options
+            retval = super().configure(cnf, **kw)
+            return retval
+        else:
+            # adjust bootstyle options
+            bsoptions = {k: w for k, w in kw.items() if k in options}
+            for k, w in bsoptions.items():
+                self.__dict__[f'_{k}'] = w
+            if 'bootstyle' in bsoptions:
+                self.set_ttk_style()
+            self._customize_widget()
+
+            # adjust standard ttk options
+            ttkoptions = {k: w for k, w in kw.items() if k not in options}
+            ttkoptions['style'] = self.style
+            retval = super().configure(cnf, **ttkoptions) or {}
+        return dict(**retval, **bsoptions)
 
     def on_theme_change(self, event):
         """Callback for <<ThemeChanged>> virtual event
@@ -104,8 +131,8 @@ class Widget(ttk.Widget, ABC):
         """
         script = script_from_settings(settings)
         theme_name = self.tk.call("ttk::style", "theme", "use")
-        self.theme = DEFINITIONS.get(theme_name)
-        self.tk.call("ttk::style", "theme", "settings", self.theme.name, script)
+        self._theme = DEFINITIONS.get(theme_name)
+        self.tk.call("ttk::style", "theme", "settings", self._theme.name, script)
 
     def style_exists(self, style):
         """Query a style configuration and return if true, else return an empty string.
@@ -124,9 +151,9 @@ class Widget(ttk.Widget, ABC):
         Returns:
             str: The themed color found in the style name; ie. `primary`, `secondary`, etc...
         """
-        if not self.bootstyle:
+        if not self._bootstyle:
             return
-        result = re.search(COLOR_PATTERN, self.bootstyle)
+        result = re.search(COLOR_PATTERN, self._bootstyle)
         if result:
             return result.group(0)
         else:
@@ -138,9 +165,9 @@ class Widget(ttk.Widget, ABC):
         Returns:
             str or None: The themed style found in the style name; ie. `outline`, `link`, etc...
         """
-        if not self.bootstyle:
+        if not self._bootstyle:
             return
-        result = re.search(STYLE_PATTERN, self.bootstyle)
+        result = re.search(STYLE_PATTERN, self._bootstyle)
         if result:
             return result.group(0).title()
         else:
@@ -153,8 +180,8 @@ class Widget(ttk.Widget, ABC):
             str: The widget orientation if existing.
 
         """
-        if self.orient:
-            result = re.search(ORIENT_PATTERN, self.orient.lower())
+        if self._orient:
+            result = re.search(ORIENT_PATTERN, self._orient.lower())
             return result.group(0)
         else:
             return None
@@ -165,9 +192,9 @@ class Widget(ttk.Widget, ABC):
         Returns:
             str or None: The themed style found in the style name; ie. `TButton`, `TLabel`, etc...
         """
-        if not self.bootstyle:
+        if not self._bootstyle:
             return
-        result = re.search(WIDGET_PATTERN, self.bootstyle)
+        result = re.search(WIDGET_PATTERN, self._bootstyle)
         if result:
             return result.group(0)
         else:
@@ -177,11 +204,8 @@ class Widget(ttk.Widget, ABC):
         """Set the ``ttk`` style based on the ``style`` option if given, otherwise, build the ``style`` options from
         the ``bootstyle``
         """
-        # use the ttk style
-        if self.style:
-            return
-
         # build ttk style from bootstyle keywords
+        self.themed_color = self.get_style_color()
         themed_style = self.get_style_type()
         widget_type = self.get_widget_type()
         widget_orient = self.get_widget_orientation()
@@ -190,3 +214,4 @@ class Widget(ttk.Widget, ABC):
         o = "" if not widget_orient else widget_orient.title() + "."
         t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(widget_type) or self.widgetclass
         self.style = f"{c}{s}{o}{t}"
+

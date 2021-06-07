@@ -83,12 +83,13 @@ widget commands."""
         """
         Widget.__init__(self, "Treeview", master=master, bootstyle=bootstyle, style=style)
 
-        self.headerbackground = headerbackground
-        self.headerfont = headerfont
-        self.headerforeground = headerforeground
-        self.inputbackground = inputbackground
-        self.inputfont = inputfont
-        self.inputforeground = inputforeground
+        self._headerbackground = headerbackground
+        self._headerfont = headerfont
+        self._headerforeground = headerforeground
+        self._inputbackground = inputbackground
+        self._inputfont = inputfont
+        self._inputforeground = inputforeground
+        self._bsoptions = ['headerbackground', 'headerfont', 'headerforeground', 'inputbackground', 'inputfont', 'inputforeground', 'bootstyle']
         self._customize_widget()
 
         ttk.Treeview.__init__(
@@ -112,28 +113,28 @@ widget commands."""
 
         if any(
             [
-                self.headerbackground != None, 
-                self.headerforeground != None, 
-                self.headerfont != DEFAULT_FONT,
-                self.inputbackground != None, 
-                self.inputfont != DEFAULT_FONT,
-                self.inputforeground != None]):
+                self._headerbackground != None, 
+                self._headerforeground != None, 
+                self._headerfont != DEFAULT_FONT,
+                self._inputbackground != None, 
+                self._inputfont != DEFAULT_FONT,
+                self._inputforeground != None]):
             
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "headerbackground": self.headerbackground,
-                "headerfont": self.headerfont,
-                "headerforeground": self.headerforeground,
-                "inputbackground": self.inputbackground,
-                "inputfont": self.inputfont,
-                "inputforeground": self.inputforeground,
+                "theme": self._theme,
+                "headerbackground": self._headerbackground,
+                "headerfont": self._headerfont,
+                "headerforeground": self._headerforeground,
+                "inputbackground": self._inputbackground,
+                "inputfont": self._inputfont,
+                "inputforeground": self._inputforeground,
                 "style": self.style,
             }
             settings = StylerTTK.style_treeview(**options)

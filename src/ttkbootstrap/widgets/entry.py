@@ -75,11 +75,12 @@ class Entry(Widget, ttk.Entry):
         """
         Widget.__init__(self, "TEntry", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.focuscolor = focuscolor
-        self.foreground = foreground
-        self.font = font or DEFAULT_FONT
         self.textvariable = textvariable or Variable(value=text)
+        self._background = background
+        self._focuscolor = focuscolor
+        self._foreground = foreground
+        self._font = font or DEFAULT_FONT
+        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
         self._customize_widget()
 
         ttk.Entry.__init__(
@@ -105,19 +106,19 @@ class Entry(Widget, ttk.Entry):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.focuscolor != None]):
+        if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "focuscolor": self.focuscolor or self.themed_color,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
             settings = StylerTTK.style_entry(**options)

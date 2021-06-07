@@ -72,13 +72,14 @@ class Combobox(Widget, ttk.Combobox):
         """
         Widget.__init__(self, "TCombobox", master=master, bootstyle=bootstyle, style=style)
 
-        self.background = background
-        self.default = default
-        self.focuscolor = focuscolor
-        self.foreground = foreground
-        self.font = font or DEFAULT_FONT
         self.textvariable = textvariable or Variable(value=default)
-        self.values = values
+        self._background = background
+        self._default = default
+        self._focuscolor = focuscolor
+        self._foreground = foreground
+        self._font = font or DEFAULT_FONT
+        self._values = values
+        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
         self._set_variable()
         self._customize_widget()
 
@@ -103,19 +104,19 @@ class Combobox(Widget, ttk.Combobox):
 
     def _customize_widget(self):
 
-        if any([self.background != None, self.foreground != None, self.focuscolor != None]):
+        if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
 
-            if not self.widget_id:
-                self.widget_id = uuid4() if self.widget_id == None else self.widget_id
-                self.style = f"{self.widget_id}.{self.style}"
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
         if self.customized:
             options = {
-                "theme": self.theme,
-                "background": self.background,
-                "foreground": self.foreground,
-                "focuscolor": self.focuscolor or self.themed_color,
+                "theme": self._theme,
+                "background": self._background,
+                "foreground": self._foreground,
+                "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
             settings = StylerTTK.style_combobox(**options)
@@ -124,10 +125,10 @@ class Combobox(Widget, ttk.Combobox):
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
-        if self.values and not self.default:
-            self.value = self.values[0]
-        elif self.default:
-            self.value = self.default
+        if self._values and not self._default:
+            self.value = self._values[0]
+        elif self._default:
+            self.value = self._default
 
     @property
     def value(self):
