@@ -16,9 +16,10 @@ class Text(Widget, tkinter.Text):
         self,
         master=None,
         autoseparators=False,
-        blockcursor=False,
-        bootstyle="default",
         background=None,
+        blockcursor=False,
+        borderwidth=1,
+        bootstyle="default",
         endline=None,
         exportselection=True,
         font=None,
@@ -47,9 +48,10 @@ class Text(Widget, tkinter.Text):
         Args:
             master: The parent widget.
             autoseparators (bool): Automatically insert separators in the undo stack. Default is ``True``.
-            blockcursor (bool): Turn on a blinking cursor as a character-sized rectangular block. If ``False`` a think vertical line is used for the insertion cursor.
-            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             background (str): The background color of the text input area.
+            blockcursor (bool): Turn on a blinking cursor as a character-sized rectangular block. If ``False`` a think vertical line is used for the insertion cursor.
+            borderwidth (int): The thickness of the border around the text widget.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             endline (int or str): The index of the last line of the underlying data that should be included in the data.
             exportselection (bool): Include the selection in the X selection.
             font (str or Font): [description]. The font to use when drawing text inside the widget.
@@ -77,6 +79,7 @@ class Text(Widget, tkinter.Text):
  
         # setup bootstyle
         self._background = background
+        self._borderwidth = borderwidth
         self._font = font
         self._foreground = foreground
         self._focuscolor = ThemeColors.normalize(self.get_style_color(), self.colors.primary, self.colors)
@@ -111,9 +114,12 @@ class Text(Widget, tkinter.Text):
         )
         self._customize_widget()
         self.bind("<Leave>", self._on_leave)
-        self.bind("<FocusOut>", self._on_focusout)
-        self.bind("<FocusIn>", self._on_focusin)
         self.bind("<Enter>", self._on_enter)
+        
+        # only add effects if the border is expected.
+        if self._borderwidth > 0:
+            self.bind("<FocusOut>", self._on_focusout)
+            self.bind("<FocusIn>", self._on_focusin)
 
     # hover and press effects
     def _on_focusin(self, event):
@@ -132,7 +138,7 @@ class Text(Widget, tkinter.Text):
         self._focuscolor = ThemeColors.normalize(self.get_style_color(), self.colors.primary, self.colors)
         settings = {
             'background': self._background or self.colors.inputbg,
-            'borderwidth': 1,
+            'borderwidth': self._borderwidth or 1,
             'font': self._font or DEFAULT_FONT,
             'foreground': self._foreground or self.colors.inputfg,
             'highlightbackground': self.colors.border,
