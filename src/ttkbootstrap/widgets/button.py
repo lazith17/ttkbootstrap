@@ -60,7 +60,7 @@ class Button(Widget, ttk.Button):
             state (str): Either `normal` or `disabled`. A disabled state will prevent the button from being pushed.
             takefocus (bool): Adds or removes the widget from focus traversal.
             text (str): Specifies a string to be displayed inside the widget.
-            textvariable (Variable): A tkinter variable whose value is used in place of the button text. One is created automatically if not specified.
+            textvariable (Variable): A tkinter variable whose value is used in place of the button text.
             underline (int): The index of the character to underline.
             width (int): The absolute width of the text area; avg character size if text or pixels if an image.
             wraplength (int): The maximum line length in pixels.
@@ -74,7 +74,7 @@ class Button(Widget, ttk.Button):
         """
         Widget.__init__(self, "TButton", master=master, bootstyle=bootstyle, style=style)
 
-        self.textvariable = textvariable or Variable(value=text)
+        self.textvariable = textvariable
         self._anchor = anchor
         self._background = background
         self._bootstyle = bootstyle
@@ -136,9 +136,15 @@ class Button(Widget, ttk.Button):
     @property
     def text(self):
         """Return the value of the button text"""
-        return self.textvariable.get()
+        if self.textvariable:
+            return self.textvariable.get()
+        else:
+            return self['text']
 
     @text.setter
     def text(self, value):
         """Set the value of the button text"""
-        self.textvariable.set(value=value)
+        if self.textvariable:
+            self.textvariable.set(value=value)
+        else:
+            self['text'] = value

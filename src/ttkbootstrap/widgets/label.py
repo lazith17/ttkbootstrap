@@ -57,7 +57,7 @@ class Label(Widget, ttk.Label):
             state (str): May be set to `normal` or `disabled`. If disabled, the user cannot change the content.
             takefocus (bool): Adds or removes the widget from focus traversal.
             text (str): Specifies a text string to be displayed inside label (unless overridden by ``textvariable``).
-            textvariable (Variable): A tkinter variable whose value is used in place of the label text. If not provided, one is create by default. The value can be accessed or set directly or via the ``text`` property.
+            textvariable (Variable): A tkinter variable whose value is used in place of the label text.
             underline (int): The index of the character to underline.
             width (int): The absolute width of the text area; avg character size if text or pixels if an image.
             wraplength (int): The maximum line length in pixels.
@@ -69,7 +69,7 @@ class Label(Widget, ttk.Label):
         """
         Widget.__init__(self, "TLabel", master=master, bootstyle=bootstyle, style=style)
 
-        self.textvariable = textvariable or Variable(value=text)
+        self.textvariable = textvariable
         self._background = background
         self._foreground = foreground
         self._bsoptions = ['background', 'foreground', 'bootstyle']
@@ -122,8 +122,15 @@ class Label(Widget, ttk.Label):
 
     @property
     def text(self):
-        return self.textvariable.get()
+        if self.textvariable:
+            return self.textvariable.get()
+        else:
+            return self['text']
 
     @text.setter
     def text(self, value):
-        self.textvariable.set(value)
+        if self.textvariable:
+            self.textvariable.set(value)
+        else:
+            self['text'] = value
+
