@@ -20,4 +20,10 @@ from .scrollbar import Scrollbar
 from .scale import Scale
 from .sizegrip import Sizegrip
 from .spinbox import Spinbox
+from .text import Text
 from .treeview import Treeview
+
+# from .scrolledtext import ScrolledText
+
+# backwards compatable
+Labelframe = LabelFrame

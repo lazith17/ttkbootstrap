@@ -68,17 +68,15 @@ class Widget(ttk.Widget, ABC):
         self.master = setup_master(master)
         self.tk = self.master.tk
         self.style = style
-        self._bootstyle = bootstyle.lower()
+        self.theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
+        self.colors = self.theme.colors
         self.customized = False
+        self._bootstyle = bootstyle.lower()
         self._widget_id = None
         self._orient = orient
-        self._settings = {}
-        self._images = {}
-        self._theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
-        self._colors = self._theme.colors
         self._bsoptions = []
 
-        self.set_ttk_style()
+        self._set_ttk_style()
         self.after(100, lambda: self.bind("<<ThemeChanged>>", self.on_theme_change))
 
         # tkinter compatability
@@ -89,13 +87,20 @@ class Widget(ttk.Widget, ABC):
         """Apply color customizations"""
         return NotImplementedError
 
+    def _set_ttk_style(self):
+        """Set the ``ttk`` style based on the ``style`` option if given, otherwise, build the ``style`` options from
+        the ``bootstyle``
+        """
+        if not self.style:
+            self.get_bootstyle()        
+
     def configure(self, cnf=None, **kw):
         """Modify or query widget options."""
         options = set(self._bsoptions) & set(kw.keys())
 
         if not options:
             # adjust standard ttk options
-            retval = super().configure(cnf, **kw)
+            retval = super().configure(cnf=cnf, **kw)
             return retval
         else:
             # adjust bootstyle options
@@ -103,7 +108,7 @@ class Widget(ttk.Widget, ABC):
             for k, w in bsoptions.items():
                 self.__dict__[f'_{k}'] = w
             if 'bootstyle' in bsoptions:
-                self.set_ttk_style()
+                self.get_bootstyle()
             self._customize_widget()
 
             # adjust standard ttk options
@@ -118,6 +123,9 @@ class Widget(ttk.Widget, ABC):
         Args:
             event (Event): The event initiating the callback
         """
+        theme_name = self.tk.call("ttk::style", "theme", "use")
+        self.theme = DEFINITIONS.get(theme_name)
+        self.colors = self.theme.colors        
         if not self.customized:
             return
         if not self.style_exists(self.style):
@@ -131,8 +139,9 @@ class Widget(ttk.Widget, ABC):
         """
         script = script_from_settings(settings)
         theme_name = self.tk.call("ttk::style", "theme", "use")
-        self._theme = DEFINITIONS.get(theme_name)
-        self.tk.call("ttk::style", "theme", "settings", self._theme.name, script)
+        self.theme = DEFINITIONS.get(theme_name)
+        self.colors = self.theme.colors
+        self.tk.call("ttk::style", "theme", "settings", self.theme.name, script)
 
     def style_exists(self, style):
         """Query a style configuration and return if true, else return an empty string.
@@ -200,11 +209,8 @@ class Widget(ttk.Widget, ABC):
         else:
             return None
 
-    def set_ttk_style(self):
-        """Set the ``ttk`` style based on the ``style`` option if given, otherwise, build the ``style`` options from
-        the ``bootstyle``
-        """
-        # build ttk style from bootstyle keywords
+    def get_bootstyle(self):
+        """Build the bootstyle from keywords"""
         self.themed_color = self.get_style_color()
         themed_style = self.get_style_type()
         widget_type = self.get_widget_type()
@@ -214,4 +220,6 @@ class Widget(ttk.Widget, ABC):
         o = "" if not widget_orient else widget_orient.title() + "."
         t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(widget_type) or self.widgetclass
         self.style = f"{c}{s}{o}{t}"
+
+
 

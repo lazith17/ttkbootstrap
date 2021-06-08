@@ -159,14 +159,14 @@ class Demo(Style):
 
         # Scale
         scale_frame = ttk.Frame(widget_frame)
-        scale = ttk.Scale(scale_frame, value=25)
+        scale = ttk.Scale(scale_frame, defaultvalue=25)
         scale.pack(side="left", fill="x", expand="yes", padx=(0, 2))
         scale_frame.pack(side="top", fill="x", pady=5)
         entry = ttk.Entry(scale_frame, textvariable=scale.variable, width=4)
         entry.pack(side="right")
 
         # Combobox
-        cbo = ttk.Combobox(widget_frame, values=colors, default='primary')
+        cbo = ttk.Combobox(widget_frame, values=colors, defaultvalue='primary')
         cbo.pack(fill="x", pady=5)
 
         # Progressbar
