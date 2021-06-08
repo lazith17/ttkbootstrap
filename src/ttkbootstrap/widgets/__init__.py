@@ -30,3 +30,7 @@ from .optionmenu import OptionMenu
 # backwards compatable
 Labelframe = LabelFrame
 Panedwindow = PanedWindow
+
+# other useful classes
+from PIL.ImageTk import PhotoImage
+from tkinter import StringVar, IntVar, BooleanVar, Variable, DoubleVar, Canvas

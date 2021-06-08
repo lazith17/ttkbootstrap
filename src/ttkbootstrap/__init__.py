@@ -31,5 +31,6 @@
 
 """
 from ttkbootstrap.core.style import Style
+from ttkbootstrap.core.window import Window
 from ttkbootstrap.widgets import *
 
