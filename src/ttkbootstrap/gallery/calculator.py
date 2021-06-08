@@ -1,19 +1,16 @@
 """
     Author: Israel Dryer
-    Modified: 2021-04-09
+    Modified: 2021-06-07
 """
-import tkinter
-from tkinter import ttk
+import ttkbootstrap as ttk
 
-from ttkbootstrap import Style
-
-
-class Application(tkinter.Tk):
+class Application(ttk.Window):
 
     def __init__(self):
-        super().__init__()
-        self.title('Calculator')
-        self.style = Style('flatly')
+        super().__init__(
+            title="Calculator",
+            theme="flatly"
+        )
         self.style.configure('.', font='TkFixedFont 16')
         self.calc = Calculator(self)
         self.calc.pack(fill='both', expand='yes')
@@ -26,8 +23,7 @@ class Calculator(ttk.Frame):
         self.configure(padding=1)
 
         # number display
-        self.display_var = tkinter.StringVar(value=0)
-        self.display = ttk.Label(self, textvariable=self.display_var, font='TkFixedFont 20', anchor='e')
+        self.display = ttk.Label(self, text=0, font='TkFixedFont 20', anchor='e')
         self.display.grid(row=0, column=0, columnspan=4, sticky='ew', pady=15, padx=10)
 
         # button layout
@@ -38,11 +34,11 @@ class Calculator(ttk.Frame):
         for i, row in enumerate(button_matrix):
             for j, lbl in enumerate(row):
                 if isinstance(lbl, int):
-                    btn = ttk.Button(self, text=lbl, width=2, style='primary.TButton')
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle='primary')
                 elif lbl == '=':
-                    btn = ttk.Button(self, text=lbl, width=2, style='success.TButton')
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle='success')
                 else:
-                    btn = ttk.Button(self, text=lbl, width=2, style='secondary.TButton')
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle='secondary')
                 btn.grid(row=i + 1, column=j, sticky='nsew', padx=1, pady=1, ipadx=10, ipady=10)
 
                 # bind button press
@@ -55,7 +51,7 @@ class Calculator(ttk.Frame):
         self.running_total = 0.0
 
     def press_button(self, event):
-        value = event.widget['text']
+        value = event.widget.text
 
         if isinstance(value, int):
             if self.position_is_left:
@@ -66,12 +62,12 @@ class Calculator(ttk.Frame):
             self.position_is_left = False
         elif value in ['/', '-', '+', '*']:
             self.operator = value
-            self.running_total = float(self.display_var.get())
+            self.running_total = float(self.display.text)
             self.reset_variables()
         elif value == '=':
-            operation = f'{self.running_total}{self.operator}{self.display_var.get()}'
+            operation = f'{self.running_total}{self.operator}{self.display.text}'
             result = eval(operation)
-            self.display_var.set(result)
+            self.display.text = result
             return
         elif value in ['CE', 'C']:
             self.reset_variables()
@@ -80,10 +76,10 @@ class Calculator(ttk.Frame):
             return
 
         # update the number display
-        self.display_var.set('.'.join([self.position_left, self.position_right]))
+        self.display.text = '.'.join([self.position_left, self.position_right])
 
     def reset_variables(self):
-        self.display_var.set(0)
+        self.display.text = 0
         self.position_is_left = True
         self.position_left = ''
         self.position_right = '0'

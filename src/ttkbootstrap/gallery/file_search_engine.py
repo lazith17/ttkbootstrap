@@ -9,18 +9,16 @@ import pathlib
 import tkinter
 from queue import Queue
 from threading import Thread
-from tkinter import ttk
+import ttkbootstrap as ttk
 from tkinter.filedialog import askdirectory, asksaveasfilename
 
-from ttkbootstrap import Style
-
-
-class Application(tkinter.Tk):
+class Application(ttk.Window):
 
     def __init__(self):
-        super().__init__()
-        self.title('File Search Engine')
-        self.style = Style('journal')
+        super().__init__(
+            title="File Search Engine",
+            theme="journal"
+            )
         self.search = SearchEngine(self, padding=10)
         self.search.pack(fill='both', expand='yes')
 
@@ -29,9 +27,6 @@ class SearchEngine(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # application variables
-        self.search_path_var = tkinter.StringVar(value=str(pathlib.Path().absolute()))
-        self.search_term_var = tkinter.StringVar(value='txt')
-        self.search_type_var = tkinter.StringVar(value='endswidth')
         self.search_count = 0
 
         # container for user input
@@ -41,32 +36,31 @@ class SearchEngine(ttk.Frame):
 
         # file path input
         ttk.Label(input_labelframe, text='Path').grid(row=0, column=0, padx=10, pady=2, sticky='ew')
-        e1 = ttk.Entry(input_labelframe, textvariable=self.search_path_var)
-        e1.grid(row=0, column=1, sticky='ew', padx=10, pady=2)
-        b1 = ttk.Button(input_labelframe, text='Browse', command=self.on_browse, style='primary.TButton')
+        self.search_path = ttk.Entry(input_labelframe, text=pathlib.Path().absolute())
+        self.search_path.grid(row=0, column=1, sticky='ew', padx=10, pady=2)
+        b1 = ttk.Button(input_labelframe, text='Browse', command=self.on_browse)
         b1.grid(row=0, column=2, sticky='ew', pady=2, ipadx=10)
 
         # search term input
         ttk.Label(input_labelframe, text='Term').grid(row=1, column=0, padx=10, pady=2, sticky='ew')
-        e2 = ttk.Entry(input_labelframe, textvariable=self.search_term_var)
-        e2.grid(row=1, column=1, sticky='ew', padx=10, pady=2)
-        b2 = ttk.Button(input_labelframe, text='Search', command=self.on_search, style='primary.Outline.TButton')
+        self.search_term = ttk.Entry(input_labelframe, text='txt')
+        self.search_term.grid(row=1, column=1, sticky='ew', padx=10, pady=2)
+        b2 = ttk.Button(input_labelframe, text='Search', command=self.on_search, bootstyle = 'outline')
         b2.grid(row=1, column=2, sticky='ew', pady=2)
 
         # search type selection
         ttk.Label(input_labelframe, text='Type').grid(row=2, column=0, padx=10, pady=2, sticky='ew')
         option_frame = ttk.Frame(input_labelframe, padding=(15, 10, 0, 10))
         option_frame.grid(row=2, column=1, columnspan=2, sticky='ew')
-        r1 = ttk.Radiobutton(option_frame, text='Contains', value='contains', variable=self.search_type_var)
-        r1.pack(side='left', fill='x', pady=2, padx=10)
-        r2 = ttk.Radiobutton(option_frame, text='StartsWith', value='startswith', variable=self.search_type_var)
+        self.search_type = ttk.Radiobutton(option_frame, text='Contains', value='contains', group='search-type')
+        self.search_type.pack(side='left', fill='x', pady=2, padx=10)
+        r2 = ttk.Radiobutton(option_frame, text='StartsWith', value='startswith', group='search-type')
         r2.pack(side='left', fill='x', pady=2, padx=10)
-        r3 = ttk.Radiobutton(option_frame, text='EndsWith', value='endswith', variable=self.search_type_var)
+        r3 = ttk.Radiobutton(option_frame, text='EndsWith', value='endswith', group='search-type', default=True)
         r3.pack(side='left', fill='x', pady=2, padx=10)
-        r3.invoke()
 
         # search results tree
-        self.tree = ttk.Treeview(self, style='info.Treeview')
+        self.tree = ttk.Treeview(self, bootstyle='info')
         self.tree.pack(fill='both', pady=5)
         self.tree['columns'] = ('modified', 'type', 'size', 'path')
         self.tree.column('#0', width=400)
@@ -80,8 +74,7 @@ class SearchEngine(ttk.Frame):
         self.tree.heading('path', text='Path')
 
         # progress bar
-        self.progressbar = ttk.Progressbar(self, orient='horizontal', mode='indeterminate',
-                                           style='success.Horizontal.TProgressbar')
+        self.progressbar = ttk.Progressbar(self, mode='indeterminate', bootstyle='success striped')
         self.progressbar.pack(fill='x', pady=5)
 
         # right-click menu for treeview
@@ -97,7 +90,7 @@ class SearchEngine(ttk.Frame):
         """Callback for directory browse"""
         path = askdirectory(title='Directory')
         if path:
-            self.search_path_var.set(path)
+            self.search_path.text = path
 
     def on_doubleclick_tree(self, event=None):
         """Callback for double-click tree menu"""
@@ -124,9 +117,9 @@ class SearchEngine(ttk.Frame):
 
     def on_search(self):
         """Search for a term based on the search type"""
-        search_term = self.search_term_var.get()
-        search_path = self.search_path_var.get()
-        search_type = self.search_type_var.get()
+        search_term = self.search_term.text
+        search_path = self.search_path.text
+        search_type = self.search_type.value
         if search_term == '':
             return
         Thread(target=SearchEngine.file_search, args=(search_term, search_path, search_type), daemon=True).start()

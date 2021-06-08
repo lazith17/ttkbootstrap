@@ -1,80 +1,77 @@
 """
     Author: Israel Dryer
-    Modified: 2021-04-08
+    Modified: 2021-06-08
 """
-import tkinter
-from tkinter import ttk
+import ttkbootstrap as ttk
 
-from ttkbootstrap import Style
-
-
-class Application(tkinter.Tk):
+class Application(ttk.Window):
 
     def __init__(self):
-        super().__init__()
-        self.title('Collapsing Frame')
-        self.style = Style()
+        super().__init__(title="Collapsing Frame", minsize=(400, 0))
 
         cf = CollapsingFrame(self)
-        cf.pack(fill='both')
+        cf.pack(fill="both")
 
         # option group 1
         group1 = ttk.Frame(cf, padding=10)
         for x in range(5):
-            ttk.Checkbutton(group1, text=f'Option {x + 1}').pack(fill='x')
-        cf.add(group1, title='Option Group 1', style='primary.TButton')
+            ttk.Checkbutton(group1, text=f"Option {x + 1}", default=True).pack(fill="x")
+        cf.add(group1, title="Option Group 1")
 
         # option group 2
         group2 = ttk.Frame(cf, padding=10)
         for x in range(5):
-            ttk.Checkbutton(group2, text=f'Option {x + 1}').pack(fill='x')
-        cf.add(group2, title='Option Group 2', style='danger.TButton')
+            ttk.Checkbutton(group2, text=f"Option {x + 1}", default=True).pack(fill="x")
+        cf.add(group2, title="Option Group 2", bootstyle='danger')
 
         # option group 3
         group3 = ttk.Frame(cf, padding=10)
         for x in range(5):
-            ttk.Checkbutton(group3, text=f'Option {x + 1}').pack(fill='x')
-        cf.add(group3, title='Option Group 3', style='success.TButton')
+            ttk.Checkbutton(group3, text=f"Option {x + 1}", default=True).pack(fill="x")
+        cf.add(group3, title="Option Group 3", bootstyle='success')
 
 
 class CollapsingFrame(ttk.Frame):
-    """
-    A collapsible frame widget that opens and closes with a button click.
-    """
+    """A collapsible frame widget that opens and closes with a button click."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.columnconfigure(0, weight=1)
         self.cumulative_rows = 0
-        self.images = [tkinter.PhotoImage(name='open', file='assets/icons8_double_up_24px.png'),
-                       tkinter.PhotoImage(name='closed', file='assets/icons8_double_right_24px.png')]
+        up_path = "src/ttkbootstrap/gallery/assets/icons8_double_up_24px.png"
+        right_path = "src/ttkbootstrap/gallery/assets/icons8_double_right_24px.png"
+        self.images = [
+            ttk.PhotoImage(name="open", file=up_path),
+            ttk.PhotoImage(name="closed", file=right_path)
+        ]
 
-    def add(self, child, title="", style='primary.TButton', **kwargs):
+    def add(self, child, title="", bootstyle='primary', **kwargs):
         """Add a child to the collapsible frame
 
-        :param ttk.Frame child: the child frame to add to the widget
-        :param str title: the title appearing on the collapsible section header
-        :param str style: the ttk style to apply to the collapsible section header
+        Args:
+            child (Frame): The parent widget.
+            title (str): Header title.
+            bootstyle (str): Style keywords.
         """
-        if child.winfo_class() != 'TFrame':  # must be a frame
+        if child.winfo_class() != "TFrame":  # must be a frame
             return
-        style_color = style.split('.')[0]
-        frm = ttk.Frame(self, style=f'{style_color}.TFrame')
-        frm.grid(row=self.cumulative_rows, column=0, sticky='ew')
+        frm = ttk.Frame(self, bootstyle=bootstyle)
+        frm.grid(row=self.cumulative_rows, column=0, sticky="ew")
 
         # header title
-        lbl = ttk.Label(frm, text=title, style=f'{style_color}.Invert.TLabel')
-        if kwargs.get('textvariable'):
-            lbl.configure(textvariable=kwargs.get('textvariable'))
-        lbl.pack(side='left', fill='both', padx=10)
+        lbl = ttk.Label(frm, text=title, bootstyle = bootstyle + ' inverse')
+        if kwargs.get("textvariable"):
+            lbl.configure(textvariable=kwargs.get("textvariable"))
+        lbl.pack(side="left", fill="both", padx=10)
 
         # header toggle button
-        btn = ttk.Button(frm, image='open', style=style, command=lambda c=child: self._toggle_open_close(child))
-        btn.pack(side='right')
+        btn = ttk.Button(frm, image="open", bootstyle=bootstyle)
+        btn.configure(command=lambda c=child: self._toggle_open_close(child))
+        btn.pack(side="right")
 
         # assign toggle button to child so that it's accesible when toggling (need to change image)
         child.btn = btn
-        child.grid(row=self.cumulative_rows + 1, column=0, sticky='news')
+        child.grid(row=self.cumulative_rows + 1, column=0, sticky="news")
 
         # increment the row assignment
         self.cumulative_rows += 2
@@ -87,11 +84,11 @@ class CollapsingFrame(ttk.Frame):
         """
         if child.winfo_viewable():
             child.grid_remove()
-            child.btn.configure(image='closed')
+            child.btn.configure(image="closed")
         else:
             child.grid()
-            child.btn.configure(image='open')
+            child.btn.configure(image="open")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Application().mainloop()

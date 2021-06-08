@@ -1,26 +1,16 @@
 """
     Author: Israel Dryer
-    Modified: 2021-04-07
+    Modified: 2021-06-08
     Adapted for ttkbootstrap from: https://github.com/israel-dryer/Mini-VLC-Player
 """
-import tkinter
-from tkinter import ttk
+import ttkbootstrap as ttk
 
-from ttkbootstrap import Style
-
-
-class Application(tkinter.Tk):
+class Application(ttk.Window):
 
     def __init__(self):
-        super().__init__()
-        self.title('Media Player')
-        self.style = Style()
-        self.style.theme_use('minty')
+        super().__init__(title="Media Player", theme="minty")
         self.player = Player(self)
         self.player.pack(fill='both', expand='yes')
-        self.style.configure('TButton', font='Helvetica 20')
-        self.style.configure('header.TLabel', background=self.style.colors.border, padding=10)
-
 
 class Player(ttk.Frame):
     """
@@ -30,7 +20,8 @@ class Player(ttk.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.configure(padding=1)
-        self.background = tkinter.PhotoImage(file='assets/mp_background.png')
+        self.background = ttk.PhotoImage(
+            file=r'src\ttkbootstrap\gallery\assets\mp_background.png')
         self.controls = {
             'skip-previous': '\u23EE',
             'play': '\u23F5',
@@ -40,8 +31,8 @@ class Player(ttk.Frame):
             'open-file': '\U0001f4c2'}
 
         # track information header
-        self.track_info = tkinter.StringVar(value='Open a file to begin playback')
-        header = ttk.Label(self, textvariable=self.track_info, font='Helvetica 12', style='header.TLabel')
+        self.setvar('track-info', 'Open a file to begin playback')
+        header = ttk.Label(self, textvariable='track-info', padding=10, font='Helvetica 12', background='border')
         header.pack(fill='x', padx=2)
 
         # media container
@@ -52,9 +43,9 @@ class Player(ttk.Frame):
         progress_frame = ttk.Frame(self, padding=10)
         progress_frame.pack(fill='x', expand='yes')
         self.time_elapsed = ttk.Label(progress_frame, text='00:00', font='Helvetica 12')
-        self.time_elapsed.pack(side='left')
-        self.time_scale = ttk.Scale(progress_frame, orient='horizontal', style='info.Horizontal.TScale')
+        self.time_scale = ttk.Scale(progress_frame, bootstyle='info')
         self.time_scale.pack(side='left', fill='x', expand='yes', padx=10)
+        self.time_elapsed.pack(side='left')
         self.time_remaining = ttk.Label(progress_frame, text='00:00', font='Helvetica 12')
         self.time_remaining.pack(side='right')
 
@@ -67,9 +58,10 @@ class Player(ttk.Frame):
             'skip-next': ttk.Button(control_frame, text=self.controls['skip-next']),
             'pause': ttk.Button(control_frame, text=self.controls['pause']),
             'stop': ttk.Button(control_frame, text=self.controls['stop']),
-            'open-file': ttk.Button(control_frame, text=self.controls['open-file'], style='secondary.TButton')}
+            'open-file': ttk.Button(control_frame, text=self.controls['open-file'], bootstyle='secondary')}
         for button in ['skip-previous', 'play', 'skip-next', 'pause', 'stop', 'open-file']:
-            self.buttons[button].pack(side='left', fill='x', expand='yes', ipadx=5, ipady=5, padx=2, pady=2)
+            self.buttons[button].pack(
+                side='left', fill='x', expand='yes', ipadx=5, ipady=5, padx=2, pady=2)
 
 
 if __name__ == '__main__':

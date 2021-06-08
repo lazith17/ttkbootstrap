@@ -1,19 +1,15 @@
 """
     Author: Israel Dryer
-    Modified: 2021-04-07
+    Modified: 2021-06-07
 """
-import tkinter
 from random import randint
-from tkinter import ttk
-from ttkbootstrap import Style
+import ttkbootstrap as ttk
 
 
-class Application(tkinter.Tk):
+class Application(ttk.Window):
 
     def __init__(self):
-        super().__init__()
-        self.title('Equalizer')
-        self.style = Style()
+        super().__init__(title="Equalizer")
         self.eq = Equalizer(self)
         self.eq.pack(fill='both', expand='yes')
 
@@ -39,12 +35,12 @@ class Equalizer(ttk.Frame):
             ttk.Label(frame, text=c, anchor='center', font=('Helvetica 10 bold')).pack(side='top', fill='x', pady=10)
 
             # slider
-            scale = ttk.Scale(frame, orient='vertical', from_=99, to=1, value=value)
+            scale = ttk.Scale(frame, orient='vertical', from_=99, to=1, defaultvalue=value)
             scale.pack(fill='y')
             scale.configure(command=lambda val, name=c: self.setvar(name, f'{float(val):.0f}'))
 
             # set slider style
-            scale.configure(style='success.Vertical.TScale' if c in ['VOL', 'GAIN'] else 'info.Vertical.TScale')
+            scale.configure(bootstyle='success' if c in ['VOL', 'GAIN'] else 'info')
 
             # slider value label
             ttk.Label(frame, textvariable=c).pack(pady=10)
