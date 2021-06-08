@@ -33,11 +33,6 @@ class Style(ttk.Style):
         for theme in style.theme_names():
             print(theme)
 
-
-     # TODO Themes are not set until after the elements are initialized. This causes several problems including
-     the ``ThemeChanged`` event, and the issue of all themes defaulting to "light" when the custom widget is
-     instantiated. Not sure why this should happen. Need to investigate further.
-
     .. _documentation: https://docs.python.org/3.9/library/tkinter.ttk.html#tkinter.ttk.Style
     """
 
@@ -1059,7 +1054,7 @@ class StylerTTK:
                         {"border": 5, "padding": 0},
                     )
                 },
-                f"{element}.trough": {"element create": ("image", trough, {"border": (5, 5, 5, 5), "padding": 0})},
+                f"{element}.trough": {"element create": ("image", trough, {"border": (5, 5, 5, 5), "padding": (1, 0, 1, 0)})},
             }
         )
 
@@ -1182,7 +1177,7 @@ class StylerTTK:
             img_active = ImageTk.PhotoImage(Image.new("RGB", (w, h), active))
             StylerTTK.theme_images[f"{element}.active"] = img_active
 
-            img_trough = ImageTk.PhotoImage(Image.new("RGB", (w, h), troughcolor))
+            img_trough = ImageTk.PhotoImage(Image.new("RGB", (w+1, h+1), troughcolor))
             StylerTTK.theme_images[f"{element}.trough"] = img_trough
 
         else:
@@ -1195,7 +1190,7 @@ class StylerTTK:
             img_active = ImageTk.PhotoImage(Image.new("RGB", (h, w), active))
             StylerTTK.theme_images[f"{element}.active"] = img_active
 
-            img_trough = ImageTk.PhotoImage(Image.new("RGB", (h, w), troughcolor))
+            img_trough = ImageTk.PhotoImage(Image.new("RGB", (h+1, w+1), troughcolor))
             StylerTTK.theme_images[f"{element}.trough"] = img_trough
 
     @staticmethod
@@ -1235,7 +1230,7 @@ class StylerTTK:
             img = Image.new("RGBA", (500, 1000))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 499, 999), radius=498, fill=troughcolor, outline=troughoutline, width=10)
-            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((w, h), Image.CUBIC))
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((w+1, h+1), Image.CUBIC))
 
         else:
             img = Image.new("RGBA", (1000, 500))
@@ -1256,7 +1251,7 @@ class StylerTTK:
             img = Image.new("RGBA", (1000, 500))
             draw = ImageDraw.Draw(img)
             draw.rounded_rectangle((1, 1, 999, 499), radius=498, fill=troughcolor, outline=troughoutline, width=10)
-            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((h, w), Image.CUBIC))
+            StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(img.resize((h+1, w+1), Image.CUBIC))
 
     @staticmethod
     def style_arrows(arrowcolor, orient, element):
