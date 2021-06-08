@@ -2,6 +2,7 @@
     A **ttkbootstrap** styled **Menubutton** widget.
     Created: 2021-05-28
 """
+from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
@@ -107,7 +108,7 @@ class Menubutton(Widget, ttk.Menubutton):
                 "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
-                "font": self._font,
+                "font": self._font or DEFAULT_FONT,
                 "style": self.style,
             }
 
