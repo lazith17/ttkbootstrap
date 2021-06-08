@@ -113,7 +113,7 @@ class Button(Widget, ttk.Button):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "anchor": self._anchor,
                 "background": self._background or self.themed_color,
                 "font": self._font,

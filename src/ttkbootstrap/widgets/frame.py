@@ -74,7 +74,7 @@ class Frame(Widget, ttk.Frame):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background or self.themed_color,
                 "style": self.style,
             }

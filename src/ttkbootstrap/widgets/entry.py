@@ -65,7 +65,7 @@ class Entry(Widget, ttk.Entry):
             validate (str): The validation mode. Legal values include: `none`, `focus`, `focusin`, `focusout`, `key`, or `all`; Default is `none`.
             validatecommand (func): A function to evaluate whenever validation is triggered.
             width (int): The absolute width of the text area using the average character size of the widget font.
-            xscrollcommmand (func): A reference to ``xscrollbar.set`` method of another widget; used to communicate with horizontal scrollbars.
+            xscrollcommmand (func): A reference to the ``.set`` method of a scrollbar widget; used to communicate with horizontal scrollbars.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             background (str): The entry field background color; setting this options will override theme settings.
             focuscolor (str): The color of the focus ring when the widget has focus; setting this option will override theme settings.
@@ -115,7 +115,7 @@ class Entry(Widget, ttk.Entry):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,

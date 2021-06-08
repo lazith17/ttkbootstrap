@@ -27,7 +27,8 @@ class Spinbox(Widget, ttk.Spinbox):
         bootstyle="default",
         command=None,
         cursor=None,
-        default=None,
+        defaultvalue=None,
+        defaultindex=None,
         font=None,
         format='%0.0f',
         from_=0,
@@ -56,7 +57,8 @@ class Spinbox(Widget, ttk.Spinbox):
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             command (func): A function that is called whenever a spinbutton is pressed.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
-            default (Any): The initial value shown in the spinbox.
+            defaultvalue (Any): The initial value shown in the spinbox.
+            defaultindex (int): The index of the item to show by default if a list of values is provided.
             font (str or Font): The font used to render the widget text.
             format (str): Specifies an alternate format to use when setting the string value when using the ``from`` and ``to`` range. This must be a format specifier of the form %<pad>.<pad>f, as it will format a floating-point number.
             from_ (float): A floating-point value specifying the lowest value for the spinbox. This is used in conjunction with ``to`` and ``increment`` to set a numerical range. Default is `0.0`.
@@ -88,7 +90,8 @@ class Spinbox(Widget, ttk.Spinbox):
         self._format = format
         self._from = from_
         self._to = to
-        self._default = default
+        self._defaultvalue = defaultvalue
+        self._defaultindex = defaultindex
         self._values = values
         self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
         self._set_variable()
@@ -128,7 +131,7 @@ class Spinbox(Widget, ttk.Spinbox):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,
@@ -140,12 +143,16 @@ class Spinbox(Widget, ttk.Spinbox):
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
-        if self._values and not self._default:
-            self.value = self._format % self._values[0] if isinstance(self._values[0], Number) else self._values[0]
-        elif self._default:
-            self.value = self._format % self._default if isinstance(self._default, Number) else self._default
-        else:
-            self.value = self._format % self._from
+        if self._defaultvalue:
+            self.value = self._format % self._defaultvalue if isinstance(self._defaultvalue, Number) else self._defaultvalue
+            return
+        if self._values and self._defaultindex is not None:
+            # override to ensure that the index is a valid
+            item_index = min(max(self._defaultindex, len(self._values)-1), 0)
+            if isinstance(self._values[item_index], Number):
+                self.value = self._format % self._values[item_index]
+            else:
+                self.value = self._values[item_index]
 
     @property
     def value(self):

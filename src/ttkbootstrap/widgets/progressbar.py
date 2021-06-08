@@ -60,8 +60,8 @@ class Progressbar(Widget, ttk.Progressbar):
         """
         Widget.__init__(self, "TProgressbar", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
+        self.variable = variable or Variable(value=value)
         self._orient = orient
-        self._variable = variable or Variable(value=value)
         self._barcolor = barcolor
         self._troughcolor = troughcolor
         self._bsoptions = ['barcolor', 'troughcolor', 'bootstyle']
@@ -76,7 +76,7 @@ class Progressbar(Widget, ttk.Progressbar):
             mode=mode,
             orient=orient,
             phase=phase,
-            variable=self._variable,
+            variable=self.variable,
             style=self.style,
             takefocus=takefocus,
             **kw,
@@ -85,12 +85,12 @@ class Progressbar(Widget, ttk.Progressbar):
     @property
     def value(self):
         """Get the current value of the widget"""
-        return self._variable.get()
+        return self.variable.get()
 
     @value.setter
     def value(self, value):
         """Set the current value of the widget"""
-        self._variable.set(value)
+        self.variable.set(value)
 
     def _customize_widget(self):
 
@@ -103,7 +103,7 @@ class Progressbar(Widget, ttk.Progressbar):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "barcolor": self._barcolor or self.themed_color,
                 "troughcolor": self._troughcolor,
                 "orient": self._orient,

@@ -94,7 +94,7 @@ class LabelFrame(Widget, ttk.Label):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background or self.themed_color,
                 "bordercolor": self._bordercolor,
                 "foreground": self._foreground,
@@ -103,3 +103,4 @@ class LabelFrame(Widget, ttk.Label):
 
             settings = StylerTTK.style_labelframe(**options)
             self.update_ttk_style(settings)
+

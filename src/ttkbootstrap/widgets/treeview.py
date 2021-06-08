@@ -50,10 +50,10 @@ widget commands."""
 
         # custom style options
         headerbackground=None,
-        headerfont='helvetica 10 bold',
+        headerfont='Helvetica 10 bold',
         headerforeground=None,
         inputbackground=None,
-        inputfont='helvetica 10',
+        inputfont='Helvetica 10',
         inputforeground=None,
         **kw,
     ):
@@ -115,7 +115,7 @@ widget commands."""
             [
                 self._headerbackground != None, 
                 self._headerforeground != None, 
-                self._headerfont != DEFAULT_FONT,
+                self._headerfont != 'Helvetica 10 bold',
                 self._inputbackground != None, 
                 self._inputfont != DEFAULT_FONT,
                 self._inputforeground != None]):
@@ -128,8 +128,8 @@ widget commands."""
 
         if self.customized:
             options = {
-                "theme": self._theme,
-                "headerbackground": self._headerbackground,
+                "theme": self.theme,
+                "headerbackground": self._headerbackground or self.themed_color,
                 "headerfont": self._headerfont,
                 "headerforeground": self._headerforeground,
                 "inputbackground": self._inputbackground,

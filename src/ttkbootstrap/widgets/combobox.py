@@ -17,7 +17,8 @@ class Combobox(Widget, ttk.Combobox):
     """A Combobox widget is a combination of an Entry and a drop-down menu. In your application, you will see the usual
     text entry area, with a downward-pointing arrow. When the user clicks on the arrow, a drop-down menu appears. If
     the user clicks on one, that choice replaces the current contents of the entry. However, the user may still type
-    text directly into the entry (when it has focus), or edit the current text."""
+    text directly into the entry (when it has focus), or edit the current text.
+    """
 
     def __init__(
         self,
@@ -26,7 +27,8 @@ class Combobox(Widget, ttk.Combobox):
         master=None,
         bootstyle="default",
         cursor=None,
-        default=None,
+        defaultvalue=None,
+        defaultindex=None,
         exportselection=False,
         font=None,
         height=None,
@@ -51,7 +53,8 @@ class Combobox(Widget, ttk.Combobox):
             master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
-            default (Any): The initial value shown in the combobox.
+            defaultvalue (Any): The initial value shown in the combobox.
+            defaultindex (int): The index of the item in the list of values to show by default.
             exportselection (bool): If set, the widget selection is linked to the X selection.
             font (str): The font used to draw text inside the widget; setting this option will override theme settings.
             height (int): The height of the combobox in `rows`.
@@ -72,9 +75,10 @@ class Combobox(Widget, ttk.Combobox):
         """
         Widget.__init__(self, "TCombobox", master=master, bootstyle=bootstyle, style=style)
 
-        self.textvariable = textvariable or Variable(value=default)
+        self.textvariable = textvariable or Variable()
         self._background = background
-        self._default = default
+        self._defaultvalue = defaultvalue
+        self._defaultindex = defaultindex
         self._focuscolor = focuscolor
         self._foreground = foreground
         self._font = font or DEFAULT_FONT
@@ -113,7 +117,7 @@ class Combobox(Widget, ttk.Combobox):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,
@@ -125,10 +129,13 @@ class Combobox(Widget, ttk.Combobox):
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
-        if self._values and not self._default:
-            self.value = self._values[0]
-        elif self._default:
-            self.value = self._default
+        if self._defaultvalue:
+            self.value = self._defaultvalue
+            return
+        if self._values and self._defaultindex is not None:
+            # override to ensure that the index is a valid
+            item_index = min(max(self._defaultindex, len(self._values)-1), 0)
+            self.value = self._values[item_index]
 
     @property
     def value(self):

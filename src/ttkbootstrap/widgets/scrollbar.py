@@ -82,7 +82,7 @@ class Scrollbar(Widget, ttk.Scrollbar):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "thumbcolor": self._thumbcolor or self.themed_color,
                 "troughcolor": self._troughcolor,
                 "orient": self._orient,

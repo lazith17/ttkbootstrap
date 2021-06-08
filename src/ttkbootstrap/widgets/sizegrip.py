@@ -69,7 +69,7 @@ class Sizegrip(Widget, ttk.Sizegrip):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground or self.themed_color,
                 "style": self.style,

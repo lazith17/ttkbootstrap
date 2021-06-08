@@ -107,7 +107,7 @@ class Label(Widget, ttk.Label):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "style": self.style,

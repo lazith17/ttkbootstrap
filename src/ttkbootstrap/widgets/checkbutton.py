@@ -127,7 +127,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "indicatorcolor": self._indicatorcolor,

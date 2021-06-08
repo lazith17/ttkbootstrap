@@ -108,7 +108,7 @@ class Menubutton(Widget, ttk.Menubutton):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground,
                 "font": self._font,

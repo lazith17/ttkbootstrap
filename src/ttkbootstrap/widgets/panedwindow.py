@@ -82,7 +82,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
 
         if self.customized:
             options = {
-                "theme": self._theme,
+                "theme": self.theme,
                 "sashcolor": self._sashcolor or self.themed_color,
                 "sashthickness": self._sashthickness,
                 "style": self.style,
