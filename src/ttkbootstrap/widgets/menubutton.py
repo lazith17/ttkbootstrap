@@ -1,10 +1,6 @@
 """
     A **ttkbootstrap** styled **Menubutton** widget.
-
     Created: 2021-05-28
-    Author: Israel Dryer, israel.dryer@gmail.com
-
-
 """
 from uuid import uuid4
 from tkinter import ttk

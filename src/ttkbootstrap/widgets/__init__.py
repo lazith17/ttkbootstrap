@@ -1,7 +1,5 @@
+# base widget
 from .widget import Widget
-
-from .floodgauge import Floodgauge
-from .meter import Meter
 
 from .button import Button
 from .checkbutton import Checkbutton
@@ -23,7 +21,12 @@ from .spinbox import Spinbox
 from .text import Text
 from .treeview import Treeview
 
+# extension widgets
+from .floodgauge import Floodgauge
+from .meter import Meter
 from .scrolledtext import ScrolledText
+from .optionmenu import OptionMenu
 
 # backwards compatable
 Labelframe = LabelFrame
+Panedwindow = PanedWindow

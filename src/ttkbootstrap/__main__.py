@@ -3,16 +3,14 @@ Author: Israel Dryer
 License: MIT
 Copyright (c) 2021 Israel Dryer
 """
-from ttkbootstrap import Style
 import tkinter
-from tkinter.ttk import OptionMenu
-import ttkbootstrap.widgets as ttk
+import ttkbootstrap as ttk
 
 # for taking screenshots
 from PIL import ImageGrab
 
 
-class Demo(Style):
+class Demo(ttk.Style):
     """An application class for demonstrating styles"""
 
     def __init__(self):
@@ -33,7 +31,7 @@ class Demo(Style):
         return "Demo Application"
 
     def setup(self):
-        sb = ttk.Scrollbar(self.root)
+        sb = ttk.Scrollbar(self.root, bootstyle='rounded')
         sb.set(0.1, 0.55)
 
         sb.pack(side="right", fill="y", padx=1)
@@ -112,7 +110,7 @@ class Demo(Style):
 
         # Spinbox
         spinner_options = ["Spinner option 1", "Spinner option 2", "Spinner option 3"]
-        spinner = ttk.Spinbox(entry_spin_frame, values=spinner_options, wrap=True)
+        spinner = ttk.Spinbox(entry_spin_frame, values=spinner_options, wrap=True, defaultindex=0)
         spinner.pack(side="right", fill="x", expand="yes", padx=(5, 0))
 
         # Button
@@ -125,8 +123,7 @@ class Demo(Style):
         btn_frame.pack(fill="x", pady=5)
 
         # Option Menu
-        om_var = tkinter.StringVar()
-        om = OptionMenu(btn_frame, om_var, "Option Menu", *list(self.themes))
+        om = ttk.OptionMenu(btn_frame, defaultvalue="Choose a theme", values=self.themes)
         om.pack(side="right", fill="x", padx=(5, 0), pady=5)
 
         # Labelframe
@@ -145,7 +142,6 @@ class Demo(Style):
 
         cb2 = ttk.Checkbutton(options_frame, text="Option 2")
         cb2.pack(side="left", fill="x", expand="yes")
-
 
         # Treeview
         tv = ttk.Treeview(widget_frame, height=3)
@@ -170,14 +166,13 @@ class Demo(Style):
         cbo.pack(fill="x", pady=5)
 
         # Progressbar
-        ttk.Progressbar(widget_frame, variable=scale.variable).pack(fill="x", pady=10)
+        ttk.Progressbar(widget_frame, variable=scale.variable, bootstyle='striped').pack(fill="x", pady=10)
         return tab
 
     def run(self):
         self.root.mainloop()
 
     def quit(self):
-        # I'm getting an error when closing the application without switching a standard theme ??
         self.root.destroy()
 
     def get_bounding_box(self, event):
