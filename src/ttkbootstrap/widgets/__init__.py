@@ -7,6 +7,7 @@ from .combobox import Combobox
 from .entry import Entry
 from .frame import Frame
 from .label import Label
+from .listbox import Listbox
 from .labelframe import LabelFrame
 from .menubutton import Menubutton
 from .notebook import Notebook

@@ -1,6 +1,6 @@
 """
-    A **ttkbootstrap** styled **Text** widget.
-    Created: 2021-06-07
+    A **ttkbootstrap** styled **Listbox** widget.
+    Created: 2021-06-09
 """
 
 from src.ttkbootstrap.core.themes import DEFAULT_FONT, ThemeColors
@@ -8,76 +8,73 @@ from uuid import uuid4
 import tkinter
 from ttkbootstrap.widgets import Widget
 
-class Text(Widget, tkinter.Text):
-    """A Text widget handles multiple lines of text and can be edited and formatted; it is essentially a full text 
-    editor in the window. 
+class Listbox(Widget, tkinter.Listbox):
+    """The Listbox widget displays a list of items from which the user can select.
+    
+    This widget is adapted from the original tkinter listbox, so additional keywords for this widget can be passed
+    in addition to the ones exposed via the bootstrap api.    
     """
     def __init__(
         self,
+        
+        # widget options
         master=None,
-        autoseparators=False,
-        background=None,
-        blockcursor=False,
-        borderwidth=1,
+        activestyle='none',
         bootstyle="default",
-        endline=None,
+        cursor=None,
         exportselection=True,
-        font=None,
-        foreground=None,
         height=None,
-        maxundo=None,
-        selectbackground=None,
-        selectforeground=None,
-        spacing1=None,
-        spacing2=None,
-        spacing3=None,
-        startline=None,
+        justify='left',
+        listvariable=None,
+        selectmode='browse',
         state='normal',
         style=None,
-        tabs=None,  # TODO default this to 4 spaces
-        tabstyle='tabular',
         takefocus=True,
-        undo=True,
+        values = None,
         width=None,
-        wrap='word',
         xscrollcommand=None,
         yscrollcommand=None,
+
+        # custom style options 
+        background=None,
+        borderwidth=1,
+        foreground=None,
+        font=None,
+        selectbackground=None,
+        selectforeground=None,
         **kw
     ):
         """
         Args:
             master: The parent widget.
-            autoseparators (bool): Automatically insert separators in the undo stack. Default is ``True``.
+            activestyle (str): Specifies the style in which to draw the active element. This must be one of dotbox (show a focus ring around the active element), none (no special indication of active element) or underline (underline the active element). The default is underline on Windows, and dotbox elsewhere. 
             background (str): The background color of the text input area.
-            blockcursor (bool): Turn on a blinking cursor as a character-sized rectangular block. If ``False`` a think vertical line is used for the insertion cursor.
-            borderwidth (int): The thickness of the border around the text widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
-            endline (int or str): The index of the last line of the underlying data that should be included in the data.
+            borderwidth (int): The thickness of the border around the listbox widget.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             exportselection (bool): Include the selection in the X selection.
             font (str or Font): The font to use when drawing text inside the widget.
             foreground (str): The normal color of the input text.
-            height (int): The height of the window given in units of characters for the font selected. Must be at least one.
-            maxundo (int): The maximum number of compound undo actions in the undo stack. A zero or negative imply an unlimited undo stack.
+            height (int): Specifies the desired height for the window, in lines. If zero or less, then the desired height for the window is made just large enough to hold all the elements in the listbox.
+            justify (str): When there are multiple lines of text displayed in a widget, this option determines how the lines line up with each other. Must be one of left, center, or right. Left means that the lines' left edges all line up, center means that the lines' centers are aligned, and right means that the lines' right edges line up. 
+            listvariable (Variable): The variable of a list to be displayed inside the widget; if the variable value changes then the widget will automatically update itself to reflect the new value. If none is provided, it is created by default and can be accessed via the ``value`` property.
+            selectmode (str): The style used to manipulate selection. One of `single`, `browse`, `multiple`, `extended`. Default is `extended`.
+            state (str): Can be `normal` or `disabled`. If the listbox is disabled then items may not be inserted or deleted.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            width (int): The height of the window given in characters for the selected font.
             selectbackground (str): The background color of selected items.
             selectforeground (str): The text color of selected items.
-            spacing1 (int): Additional space `above` each text line.
-            spacing2 (int): Additional space between lines that wrap.
-            spacing3 (int): Additional space below each line.
-            startline (int): The index of the first line of the underlying textual data that should be included in the widget.
-            state (str): One of `normal` or `disabled`. If `disabled` then characters may not be inserted or deleted and no cursor will be displayed.
             style (str): This option is NOT USED on the Text widget.
-            tabs (str): Specifies a set of tab stops for the window.
-            tabstyle (str): Specifies how to interpret the relationship between the tab stops on a line and the tabs in the text of that line. Legal values include `tabular` or `wordprocessor`.
-            takefocus (bool): Adds or removes the widget from focus traversal.
-            undo (bool): Turn the undo mechanism off or on. Default is ``True``.
-            width (int): The height of the window given in characters for the selected font.
-            wrap (str): Specifies how to handle text that is too long to be displayed on a single line of text. Values can be `none`, `char` or `word`. If set to `none`, then the sentences will not overflow, but will be cut-off on the screen. The other options break at either the word or character.
+            values (List): A list of values to include in the list widget.
             xscrollcommmand (func): A reference to the ``.set`` method of a scrollbar widget; used to communicate with horizontal scrollbars.
             yscrollcommmand (func): A reference to the ``.set`` method of a scrollbar widget; used to communicate with vertical scrollbars.
+        
+        .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "Text", master=master, bootstyle=bootstyle, style=style)
  
         # setup bootstyle
+        self.listvariable = listvariable or tkinter.Variable(value=values)
         self._background = background
         self._borderwidth = borderwidth
         self._font = font
@@ -88,25 +85,18 @@ class Text(Widget, tkinter.Text):
         self._bsoptions = ['bootstyle']
         self._settings = self._create_conf()
 
-        tkinter.Text.__init__(self,
+        tkinter.Listbox.__init__(self,
             master=master,
-            autoseparators=autoseparators,
-            blockcursor=blockcursor,
-            endline=endline,
+            activestyle=activestyle,
+            cursor=cursor,
             exportselection=exportselection,
             height=height,
-            maxundo=maxundo,
-            spacing1=spacing1,
-            spacing2=spacing2,
-            spacing3=spacing3,
-            startline=startline,
+            justify=justify,
+            listvariable=self.listvariable,
+            selectmode=selectmode,
             state=state,
-            tabs=tabs,
-            tabstyle=tabstyle,
             takefocus=takefocus,
-            undo=undo,
             width=width,
-            wrap=wrap,
             xscrollcommand=xscrollcommand,
             yscrollcommand=yscrollcommand,
             **self._settings,
@@ -116,6 +106,7 @@ class Text(Widget, tkinter.Text):
         self.bind("<Leave>", self._on_leave)
         self.bind("<Enter>", self._on_enter)
         
+        # TODO need to find a way to add more internal padding between border and text.
         # only add effects if the border is expected.
         if self._borderwidth > 0:
             self.bind("<FocusOut>", self._on_focusout)
@@ -155,25 +146,3 @@ class Text(Widget, tkinter.Text):
         self.style = f"{self._widget_id}"
         self._settings = self._create_conf()
         self.configure(cnf=self._settings)
-
-
-if __name__ == '__main__':
-    import ttkbootstrap as ttk
-    from itertools import cycle
-    style = ttk.Style('cyborg')
-
-    themes = cycle(style.themes)
-
-    def change_theme():
-        theme = next(themes)
-        print(theme)
-        style.theme_use(theme)
-        print(text.colors)
-
-    ttk.Entry().pack(padx=10, pady=10, fill='x')
-    text = Text(bootstyle='info')
-    text.pack(padx=10, pady=10)
-    change = ttk.Button(text="Change Theme")
-    change.pack(fill='x', padx=10, pady=10)
-    change.configure(command=lambda: change_theme())
-    text.mainloop()
