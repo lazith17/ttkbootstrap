@@ -1,9 +1,9 @@
 from abc import abstractmethod
-from src.ttkbootstrap.widgets import button
 import ttkbootstrap as ttk
 from tkinter import Toplevel, _get_default_root
 from ttkbootstrap.core import DialogImages
 from ttkbootstrap.core.themes import ThemeColors
+from tkinter import filedialog  # no need to re-implement these
 
 
 class Dialog(Toplevel):
@@ -101,7 +101,6 @@ class Dialog(Toplevel):
             return
         self.withdraw()
         self.update_idletasks()
-
         try:
             self.apply()
         finally:
@@ -152,6 +151,8 @@ class SimpleDialog(Dialog):
         self._message = message
 
         super().__init__(parent, title=title)
+        if self._default:
+            self.bind('<Return>', self.ok)
 
     def body(self, master):
         """Create a message body; override superclass method"""
@@ -181,71 +182,8 @@ class SimpleDialog(Dialog):
             command = lambda x=index: self.done(x if index != self._cancel else None)
             btn = ttk.Button(self.btn_frame, text=btn_text, command=command)
             btn.pack(side="right", padx=2, pady=2)
-            if index == self._default:
-                btn.bind('<Return>', self.ok)
 
     def done(self, action):
         """Collect the action number when an action is completed, and close the window."""
         self.action = action
         self.cancel()
-
-# -------------CONVENIENCE METHODS-------------------------------------------------------------------------------------
-
-# MESSAGE TYPES
-OK = ['Ok']
-OKCANCEL = ['Cancel', 'Ok']
-YESNO = ['No', 'Yes']
-YESNOCANCEL = ['Cancel', 'No', 'Yes']
-RETRYCANCEL = ['Cancel', 'Retry']
-
-# ICONS
-ERROR = 'error'
-WARNING = 'warning'
-QUESTION = 'question'
-INFO = 'info'
-
-
-def showinfo(parent=None, title=None, message=None):
-    """Show an info message"""
-    s = SimpleDialog(parent, title, message, OK, INFO, default=0)
-
-def showwarning(parent=None, title=None, message=None):
-    """Show a warning message"""
-    s = SimpleDialog(parent, title, message, OK, WARNING, default=0)
-
-def showerror(parent=None, title=None, message=None):
-    """Show an error message"""
-    s = SimpleDialog(parent, title, message, OK, ERROR, default=0)
-
-def askquestion(parent=None, title=None, message=None):
-    """Ask a question"""
-    s = SimpleDialog(parent, title, message, YESNO, QUESTION, default=0)
-    return s.action == 0
-
-def askokcancel(parent=None, title=None, message=None):
-    """Ask if operation should proceed; return true if the answer is ok"""
-    s = SimpleDialog(parent, title, message, OKCANCEL, QUESTION, default=1, cancel=0)
-    return s.action == 1
-
-def askyesno(parent=None, title=None, message=None):
-    """Ask a question; return True if the answer is YES."""
-    s = SimpleDialog(parent, title, message, YESNO, QUESTION, default=1)
-    return s.action == 1
-
-def askyesnocancel(parent=None, title=None, message=None):
-    """Ask a question; return True if the answer is YES, None if cancelled."""
-    s = SimpleDialog(parent, title, message, YESNOCANCEL, QUESTION, default=2, cancel=0)
-    return None if s.action == 0 else s.action == 2
-
-def askretrycancel(parent=None, title=None, message=None):
-    """Ask if operation should be retried; return True if the answer is yes."""
-    s = SimpleDialog(parent, title, message, RETRYCANCEL, WARNING, default=1, cancel=0)
-    return s.action == 1
-
-
-if __name__ == '__main__':
-
-    root = ttk.Window()
-    answer = askretrycancel(root, title="Continue", message='Do you want to proceed with the operation?')
-    print(answer)
-    root.mainloop()
