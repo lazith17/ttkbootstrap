@@ -325,14 +325,15 @@ class StylerTTK:
         self._style_exit_button()
         self._style_calendar()
         self._style_meter()
-        self._style_floodgauge()
 
         # default style
         self.settings.update(self.style_treeitem())
         self.settings.update(self.style_treeview(self.theme, style="Treeview"))
         self.settings.update(self.style_progressbar(self.theme, style="Horizontal.TProgressbar"))
-        self.settings.update(self.style_progressbar(self.theme, style="Striped.Horizontal.TProgressbar"))
         self.settings.update(self.style_progressbar(self.theme, orient="vertical", style="Vertical.TProgressbar"))
+        self.settings.update(self.style_floodgauge(self.theme, style="Horizontal.TFloodgauge"))
+        self.settings.update(self.style_floodgauge(self.theme, orient="vertical", style="Vertical.TFloodgauge"))
+        self.settings.update(self.style_progressbar(self.theme, style="Striped.Horizontal.TProgressbar"))
         self.settings.update(
             self.style_progressbar(self.theme, orient="vertical", style="Striped.Vertical.TProgressbar")
         )
@@ -385,6 +386,9 @@ class StylerTTK:
             self.settings.update(self.style_panedwindow(self.theme, sashcolor=color, style=f"{color}.TPanedwindow"))
             self.settings.update(self.style_menubutton(self.theme, background=color, style=f"{color}.TMenubutton"))
             self.settings.update(self.style_notebook(self.theme, background=color, style=f"{color}.TNotebook"))
+            self.settings.update(self.style_floodgauge(self.theme, barcolor=color, style=f"{color}.Horizontal.TFloodgauge"))
+            self.settings.update(self.style_floodgauge(self.theme, barcolor=color, orient="vertical", style=f"{color}.Vertical.TFloodgauge"))
+
             self.settings.update(
                 self.style_progressbar(self.theme, barcolor=color, style=f"{color}.Horizontal.TProgressbar")
             )
@@ -894,114 +898,68 @@ class StylerTTK:
             draw.rounded_rectangle([20, 1, 60, 399], radius=78, fill=troughcolor, outline=outline, width=5)
             StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(im.resize([8, 40], Image.CUBIC))
 
-    def _style_floodgauge(self):
-        """Create a style configuration for the *ttk.Progressbar* that makes it into a floodgauge. Which is essentially
-        a very large progress bar with text in the middle.
+    @staticmethod
+    def style_floodgauge(theme, barcolor=None, font="helvetica 14", foreground=None, troughcolor=None, orient="horizontal", style=None, thickness=100):
+        """Create a default floodgauge style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            troughcolor (str): The color of the trough.
+            font (str): The font used to render the widget text.
+            foreground (str): The color of the widget text.
+            orient (str): One of 'horizontal' or 'vertical'
+            style (str): The style used to render the widget.
+            thickness (int): The thickness of the progressbar along the short side.
 
-            - Floodgauge.trough: borderwidth, troughcolor, troughrelief
-            - Floodgauge.pbar: orient, thickness, barsize, pbarrelief, borderwidth, background
-            - Floodgauge.text: 'text', 'font', 'foreground', 'underline', 'width', 'anchor', 'justify', 'wraplength',
-                'embossed'
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update(
+        # fallback colors
+        barcolor = ThemeColors.normalize(barcolor, theme.colors.primary, theme.colors)
+        fb_troughcolor = ThemeColors.update_hsv(barcolor, sd=-0.3, vd=0.8)
+        troughcolor = ThemeColors.normalize(troughcolor, fb_troughcolor, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.selectfg, theme.colors)
+
+        # style settings
+        settings = dict()
+        element = style.replace("TFloodgauge", "Floodgauge")
+        sticky = "ns" if orient.lower() == "horizontal" else "we"
+        settings.update(
             {
-                "Floodgauge.trough": {"element create": ("from", "clam")},
-                "Floodgauge.pbar": {"element create": ("from", "default")},
-                "Horizontal.TFloodgauge": {
+                f"{element}.Floodgauge.trough": {"element create": ("from", "clam")},
+                f"{element}.Floodgauge.pbar": {"element create": ("from", "default")},
+                style: {
                     "layout": [
-                        (
-                            "Floodgauge.trough",
-                            {
-                                "children": [
-                                    ("Floodgauge.pbar", {"sticky": "ns"}),
-                                    ("Floodgauge.label", {"sticky": ""}),
-                                ],
-                                "sticky": "nswe",
-                            },
-                        )
-                    ],
+                    (
+                        f"{element}.Floodgauge.trough",
+                        {
+                            "children": [
+                                (f"{element}.Floodgauge.pbar", {"sticky": sticky}),
+                                ("Floodgauge.label", {"sticky": ""}),
+                            ],
+                            "sticky": "nswe",
+                        },
+                    )
+                ],
                     "configure": {
-                        "thickness": 50,
+                        "thickness": thickness,
                         "borderwidth": 1,
-                        "bordercolor": self.theme.colors.primary,
-                        "lightcolor": self.theme.colors.primary,
+                        "bordercolor": barcolor,
+                        "lightcolor": barcolor,
                         "pbarrelief": "flat",
-                        "troughcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=-0.3, vd=0.8),
-                        "background": self.theme.colors.primary,
-                        "foreground": self.theme.colors.selectfg,
+                        "troughcolor": troughcolor,
+                        "background": barcolor,
+                        "foreground": foreground,
                         "justify": "center",
                         "anchor": "center",
-                        "font": "helvetica 14",
-                    },
-                },
-                "Vertical.TFloodgauge": {
-                    "layout": [
-                        (
-                            "Floodgauge.trough",
-                            {
-                                "children": [
-                                    ("Floodgauge.pbar", {"sticky": "we"}),
-                                    ("Floodgauge.label", {"sticky": ""}),
-                                ],
-                                "sticky": "nswe",
-                            },
-                        )
-                    ],
-                    "configure": {
-                        "thickness": 50,
-                        "borderwidth": 1,
-                        "bordercolor": self.theme.colors.primary,
-                        "lightcolor": self.theme.colors.primary,
-                        "pbarrelief": "flat",
-                        "troughcolor": ThemeColors.update_hsv(self.theme.colors.primary, sd=-0.3, vd=0.8),
-                        "background": self.theme.colors.primary,
-                        "foreground": self.theme.colors.selectfg,
-                        "justify": "center",
-                        "anchor": "center",
-                        "font": "helvetica 14",
+                        "font": font
                     },
                 },
             }
         )
 
-        for color in self.theme.colors:
-            self.settings.update(
-                {
-                    f"{color}.Horizontal.TFloodgauge": {
-                        "configure": {
-                            "thickness": 50,
-                            "borderwidth": 1,
-                            "bordercolor": self.theme.colors.get(color),
-                            "lightcolor": self.theme.colors.get(color),
-                            "pbarrelief": "flat",
-                            "troughcolor": ThemeColors.update_hsv(self.theme.colors.get(color), sd=-0.3, vd=0.8),
-                            "background": self.theme.colors.get(color),
-                            "foreground": self.theme.colors.selectfg,
-                            "justify": "center",
-                            "anchor": "center",
-                            "font": "helvetica 14",
-                        }
-                    },
-                    f"{color}.Vertical.TFloodgauge": {
-                        "configure": {
-                            "thickness": 50,
-                            "borderwidth": 1,
-                            "bordercolor": self.theme.colors.get(color),
-                            "lightcolor": self.theme.colors.get(color),
-                            "pbarrelief": "flat",
-                            "troughcolor": ThemeColors.update_hsv(self.theme.colors.get(color), sd=-0.3, vd=0.8),
-                            "background": self.theme.colors.get(color),
-                            "foreground": self.theme.colors.selectfg,
-                            "justify": "center",
-                            "anchor": "center",
-                            "font": "helvetica 14",
-                        }
-                    },
-                }
-            )
-
+        return settings
+    
     @staticmethod
     def style_scrollbar(theme, style=None, thumbcolor=None, troughcolor=None, orient="vertical", showarrows=True):
         """Create a default scrollbar style.

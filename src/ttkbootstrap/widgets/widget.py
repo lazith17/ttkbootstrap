@@ -28,6 +28,8 @@ WIDGET_LOOKUP = {
     "combo": "TCombobox",
     "combobox": "TCombobox",
     "frame": "TFrame",
+    "floodgauge": "TFloodgauge",
+    "gauge": "TFloodgauge",
     "grip": "TSizegrip",
     "lbl": "TLabel",
     "label": "TLabel",

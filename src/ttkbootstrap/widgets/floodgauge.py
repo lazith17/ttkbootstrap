@@ -1,104 +1,171 @@
-import tkinter as tk
-from tkinter import IntVar, StringVar
-from tkinter import Tk
-from tkinter.font import Font
-from tkinter.ttk import Progressbar
+"""
+    A **ttkbootstrap** styled **Floodgauge** widget.
+
+    Created: 2021-06-09
+    Author: Israel Dryer, israel.dryer@gmail.com
+
+"""
 from uuid import uuid4
+from tkinter import DoubleVar, IntVar, ttk
+from tkinter import Variable
+from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.widgets import Widget
 
-from ttkbootstrap import Style
+DEFAULT_FONT = "helvetica 14"
+DEFAULT_THICKNESS = 100
 
 
-class Floodgauge(Progressbar):
-    """A ``Floodgauge`` widget shows the status of a long-running operation with an optional text indicator.
-
-    Similar to the ``ttk.Progressbar``, this widget can operate in two modes: **determinate** mode shows the amount
-    completed relative to the total amount of work to be done, and **indeterminate** mode provides an animated display
-    to let the user know that something is happening.
-
-    Variable are generated automatically for this widget and can be linked to other widgets by referencing them via
-    the ``textvariable`` and ``variable`` attributes.
-
-    The ``text`` and ``value`` properties allow you to easily get and set the value of these variables without the need
-    to call the ``get`` and ``set`` methods of the related tkinter variables. For example: ``Floodgauge.value`` or
-    ``Floodgauge.value = 55`` will get or set the amount used on the widget.
+class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
+    """A ``Floodgauge`` widget shows the status of a long-running operation with an optional text indicator. Similar to
+    the ``Progressbar``, this widget can operate in two modes: **determinate** mode shows the amount completed relative
+    to the total amount of work to be done, and **indeterminate** mode provides an animated display to let the user
+    know that something is happening.
     """
 
-    def __init__(self,
-                 master=None,
-                 cursor=None,
-                 font=None,
-                 length=None,
-                 maximum=100,
-                 mode='determinate',
-                 orient='horizontal',
-                 style='TFloodgauge',
-                 takefocus=False,
-                 text=None,
-                 value=0,
-                 **kw):
+    def __init__(
+        self,
+
+        # widget options
+        master=None,
+        bootstyle="default",
+        cursor=None,
+        length=None,
+        maximum=100,
+        mode="determinate",
+        orient="horizontal",
+        phase=None,
+        showprogress=True,
+        takefocus=False,
+        text=None,
+        textvariable=None,
+        value=0,
+        valuetype="int",
+        variable=None,
+        style=None,
+        
+        # custom style options
+        barcolor=None,
+        font=None,
+        foreground=None,
+        thickness=100,
+        troughcolor=None,
+        **kw,
+    ):
         """
         Args:
             master: The parent widget.
-            cursor (str): The cursor that will appear when the mouse is over the progress bar.
-            font (Font or str): The font to use for the progress bar label.
-            length (int): Specifies the length of the long axis of the progress bar (width if horizontal, height if
-                vertical); defaults to 300.
-            maximum (float): A floating point number specifying the maximum ``value``. Defaults to 100.
-            mode (str): One of **determinate** or **indeterminate**. Use `indeterminate` if you cannot accurately
-                measure the relative progress of the underlying process. In this mode, a rectangle bounces back and
-                forth between the ends of the widget once you use the ``.start()`` method.  Otherwise, use `determinate`
-                if the relative progress can be calculated in advance. This is the default mode.
-            orient (str): Specifies the orientation of the widget; either `horizontal` or `vertical`.
-            style (str): The style used to render the widget; `TFloodgauge` by default.
-            takefocus (bool): This widget is not included in focus traversal by default. To add the widget to focus
-                traversal, use ``takefocus=True``.
-            text (str): A string of text to be displayed in the progress bar. This is assigned to the ``textvariable``
-                ``StringVar`` which is automatically generated on instantiation. This value can be get and set using the
-                ``Floodgauge.text`` property without having to directly call the ``textvariable``.
-            value: The current value of the progressbar. In `determinate` mode, this represents the amount of work
-                completed. In `indeterminate` mode, it is interpreted modulo ``maximum``; that is, the progress bar
-                completes one "cycle" when the ``value`` increases by ``maximum``.
-            **kw: Other configuration options from the option database.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
+            length (int): The length of the long axis of the progress bar in pixels.
+            maximum (int): A floating point number specifying the maximum ``value``. Defaults to 100.
+            mode (str): One of `determinate` or `indeterminate`.
+            orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Progressbar.
+            phase (str): Read-only option. The widget periodically increments the value of this option whenever the ``value`` is greater than 0 and, in determinate mode, less than ``maximum``. This option may be used by the current theme to provide additional animation effects.
+            takefocus (bool): Adds or removes the widget from focus traversal.
+            text (str): A string of text to be displayed in the progress bar. This is assigned to the ``textvariable``. This value can be accessed via the ``text`` property.
+            textvariable (Variable): A tkinter variable which controls the text displayed inside the progressbar. This is generated automatically if not provided.
+            value (float): The current value of the progress bar. Can also be accessed via the ``value`` property.
+            valuetype (str): The data type to use for the progressbar. Options include `int` or `float`. Default is `int`.
+            variable (Variable): A variable which is linked to the ``value``. If associated to an existing variable, the ``value`` of the progress bar is automatically set to the value of the variable whenever the latter is modified. If not provided, one is created by default.
+            showprogress (bool): If true, the value text will be displayed on the widget. This will override the text option.
+            style (str): A ttk style api. Use ``bootstyle`` if possible.
+            barcolor (str): The color of the progressbar; setting this option will override theme settings.
+            foreground (str): The color of the widget text.
+            thickness (int): The thickness of the progressbar along the short side.
+            troughcolor (str): The color of the trough; setting this option will override theme settings.
+
+        .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
-        # create a custom style in order to adjust the text inside the progress bar layout
-        if any(['Horizontal' in style, 'Vertical' in style]):
-            self._widgetstyle = f'{uuid4()}.{style}'
-        elif orient == 'vertical':
-            self._widgetstyle = f'{uuid4()}.Vertical.TFloodgauge'
+        Widget.__init__(
+            self, "TFloodgauge", class_="Floodgauge", master=master, bootstyle=bootstyle, orient=orient, style=style
+        )
+
+        if valuetype == "int":
+            self.variable = variable or IntVar(value=value)
         else:
-            self._widgetstyle = f'{uuid4()}.Horizontal.TFloodgauge'
+            self.variable = variable or DoubleVar(value=value)
+        if showprogress:
+            self.textvariable = self.variable
+        else:
+            self.textvariable = textvariable or Variable(value=text)
+        self._font = font or DEFAULT_FONT
+        self._foreground = foreground
+        self._orient = orient
+        self._barcolor = barcolor or self.themed_color
+        self._thickness = thickness
+        self._troughcolor = troughcolor
+        self._bsoptions = ["barcolor", "troughcolor", "foreground", "font", "bootstyle"]
+        self._customize_widget()
 
-        # progress bar value variable
-        self.variable = IntVar(value=value)
-
-        super().__init__(master=master, class_='Floodgauge', cursor=cursor, length=length, maximum=maximum, mode=mode,
-                         orient=orient, style=self._widgetstyle, takefocus=takefocus, variable=self.variable, **kw)
-
-        # set the label font
-        if font:
-            self.tk.call("ttk::style", "configure",
-                         self._widgetstyle, '-%s' % 'font', font, None)
-
-        # progress bar text variable
-        self.textvariable = StringVar(value=text or '')
-        self.textvariable.trace_add('write', self._textvariable_write)
+        ttk.Progressbar.__init__(
+            self,
+            master=master,
+            cursor=cursor,
+            length=length,
+            maximum=maximum,
+            mode=mode,
+            orient=orient,
+            phase=phase,
+            variable=self.variable,
+            style=self.style,
+            takefocus=takefocus,
+            **kw,
+        )
+        self.tk.call("ttk::style", "configure", self.style, "-%s" % "text", self.text, None)
+        self.textvariable.trace_add("write", self._textvariable_write)
         self._textvariable_write()
 
     @property
     def text(self):
+        """Get the widget text"""
         return self.textvariable.get()
 
     @text.setter
     def text(self, value):
+        """Set the widget text"""
         self.textvariable.set(value)
 
     @property
     def value(self):
+        """Get the current value of the widget"""
         return self.variable.get()
 
     @value.setter
     def value(self, value):
+        """Set the current value of the widget"""
         self.variable.set(value)
+
+    def _customize_widget(self):
+
+        if any(
+            [
+                self._barcolor != None,
+                self._troughcolor != None,
+                self._foreground != None,
+                self._font != DEFAULT_FONT,
+                self._thickness != DEFAULT_THICKNESS,
+            ]
+        ):
+            self.customized = True
+
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
+
+        if self.customized:
+            options = {
+                "theme": self.theme,
+                "barcolor": self._barcolor or self.themed_color,
+                "troughcolor": self._troughcolor,
+                "font": self._font,
+                "foreground": self._foreground,
+                "thickness": self._thickness,
+                "orient": self._orient,
+                "style": self.style,
+            }
+            settings = StylerTTK.style_floodgauge(**options)
+
+            self.update_ttk_style(settings)
 
     def _textvariable_write(self, *args):
         """Callback to update the label text when there is a `write` action on the textvariable
@@ -106,22 +173,4 @@ class Floodgauge(Progressbar):
         Args:
             *args: if triggered by a trace, will be `variable`, `index`, `mode`.
         """
-        self.tk.call("ttk::style", "configure", self._widgetstyle,
-                     '-%s' % 'text', self.textvariable.get(), None)
-
-
-if __name__ == '__main__':
-    # TESTING
-    root = tk.Tk()
-    root.title('ttkbootstrap')
-    s = Style()
-    p = Floodgauge(orient='vertical', style='danger.Vertical.TFloodgauge')
-
-    def auto(progress):
-        p.text = f'Memory\n{p.value}%'
-        p.step(1)
-        p.after(50, auto, p)
-
-    p.pack(fill='both', expand='yes')
-    auto(p)
-    root.mainloop()
+        self.tk.call("ttk::style", "configure", self.style, "-%s" % "text", self.text, None)
