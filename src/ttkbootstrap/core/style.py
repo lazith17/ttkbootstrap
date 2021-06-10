@@ -899,7 +899,7 @@ class StylerTTK:
             StylerTTK.theme_images[f"{element}.trough"] = ImageTk.PhotoImage(im.resize([8, 40], Image.CUBIC))
 
     @staticmethod
-    def style_floodgauge(theme, barcolor=None, font="helvetica 24", foreground=None, troughcolor=None, orient="horizontal", style=None, thickness=100):
+    def style_floodgauge(theme, barcolor=None, font="helvetica 24 bold", foreground=None, troughcolor=None, orient="horizontal", style=None, thickness=200):
         """Create a default floodgauge style.
 
         Args:

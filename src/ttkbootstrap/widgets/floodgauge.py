@@ -11,7 +11,7 @@ from tkinter import Variable
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
-DEFAULT_FONT = "helvetica 24"
+DEFAULT_FONT = "helvetica 24 bold"
 DEFAULT_THICKNESS = 100
 
 class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
@@ -31,12 +31,12 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         master=None,
         bootstyle="default",
         cursor=None,
-        length=None,
         maximum=100,
         mode="determinate",
         orient="horizontal",
         phase=None,
         showvalue=False,
+        size=(200, 200),
         takefocus=False,
         text=None,
         textappend=None,
@@ -51,7 +51,6 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         barcolor=None,
         font=None,
         foreground=None,
-        thickness=100,
         troughcolor=None,
         **kw,
     ):
@@ -60,7 +59,6 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
             master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
-            length (int): The length of the long axis of the progress bar in pixels.
             maximum (int): A floating point number specifying the maximum ``value``. Defaults to 100.
             mode (str): One of `determinate` or `indeterminate`.
             orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Progressbar.
@@ -74,10 +72,10 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
             valuetype (str): The data type to use for the progressbar. Options include `int` or `float`. Default is `int`.
             variable (Variable): A variable which is linked to the ``value``. If associated to an existing variable, the ``value`` of the progress bar is automatically set to the value of the variable whenever the latter is modified. If not provided, one is created by default.
             showvalue (bool): If true, the value text will be displayed on the widget. This will override the text option.
+            size (Tuple[int, int]): The width and height of the widget. This option will be overridden by geometry manager options that allow the widget to expand or contract.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             barcolor (str): The color of the progressbar; setting this option will override theme settings.
             foreground (str): The color of the widget text.
-            thickness (int): The thickness of the progressbar along the short side.
             troughcolor (str): The color of the trough; setting this option will override theme settings.
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
@@ -96,7 +94,8 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         self._foreground = foreground
         self._orient = orient
         self._barcolor = barcolor or self.themed_color
-        self._thickness = thickness
+        self._length = size[0] if orient == 'horizontal' else size[1]
+        self._thickness = size[1] if orient == 'vertical' else size[0]
         self._troughcolor = troughcolor
         self._bsoptions = ["barcolor", "troughcolor", "foreground", "font", "bootstyle"]
         self._customize_widget()
@@ -105,7 +104,7 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
             self,
             master=master,
             cursor=cursor,
-            length=length,
+            length=self._length,
             maximum=maximum,
             mode=mode,
             orient=orient,
