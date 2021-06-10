@@ -26,7 +26,6 @@ class Scale(Widget, ttk.Scale):
         command=None,
         cursor=None,
         defaultvalue=None,
-        format='%0.2f',
         from_=0,
         length=None,
         orient='horizontal',
@@ -47,7 +46,6 @@ class Scale(Widget, ttk.Scale):
             command (func): A function to invoke whenever the scale's value is changed.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             defaultvalue (float): Specifies the current and default floating-point value of the variable. If ``variable`` is set to an existing variable, specifying ``value`` has no effect (the variable value takes precedence).
-            format (str): A format specifier when returning value from the ``value`` property. To get the unformatted number, use the ``.variable.get()`` method.
             from_ (float): A real value corresponding to the left or top end of the scale. 
             length (int): Specifies the desired long dimension of the scale in screen units.
             orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Scale.
@@ -63,7 +61,6 @@ class Scale(Widget, ttk.Scale):
         Widget.__init__(self, "TScale", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
         self.variable = variable or Variable(value=defaultvalue or kw.get('value') or from_)
-        self._format = format
         self._from = from_
         self._slidercolor = slidercolor
         self._to = to
@@ -90,7 +87,7 @@ class Scale(Widget, ttk.Scale):
     @property
     def value(self):
         """Get the current value of the spinbox widget. Alias for ``Scale.get``"""
-        return self._format.format(self.variable.get())
+        return self.variable.get()
 
     @value.setter
     def value(self, value):
