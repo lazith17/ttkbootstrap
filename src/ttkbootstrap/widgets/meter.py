@@ -345,3 +345,21 @@ class Meter(Frame):
             settings = StylerTTK.style_meter(**options)
 
             self.update_ttk_style(settings)
+            
+    def step(self, delta=1):
+        """Increase the indicator value by ``delta``.
+        The default increment is 1. The indicator will reverse direction and count down once it reaches the maximum
+        value.
+        Keyword Args:
+            delta (int): the amount to change the indicator.
+        """
+        if self.value >= self._amounttotal:
+            self._towardsmaximum = True
+            self.value = self._amountused - delta
+        elif self.value <= 0:
+            self.towardsmaximum = False
+            self.value = self.value + delta
+        elif self.towardsmaximum:
+            self.value = self.value - delta
+        else:
+            self.value = self.value + delta
