@@ -25,8 +25,8 @@ from .treeview import Treeview
 # extension widgets
 from .floodgauge import Floodgauge
 from .meter import Meter
-from .scrolledtext import ScrolledText
 from .optionmenu import OptionMenu
+from .scrolledtext import ScrolledText
 
 # backwards compatable
 Labelframe = LabelFrame

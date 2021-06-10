@@ -45,7 +45,11 @@ class Frame(Widget, ttk.Frame):
 
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
-        Widget.__init__(self, "TFrame", master=master, bootstyle=bootstyle, style=style)
+        try:
+            _wc = kw.pop('widgetclass')
+        except KeyError:
+            _wc = 'TFrame'
+        Widget.__init__(self, widgetclass=_wc, master=master, bootstyle=bootstyle, style=style)
 
         self._background = background
         self._bsoptions = ['background', 'bootstyle']

@@ -324,9 +324,9 @@ class StylerTTK:
         """
         self._style_exit_button()
         self._style_calendar()
-        self._style_meter()
 
         # default style
+        self.settings.update(self.style_meter(self.theme, style="TMeter"))
         self.settings.update(self.style_treeitem())
         self.settings.update(self.style_treeview(self.theme, style="Treeview"))
         self.settings.update(self.style_progressbar(self.theme, style="Horizontal.TProgressbar"))
@@ -371,6 +371,7 @@ class StylerTTK:
 
         # themed style
         for color in self.theme.colors:
+            self.settings.update(self.style_meter(self.theme, foreground=color, style=f"{color}.TMeter"))
             self.settings.update(self.style_treeview(self.theme, headerbackground=color, style=f"{color}.Treeview"))
             self.settings.update(self.style_button(self.theme, background=color, style=f"{color}.TButton"))
             self.settings.update(self.style_link_button(self.theme, foreground=color, style=f"{color}.Link.TButton"))
@@ -2176,19 +2177,29 @@ class StylerTTK:
                 }
             )
 
-    def _style_meter(self):
-        """Create style configuration for the ttkbootstrap.widgets.meter
+    @staticmethod
+    def style_meter(theme, background=None, foreground=None, style=None):
+        """Create a meter style.
 
-        The options available in this widget include:
+        Args:
+            theme (str): The theme name.
+            background (str, optional): The color of the meter background.
+            foreground (str, optional): The color of meter foreground.
+            style (str, optional): The style used to render the widget.
 
-            - Label.border: bordercolor, lightcolor, darkcolor, relief, borderwidth
-            - Label.padding: padding, relief, shiftrelief
-            - Label.label: compound, space, text, font, foreground, underline, width, anchor, justify, wraplength,
-                embossed, image, stipple, background
+        Returns:
+            dict: A dictionary of theme settings.
         """
-        self.settings.update(
+        settings = dict()
+
+        # fallback values
+        background = ThemeColors.normalize(background, theme.colors.bg, theme.colors)
+        foreground = ThemeColors.normalize(foreground, theme.colors.primary, theme.colors)
+
+        # style settings
+        settings.update(
             {
-                "TMeter": {
+                style: {
                     "layout": [
                         (
                             "Label.border",
@@ -2208,13 +2219,11 @@ class StylerTTK:
                             },
                         )
                     ],
-                    "configure": {"foreground": self.theme.colors.fg, "background": self.theme.colors.bg},
+                    "configure": {"foreground": foreground, "background": background},
                 }
             }
         )
-
-        for color in self.theme.colors:
-            self.settings.update({f"{color}.TMeter": {"configure": {"foreground": self.theme.colors.get(color)}}})
+        return settings    
 
     @staticmethod
     def style_label(theme, background=None, font=DEFAULT_FONT, foreground=None, style=None):

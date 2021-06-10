@@ -1,24 +1,28 @@
 """
-    A Meter widget that presents data and progress in a radial style gauge.
+    A **ttkbootstrap** styled **Meter** widget.
 
+    Created: 2021-06-10
     Author: Israel Dryer, israel.dryer@gmail.com
-    Modified: 2021-05-4
 
-    Inspired by: https://www.jqueryscript.net/chart-graph/Customizable-Animated-jQuery-HTML5-Gauge-Meter-Plugin.html
 """
+from uuid import uuid4
+from tkinter import IntVar, StringVar
+from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.core.themes import ThemeColors
+from ttkbootstrap.widgets import Frame, Label
+from PIL import Image, ImageDraw
+from PIL.ImageTk import PhotoImage
 import math
-from tkinter import StringVar, IntVar
-from tkinter import ttk
-from tkinter.font import Font
-from tkinter.ttk import Frame, Widget
 
-from PIL import Image, ImageTk, ImageDraw
-from ..core.style import Style
+DEFAULT_TEXT = "helvetica 25 bold"
+DEFAULT_LABEL = "helvetica 10 bold"
 
 
 class Meter(Frame):
-    """A radial meter that can be used to show progress of long running operations or the amount of work completed;
-    can also be used as a `Dial` when set to ``interactive=True``.
+    """A radial meter that can be used to show progress of long running operations or the amount of work completed; can
+    also be used as a `Dial` when set to ``interactive=True``.
+
+    !! THIS WIDGET IS EXPERIMENTAL AND MAY CHANGE IN THE FUTURE !!
 
     This widget is very flexible. There are two primary meter types which can be set with the ``metertype`` parameter:
     'full' and 'semi', which show the arc of the meter in a full or semi-circle. You can also customize the arc of the
@@ -32,302 +36,312 @@ class Meter(Frame):
     and uses the `TMeter` styles. You can prepend or append text to the center text using the ``textappend`` and
     ``textprepend`` parameters. This is most commonly used for '$', '%', or other such symbols.
 
-    Variable are generated automatically for this widget and can be linked to other widgets by referencing them via
-    the ``amountusedvariable`` and ``amounttotalvariable`` attributes.
-
-    The variable properties allow you to easily get and set the value of these variables. For example:
-    ``Meter.amountused`` or ``Meter.amountused = 55`` will get or set the amount used on the widget without having to
-    call the ``get`` or ``set`` methods of the tkinter variable.
+    The widgets current value can be set and accessed via the ``value`` property. The widget text and be set with the
+    ``text`` property. If you set the ``showvalue`` property to `True`, this will override the ``text`` and will
+    instead show the widget value in the center of the widget. The ``textappend`` and ``textprepend`` options are still
+    available even if the ``text`` option is overridden with the ``showvalue`` option.
     """
 
-    def __init__(self,
-                 master=None,
-                 arcrange=None,
-                 arcoffset=None,
-                 amounttotal=100,
-                 amountused=0,
-                 interactive=False,
-                 labelfont='Helvetica 10 bold',
-                 labelstyle='secondary.TLabel',
-                 labeltext=None,
-                 metersize=200,
-                 meterstyle='TMeter',
-                 metertype='full',
-                 meterthickness=10,
-                 showvalue=True,
-                 stripethickness=0,
-                 textappend=None,
-                 textfont='Helvetica 25 bold',
-                 textprepend=None,
-                 wedgesize=0,
-                 **kw):
+    def __init__(
+        self,
+        master=None,
+        bootstyle="default",
+        amounttotal=100,
+        amountused=0,
+        arcoffset=None,
+        arcrange=None,
+        background=None,
+        cursor=None,
+        foreground=None,
+        interactive=False,
+        labelfont=None,
+        labelcolor=None,
+        labeltext=None,
+        metersize=200,
+        meterthickness=10,
+        metertype="full",
+        padding=None,
+        showvalue=True,
+        stripethickness=0,
+        style=None,
+        takefocus=False,
+        text=None,
+        textappend=None,
+        textfont=None,
+        textprepend=None,
+        textvariable=None,
+        variable=None,
+        wedgesize=0,
+        **kw,
+    ):
         """
         Args:
-            master (Widget): Parent widget
-            arcoffset (int): The amount to offset the arc's starting position in degrees; 0 is at 3 o'clock.
-            arcrange (int): The range of the arc in degrees from start to end.
-            amounttotal (int): The maximum value of the meter.
-            amountused (int): The current value of the meter; displayed if ``showvalue=True``.
-            interactive (bool): Enables the meter to be adjusted with mouse interaction.
-            labelfont(Font or str): The font of the supplemental label.
-            labelstyle (str): The ttk style used to render the supplemental label.
-            labeltext (str): Supplemental label text that appears `below` the center text.
-            metersize (int): The size of the meter; represented by one side length of a square.
-            meterstyle (str): The ttk style used to render the meter and center text.
-            metertype (str): One of **full** or **semi**; displays a full-circle or semi-circle.
-            meterthickness (int): The thickness of the meter's progress bar.
-            showvalue (bool): Show the meter's value in the center text; default = True.
-            stripethickness (int): The meter's progress bar can be displayed in solid or striped form. If the value is
-                greater than 0, the meter's progress bar changes from a solid to striped, where the value is the
-                thickness of the stripes.
-            textappend (str): A short string appended to the center text.
-            textfont (Font or str): The font of the center text.
-            textprepend (str): A short string prepended to the center text.
-            wedgesize (int): If greater than zero, the width of the wedge on either side of the current meter value.
+            master: The parent widget.
+            bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
+            padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
+            takefocus (bool): Determines whether the window accepts the focus during keyboard traversal
+            background (str): The frame background color; setting this option will override theme settings.
+
+        .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
-        super().__init__(master=master, **kw)
+        # pre-instantiated colors
+        self._foreground = foreground
+        self._background = background
+        self._labelcolor = labelcolor
 
-        self.box = ttk.Frame(self, width=metersize, height=metersize)
+        Frame.__init__(
+            self,
+            widgetclass="TMeter",
+            master=master,
+            bootstyle=bootstyle,
+            style=style,
+            padding=padding,
+            takefocus=takefocus,
+            cursor=cursor,
+        )
+        # fallback colors
+        self._foreground = ThemeColors.normalize(foreground or self.themed_color, self.colors.primary, self.colors)
+        self._background = ThemeColors.update_hsv(
+            ThemeColors.normalize(background, self.colors.selectfg, self.colors), vd=-0.1
+        )
+        self._labelcolor = ThemeColors.normalize(labelcolor, self.colors.secondary, self.colors)
 
-        if metertype == 'semi':
-            self.arcoffset = arcoffset if arcoffset is not None else 135
-            self.arcrange = arcrange if arcrange is not None else 270
-        else:  # aka 'full'
-            self.arcoffset = arcoffset if arcoffset is not None else -90
-            self.arcrange = arcrange if arcrange is not None else 360
+        self.inner = Frame(self, bootstyle=bootstyle, height=metersize, width=metersize)
+        self.inner.pack()
+
+        self._bsoptions = ["background", "foreground", "bootstyle"]
+        self._metersize = metersize
+        self._bootstyle = bootstyle
+        self._amounttotal = amounttotal
+        self._interactive = interactive
+        self._labelfont = labelfont or DEFAULT_LABEL
+        self._labeltext = labeltext
+        self._metertype = metertype
+        self._meterthickness = meterthickness
+        self._padding = padding
+        self._showvalue = showvalue
+        self._stripethickness = stripethickness
+        self._text = text
+        self._textappend = textappend
+        self._textprepend = textprepend
+        self._textfont = textfont or DEFAULT_TEXT
+        self._towardsmaximum = True
+        self._wedgesize = wedgesize
 
         # widget variables
-        self.amountusedvariable = IntVar(value=amountused)
-        self.amounttotalvariable = IntVar(value=amounttotal)
-        self.labelvariable = StringVar(value=labeltext)
-        self.amountusedvariable.trace_add('write', self.draw_meter)
+        self.variable = variable or IntVar(value=amountused)
+        self.textvariable = textvariable or StringVar(value=text) if not showvalue else self.variable
+        self.variable.trace_add("write", self._draw_meter)
 
-        # misc widget settings
-        self.towardsmaximum = True
-        self.metersize = metersize
-        self.meterthickness = meterthickness
-        self.stripethickness = stripethickness
-        self.showvalue = showvalue
-        self.wedgesize = wedgesize
-
-        # translate system colors if a ttkbootstrap style is not used
-        if 'system' in self.lookup(meterstyle, 'foreground').lower():
-            self.meterforeground = self.convert_system_color(
-                self.lookup(meterstyle, 'foreground'))
-        else:
-            self.meterforeground = self.lookup(meterstyle, 'foreground')
-        if 'system' in self.lookup(meterstyle, 'background').lower():
-            self.meterbackground = Colors.update_hsv(self.convert_system_color(
-                self.lookup(meterstyle, 'background')), vd=-0.1)
-        else:
-            self.meterbackground = Colors.update_hsv(
-                self.lookup(meterstyle, 'background'), vd=-0.1)
+        if metertype == "semi":
+            self._arcoffset = arcoffset or 135
+            self._arcrange = arcrange or 270
+        else:  # full
+            self._arcoffset = arcoffset or -90
+            self._arcrange = arcrange or 360
 
         # meter image
-        self.meter = ttk.Label(self.box)
-        self.draw_base_image()
-        self.draw_meter()
-
-        # text & label widgets
-        self.textcontainer = ttk.Frame(self.box)
-        self.textprepend = ttk.Label(
-            self.textcontainer, text=textprepend, font=labelfont, style=labelstyle)
-        self.textprepend.configure(anchor='s', padding=(0, 5))
-        self.text = ttk.Label(
-            self.textcontainer, textvariable=self.amountusedvariable, style=meterstyle, font=textfont)
-        self.textappend = ttk.Label(
-            self.textcontainer, text=textappend, font=labelfont, style=labelstyle)
-        self.textappend.configure(anchor='s', padding=(0, 5))
-        self.label = ttk.Label(self.box, text=labeltext,
-                               style=labelstyle, font=labelfont)
+        self.meter = Label(self.inner)
+        self.meter.place(x=0, y=0)
+        self._draw_base_image()
+        self._draw_meter()
 
         # set interactive mode
-        if interactive:
-            self.meter.bind('<B1-Motion>', self.on_dial_interact)
-            self.meter.bind('<Button-1>', self.on_dial_interact)
+        if self._interactive:
+            self.meter.bind("<B1-Motion>", self._on_dial_interact)
+            self.meter.bind("<Button-1>", self._on_dial_interact)
 
-        # geometry management
-        self.meter.place(x=0, y=0)
-        self.box.pack()
-        if labeltext:
-            self.textcontainer.place(relx=0.5, rely=0.45, anchor='center')
+        # text and label widgets
+        self._textcontainer = Frame(self.inner)
+        textprepend = Label(
+            self._textcontainer,
+            text=self._textprepend,
+            bootstyle="secondary",
+            foreground=labelcolor,
+            font=labelfont,
+            padding=(0, 5),
+            anchor="s",
+        )
+        text = Label(
+            self._textcontainer,
+            textvariable=self.textvariable,
+            style=self.style,
+            font=self._textfont,
+            foreground=self._foreground,
+        )
+        textappend = Label(
+            self._textcontainer,
+            text=self._textappend,
+            font=self._labelfont,
+            foreground=self._labelcolor,
+            anchor="s",
+            padding=(0, 5),
+        )
+        supplemental_label = Label(self.inner, text=self._labeltext, bootstyle="secondary", font=self._labelfont)
+
+        # position the text container based on whether or not there is a supplemental label
+        if self._labeltext:
+            # TODO find a more accurate method for distributing these items inside the widget.
+            self._textcontainer.place(relx=0.5, rely=0.43, anchor="center")
         else:
-            self.textcontainer.place(relx=0.5, rely=0.5, anchor='center')
-        if textprepend:
-            self.textprepend.pack(side='left', fill='y')
-        if showvalue:
-            self.text.pack(side='left', fill='y')
-        if textappend:
-            self.textappend.pack(side='left', fill='y')
-        self.label.place(relx=0.5, rely=0.6, anchor='center')
+            self._textcontainer.place(relx=0.5, rely=0.5, anchor="center")
+        if self._textprepend:
+            textprepend.pack(side="left", fill="y")
+        text.pack(side="left", fill="y")
+        if self._textappend:
+            textappend.pack(side="left", fill="y")
+        supplemental_label.place(relx=0.5, rely=0.6, anchor="center")
 
     @property
-    def amountused(self):
-        return self.amountusedvariable.get()
+    def value(self):
+        return self.variable.get()
 
-    @amountused.setter
-    def amountused(self, value):
-        self.amountusedvariable.set(value)
+    @value.setter
+    def value(self, value):
+        self.variable.set(value)
 
-    @property
-    def amounttotal(self):
-        return self.amounttotalvariable.get()
-
-    @amounttotal.setter
-    def amounttotal(self, value):
-        self.amounttotalvariable.set(value)
-
-    def convert_system_color(self, systemcolorname):
-        """Convert a system color name to a hexadecimal value
-
-        Args:
-            systemcolorname (str): a system color name, such as `SystemButtonFace`
-        """
-        r, g, b = [x >> 8 for x in self.winfo_rgb(systemcolorname)]
-        return f'#{r:02x}{g:02x}{b:02x}'
-
-    def draw_base_image(self):
-        """Draw the base image to be used for subsequent updates"""
-        self.base_image = Image.new(
-            'RGBA', (self.metersize * 5, self.metersize * 5))
-        draw = ImageDraw.Draw(self.base_image)
-
-        # striped meter
-        if self.stripethickness > 0:
-            for x in range(self.arcoffset, self.arcrange + self.arcoffset,
-                           2 if self.stripethickness == 1 else self.stripethickness):
-                draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                         x, x + self.stripethickness - 1, self.meterbackground, self.meterthickness * 5)
-        # solid meter
-        else:
-            draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                     self.arcoffset, self.arcrange + self.arcoffset, self.meterbackground, self.meterthickness * 5)
-
-    def draw_meter(self, *args):
+    def _draw_meter(self, *args):
         """Draw a meter
 
         Args:
             *args: if triggered by a trace, will be `variable`, `index`, `mode`.
         """
-        im = self.base_image.copy()
+        im = self._base_img.copy()
         draw = ImageDraw.Draw(im)
-        if self.stripethickness > 0:
-            self.draw_striped_meter(draw)
+        if self._stripethickness > 0:
+            self._draw_striped_meter(draw)
         else:
-            self.draw_solid_meter(draw)
-        self.meterimage = ImageTk.PhotoImage(
-            im.resize((self.metersize, self.metersize), Image.CUBIC))
-        self.meter.configure(image=self.meterimage)
+            self._draw_solid_meter(draw)
+        self._meterimage = PhotoImage(im.resize((self._metersize, self._metersize), Image.CUBIC))
+        self.meter.configure(image=self._meterimage)
 
-    def draw_solid_meter(self, draw):
+    def _draw_base_image(self):
+        """Draw the base image to be used for subsequent updates"""
+        self._base_img = Image.new("RGBA", (self._metersize * 5, self._metersize * 5))
+        draw = ImageDraw.Draw(self._base_img)
+
+        # striped meter
+        if self._stripethickness > 0:
+            for x in range(
+                self._arcoffset,
+                self._arcrange + self._arcoffset,
+                2 if self._stripethickness == 1 else self._stripethickness,
+            ):
+                draw.arc(
+                    (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                    x,
+                    x + self._stripethickness - 1,
+                    self._background,
+                    self._meterthickness * 5,
+                )
+        # solid meter
+        else:
+            draw.arc(
+                (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                self._arcoffset,
+                self._arcrange + self._arcoffset,
+                self._background,
+                self._meterthickness * 5,
+            )
+
+    def _draw_solid_meter(self, draw):
         """Draw a solid meter
 
         Args:
             draw (ImageDraw.Draw): an object used to draw an arc on the meter
         """
-        if self.wedgesize > 0:
-            meter_value = self.meter_value()
-            draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                     meter_value - self.wedgesize, meter_value + self.wedgesize,
-                     self.meterforeground, self.meterthickness * 5)
+        if self._wedgesize > 0:
+            meter_value = self._meter_value()
+            draw.arc(
+                (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                meter_value - self._wedgesize,
+                meter_value + self._wedgesize,
+                self._foreground,
+                self._meterthickness * 5,
+            )
         else:
-            draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                     self.arcoffset, self.meter_value(), self.meterforeground, self.meterthickness * 5)
+            draw.arc(
+                (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                self._arcoffset,
+                self._meter_value(),
+                self._foreground,
+                self._meterthickness * 5,
+            )
 
-    def draw_striped_meter(self, draw):
+    def _draw_striped_meter(self, draw):
         """Draw a striped meter
 
         Args:
             draw (ImageDraw.Draw): an object used to draw an arc on the meter
         """
-        if self.wedgesize > 0:
-            meter_value = self.meter_value()
-            draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                     meter_value - self.wedgesize, meter_value + self.wedgesize,
-                     self.meterforeground, self.meterthickness * 5)
+        if self._wedgesize > 0:
+            meter_value = self._meter_value()
+            draw.arc(
+                (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                meter_value - self._wedgesize,
+                meter_value + self._wedgesize,
+                self._foreground,
+                self._meterthickness * 5,
+            )
         else:
-            for x in range(self.arcoffset, self.meter_value() - 1, self.stripethickness):
-                draw.arc((0, 0, self.metersize * 5 - 20, self.metersize * 5 - 20),
-                         x, x + self.stripethickness - 1, self.meterforeground, self.meterthickness * 5)
+            for x in range(self._arcoffset, self._meter_value() - 1, self._stripethickness):
+                draw.arc(
+                    (0, 0, self._metersize * 5 - 20, self._metersize * 5 - 20),
+                    x,
+                    x + self._stripethickness - 1,
+                    self._foreground,
+                    self._meterthickness * 5,
+                )
 
-    def lookup(self, style, option):
-        """Wrapper around the tcl style lookup command
-
-        Args:
-            style (str): the name of the style used for rendering the widget.
-            option (str): the option to lookup from the style option database.
-
-        Returns:
-            any: the value of the option looked up.
-        """
-        return self.tk.call("ttk::style", "lookup", style, '-%s' % option, None, None)
-
-    def meter_value(self):
+    def _meter_value(self):
         """Calculate the meter value
 
         Returns:
             int: the value to be used to draw the arc length of the progress meter
         """
-        return int((self.amountused / self.amounttotal) * self.arcrange + self.arcoffset)
+        return int((self.value / self._amounttotal) * self._arcrange + self._arcoffset)
 
-    def on_dial_interact(self, e):
+    def _on_dial_interact(self, e):
         """Callback for mouse drag motion on indicator
 
         Args:
             e (Event): event callback for drag motion.
         """
-        dx = e.x - self.metersize // 2
-        dy = e.y - self.metersize // 2
+        dx = e.x - self._metersize // 2
+        dy = e.y - self._metersize // 2
         rads = math.atan2(dy, dx)
         degs = math.degrees(rads)
 
-        if degs > self.arcoffset:
-            factor = degs - self.arcoffset
+        if degs > self._arcoffset:
+            factor = degs - self._arcoffset
         else:
-            factor = 360 + degs - self.arcoffset
+            factor = 360 + degs - self._arcoffset
 
         # clamp value between 0 and ``amounttotal``
-        amountused = int(self.amounttotal / self.arcrange * factor)
+        amountused = int(self._amounttotal / self._arcrange * factor)
         if amountused < 0:
-            self.amountused = 0
-        elif amountused > self.amounttotal:
-            self.amountused = self.amounttotal
+            self.value = 0
+        elif amountused > self._amounttotal:
+            self.value = self._amounttotal
         else:
-            self.amountused = amountused
+            self.value = amountused
 
-    def step(self, delta=1):
-        """Increase the indicator value by ``delta``.
+    def _customize_widget(self):
 
-        The default increment is 1. The indicator will reverse direction and count down once it reaches the maximum
-        value.
+        if any([self._background != None, self._foreground != None, self._labelcolor != None]):
+            self.customized = True
 
-        Keyword Args:
-            delta (int): the amount to change the indicator.
-        """
-        if self.amountused >= self.amounttotal:
-            self.towardsmaximum = True
-            self.amountused = self.amountused - delta
-        elif self.amountused <= 0:
-            self.towardsmaximum = False
-            self.amountused = self.amountused + delta
-        elif self.towardsmaximum:
-            self.amountused = self.amountused - delta
-        else:
-            self.amountused = self.amountused + delta
+            if not self._widget_id:
+                self._widget_id = uuid4() if self._widget_id == None else self._widget_id
+                self.style = f"{self._widget_id}.{self.style}"
 
+        if self.customized:
+            options = {
+                "theme": self.theme,
+                "background": self._background,
+                "foreground": self._foreground or self.themed_color,
+                "style": self.style,
+            }
+            settings = StylerTTK.style_meter(**options)
 
-if __name__ == '__main__':
-    style = Style()
-    root = style.master
-    root.title('ttkbootstrap')
-
-    Meter(root, metersize=180, padding=20, amountused=25, metertype='semi', labeltext='miles per hour',
-          interactive=True).grid(row=0, column=0)
-    Meter(metersize=180, padding=20, amountused=1800, amounttotal=2600, labeltext='storage used', textappend='gb',
-          meterstyle='info.TMeter', stripethickness=10, interactive=True).grid(row=0, column=1)
-    Meter(metersize=180, padding=20, stripethickness=2, amountused=40, labeltext='project capacity', textappend='%',
-          meterstyle='success.TMeter', interactive=True).grid(row=1, column=0)
-    Meter(metersize=180, padding=20, amounttotal=280, arcrange=180, arcoffset=-180, amountused=75, textappend='°',
-          labeltext='heat temperature', wedgesize=5, meterstyle='danger.TMeter', interactive=True).grid(row=1, column=1)
-
-    root.mainloop()
+            self.update_ttk_style(settings)
