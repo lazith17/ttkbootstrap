@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from tkinter import Variable
+from tkinter import IntVar, DoubleVar
 from ttkbootstrap.core import StylerTTK
 from ttkbootstrap.widgets import Widget
 
@@ -31,6 +31,7 @@ class Progressbar(Widget, ttk.Progressbar):
         phase=None,
         takefocus=False,
         value=0,
+        valuetype='int',
         variable=None,
         style=None,
 
@@ -51,6 +52,7 @@ class Progressbar(Widget, ttk.Progressbar):
             phase (str): Read-only option. The widget periodically increments the value of this option whenever the ``value`` is greater than 0 and, in determinate mode, less than ``maximum``. This option may be used by the current theme to provide additional animation effects. 
             takefocus (bool): Adds or removes the widget from focus traversal.
             value (float): The current value of the progress bar.
+            valuetype (str): The type of number to retrieve from the progress bar value. Options include `int` and `float`. Default is `int`.
             variable (Variable): A variable which is linked to the ``value``. If associated to an existing variable, the ``value`` of the progress bar is automatically set to the value of the variable whenever the latter is modified. If not provided, one is created by default.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
             barcolor (str): The color of the progressbar; setting this option will override theme settings.
@@ -60,7 +62,7 @@ class Progressbar(Widget, ttk.Progressbar):
         """
         Widget.__init__(self, "TProgressbar", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.variable = variable or Variable(value=value)
+        self.variable = variable or IntVar(value=value) if valuetype == 'int' else DoubleVar(value=value)
         self._orient = orient
         self._barcolor = barcolor
         self._troughcolor = troughcolor
