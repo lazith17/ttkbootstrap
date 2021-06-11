@@ -67,12 +67,12 @@ class Window(Tk):
             self.attributes("-zoomed", fullscreen)
 
         # set window geometry
-        height, width = size
         geometry = ""
-        if all([height, width]):
-            geometry = f"{height}x{width}"
-        xpos, ypos = offset
-        geometry += f"+{xpos}+{ypos}"
-        self.geometry(geometry)
-        self.update_idletasks()
+        if all(size):
+            geometry = f"{size[0]}x{size[1]}"
+        if all(offset):
+            geometry += f"+{offset[0]}+{offset[1]}"
+        if geometry:
+            self.geometry(geometry)
+            self.update_idletasks()
         self.deiconify()
