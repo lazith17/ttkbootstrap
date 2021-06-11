@@ -34,11 +34,12 @@ class Dialog(Toplevel):
             self.attributes("-type", "dialog")
 
         # add body
-        body = ttk.Frame(self)
-        body.pack(padx=5, pady=5)
+        self.main_body = ttk.Frame(self)
+        self.main_body.pack(padx=5, pady=5)
+        self.themedcolor = self.main_body.themed_color
 
         # set focus
-        self.initial_focus = self.body(body)
+        self.initial_focus = self.body(self.main_body)
         if not self.initial_focus:
             self.initial_focus = self
 
