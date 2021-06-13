@@ -5,23 +5,24 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_COLORS, ThemeColors
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
+from ttkbootstrap.themes import DEFAULT_COLORS
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
+# TODO dark theme needs to default to light text ... it's not working.
 
 class LabelFrame(Widget, ttk.Label):
-    """A Labelframe widget is a container used to group other widgets together. It has an optional label, which may be 
+    """A Labelframe widget is a container used to group other widgets together. It has an optional label, which may be
     a plain text string or another widget."""
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         height=None,
         labelanchor=None,
@@ -32,7 +33,6 @@ class LabelFrame(Widget, ttk.Label):
         underline=None,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         bordercolor=None,
@@ -46,7 +46,7 @@ class LabelFrame(Widget, ttk.Label):
             bordercolor (str): The labelframe border color; setting this option will override theme settings.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             height (int): The widget's requested height in pixels.
-            labelanchor (str): The position of the label. Legal values include: `nw`,`n`,`ne`,`en`,`e`,`es`,`se`,`s`,`sw`, `ws`, `w` and `wn`. 
+            labelanchor (str): The position of the label. Legal values include: `nw`,`n`,`ne`,`en`,`e`,`es`,`se`,`s`,`sw`, `ws`, `w` and `wn`.
             labelwidget (str): The widget to use for the label. If set, overrides the ``text`` option; must be a child of the ancestors, and must belong to the same top-level widget as the labelframe.
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
             takefocus (bool): Adds or removes the widget from focus traversal.
@@ -63,8 +63,8 @@ class LabelFrame(Widget, ttk.Label):
 
         self._background = background
         self._bordercolor = bordercolor
-        self._foreground = foreground
-        self._bsoptions = ['background', 'bordercolor', 'foreground', 'bootstyle']
+        self._foreground = foreground or DEFAULT_COLORS.fg if bootstyle == DEFAULT else DEFAULT_COLORS.selectfg
+        self._bsoptions = ["background", "bordercolor", "foreground", "bootstyle"]
         self._customize_widget()
 
         ttk.Labelframe.__init__(
@@ -85,22 +85,36 @@ class LabelFrame(Widget, ttk.Label):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+        
+        # custom styles
         if any([self._background != None, self._foreground != None, self._bordercolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background or self.themed_color,
                 "bordercolor": self._bordercolor,
                 "foreground": self._foreground,
                 "style": self.style,
             }
+            StylerTTK.style_labelframe(**options)
+        
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "background": self.themed_color,
+                "foreground": self._foreground,
+                "style": self.style,
+            }
+            StylerTTK.style_labelframe(**options)
 
-            settings = StylerTTK.style_labelframe(**options)
-            self.update_ttk_style(settings)
-
+        self.update_ttk_style(self.settings)

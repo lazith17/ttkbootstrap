@@ -6,18 +6,19 @@
 
 """
 from uuid import uuid4
-from tkinter import DoubleVar, IntVar, ttk
-from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from tkinter import ttk
+from tkinter import Variable, DoubleVar, IntVar
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
 
 DEFAULT_FONT = "helvetica 24 bold"
 DEFAULT_THICKNESS = 100
 
+
 class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
-    """A ``Floodgauge`` is a dashboard style gauge that has a similar API as the ``Progressbar`` except with text 
-    options. This widget can operate in two modes: **determinate** mode shows the amount completed relative to the 
-    total amount of work to be done, and **indeterminate** mode provides an animated display to let the user know 
+    """A ``Floodgauge`` is a dashboard style gauge that has a similar API as the ``Progressbar`` except with text
+    options. This widget can operate in two modes: **determinate** mode shows the amount completed relative to the
+    total amount of work to be done, and **indeterminate** mode provides an animated display to let the user know
     that something is happening.
 
     Optionally, you can turn on the ``showvalue`` option to show the Floodgauge value,though this will override the
@@ -26,7 +27,6 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
 
     def __init__(
         self,
-
         # widget options
         master=None,
         bootstyle="default",
@@ -46,7 +46,6 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         valuetype="int",
         variable=None,
         style=None,
-        
         # custom style options
         barcolor=None,
         font=None,
@@ -85,17 +84,17 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         )
 
         self.textvariable = textvariable or Variable(value=f"{textprepend or ''}{text or ''}{textappend or ''}")
-        self.variable = variable or IntVar(value=value) if valuetype == 'int' else DoubleVar(value=value)
-        self._textappend = textappend or ''
-        self._textprepend = textprepend or ''
+        self.variable = variable or IntVar(value=value) if valuetype == "int" else DoubleVar(value=value)
+        self._textappend = textappend or ""
+        self._textprepend = textprepend or ""
         self._showvalue = showvalue
-        
+
         self._font = font or DEFAULT_FONT
         self._foreground = foreground
         self._orient = orient
         self._barcolor = barcolor or self.themed_color
-        self._length = size[0] if orient == 'horizontal' else size[1]
-        self._thickness = size[1] if orient == 'vertical' else size[0]
+        self._length = size[0] if orient == "horizontal" else size[1]
+        self._thickness = size[1] if orient == "vertical" else size[0]
         self._troughcolor = troughcolor
         self._bsoptions = ["barcolor", "troughcolor", "foreground", "font", "bootstyle"]
         self._customize_widget()
@@ -140,6 +139,11 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any(
             [
                 self._barcolor != None,
@@ -150,14 +154,13 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
             ]
         ):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "barcolor": self._barcolor or self.themed_color,
                 "troughcolor": self._troughcolor,
                 "font": self._font,
@@ -166,9 +169,20 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
                 "orient": self._orient,
                 "style": self.style,
             }
-            settings = StylerTTK.style_floodgauge(**options)
+            StylerTTK.style_floodgauge(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "barcolor": self.themed_color,
+                "orient": self._orient,
+                "style": self.style,
+            }
+            StylerTTK.style_floodgauge(**options)
+
+        self.update_ttk_style(self.settings)
 
     def _textvariable_write(self, *args):
         """Callback to update the label text when there is a `write` action on the variable
@@ -177,5 +191,5 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
             *args: if triggered by a trace, will be `variable`, `index`, `mode`.
         """
         if self._showvalue:
-            label = f'{self._textprepend}{self.value}{self._textappend}'
+            label = f"{self._textprepend}{self.value}{self._textappend}"
             self.tk.call("ttk::style", "configure", self.style, "-%s" % "text", label, None)

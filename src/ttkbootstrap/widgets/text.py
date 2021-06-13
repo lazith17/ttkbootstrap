@@ -3,15 +3,17 @@
     Created: 2021-06-07
 """
 
-from src.ttkbootstrap.core.themes import DEFAULT_FONT, ThemeColors
 from uuid import uuid4
 import tkinter
+from ttkbootstrap.themes import DEFAULT_FONT, ThemeColors
 from ttkbootstrap.widgets import Widget
 
+
 class Text(Widget, tkinter.Text):
-    """A Text widget handles multiple lines of text and can be edited and formatted; it is essentially a full text 
-    editor in the window. 
+    """A Text widget handles multiple lines of text and can be edited and formatted; it is essentially a full text
+    editor in the window.
     """
+
     def __init__(
         self,
         master=None,
@@ -32,17 +34,17 @@ class Text(Widget, tkinter.Text):
         spacing2=None,
         spacing3=None,
         startline=None,
-        state='normal',
+        state="normal",
         style=None,
         tabs=None,  # TODO default this to 4 spaces
-        tabstyle='tabular',
+        tabstyle="tabular",
         takefocus=True,
         undo=True,
         width=None,
-        wrap='word',
+        wrap="word",
         xscrollcommand=None,
         yscrollcommand=None,
-        **kw
+        **kw,
     ):
         """
         Args:
@@ -76,7 +78,7 @@ class Text(Widget, tkinter.Text):
             yscrollcommmand (func): A reference to the ``.set`` method of a scrollbar widget; used to communicate with vertical scrollbars.
         """
         Widget.__init__(self, "Text", master=master, bootstyle=bootstyle, style=style)
- 
+
         # setup bootstyle
         self._background = background
         self._borderwidth = borderwidth
@@ -85,10 +87,11 @@ class Text(Widget, tkinter.Text):
         self._focuscolor = ThemeColors.normalize(self.get_style_color(), self.colors.primary, self.colors)
         self._selectbackground = selectbackground
         self._selectforeground = selectforeground
-        self._bsoptions = ['bootstyle']
+        self._bsoptions = ["bootstyle"]
         self._settings = self._create_conf()
 
-        tkinter.Text.__init__(self,
+        tkinter.Text.__init__(
+            self,
             master=master,
             autoseparators=autoseparators,
             blockcursor=blockcursor,
@@ -110,12 +113,12 @@ class Text(Widget, tkinter.Text):
             xscrollcommand=xscrollcommand,
             yscrollcommand=yscrollcommand,
             **self._settings,
-            **kw
+            **kw,
         )
         self._customize_widget()
         self.bind("<Leave>", self._on_leave)
         self.bind("<Enter>", self._on_enter)
-        
+
         # only add effects if the border is expected.
         if self._borderwidth > 0:
             self.bind("<FocusOut>", self._on_focusout)
@@ -137,15 +140,15 @@ class Text(Widget, tkinter.Text):
     def _create_conf(self):
         self._focuscolor = ThemeColors.normalize(self.get_style_color(), self.colors.primary, self.colors)
         settings = {
-            'background': self._background or self.colors.inputbg,
-            'borderwidth': self._borderwidth or 1,
-            'font': self._font or DEFAULT_FONT,
-            'foreground': self._foreground or self.colors.inputfg,
-            'highlightbackground': self.colors.border,
-            'highlightthickness': 1,
-            'highlightcolor': self._focuscolor,
-            'selectbackground': self._selectbackground or self.colors.selectbg,
-            'selectforeground': self._selectforeground or self.colors.selectfg
+            "background": self._background or self.colors.inputbg,
+            "borderwidth": self._borderwidth or 1,
+            "font": self._font or DEFAULT_FONT,
+            "foreground": self._foreground or self.colors.inputfg,
+            "highlightbackground": self.colors.border,
+            "highlightthickness": 1,
+            "highlightcolor": self._focuscolor,
+            "selectbackground": self._selectbackground or self.colors.selectbg,
+            "selectforeground": self._selectforeground or self.colors.selectfg,
         }
         return settings
 
@@ -157,10 +160,11 @@ class Text(Widget, tkinter.Text):
         self.configure(cnf=self._settings)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import ttkbootstrap as ttk
     from itertools import cycle
-    style = ttk.Style('cyborg')
+
+    style = ttk.Style("cyborg")
 
     themes = cycle(style.themes)
 
@@ -170,10 +174,10 @@ if __name__ == '__main__':
         style.theme_use(theme)
         print(text.colors)
 
-    ttk.Entry().pack(padx=10, pady=10, fill='x')
-    text = Text(bootstyle='info')
+    ttk.Entry().pack(padx=10, pady=10, fill="x")
+    text = Text(bootstyle="info")
     text.pack(padx=10, pady=10)
     change = ttk.Button(text="Change Theme")
-    change.pack(fill='x', padx=10, pady=10)
+    change.pack(fill="x", padx=10, pady=10)
     change.configure(command=lambda: change_theme())
     text.mainloop()

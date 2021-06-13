@@ -5,12 +5,12 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
-from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Button(Widget, ttk.Button):
@@ -23,16 +23,15 @@ class Button(Widget, ttk.Button):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         command=None,
         compound=None,
         cursor=None,
         image=None,
         padding=None,
-        state="normal",
+        state=NORMAL,
         takefocus=True,
         text=None,
         textvariable=None,
@@ -40,11 +39,10 @@ class Button(Widget, ttk.Button):
         width=None,
         wraplength=None,
         style=None,
-        
         # custom style options
-        anchor='center',
+        anchor=CENTER,
         background=None,
-        font='Helvetica 10',
+        font="Helvetica 10",
         foreground=None,
         **kw,
     ):
@@ -80,7 +78,7 @@ class Button(Widget, ttk.Button):
         self._bootstyle = bootstyle
         self._font = font
         self._foreground = foreground
-        self._bsoptions = ['anchor', 'background', 'font', 'foreground', 'bootstyle']
+        self._bsoptions = ["anchor", "background", "font", "foreground", "bootstyle"]
         self._customize_widget()
 
         ttk.Button.__init__(
@@ -104,16 +102,20 @@ class Button(Widget, ttk.Button):
 
     def _customize_widget(self):
 
-        if any([self._background != None, self._foreground != None, self._anchor != 'center', self._font != DEFAULT_FONT]):
-            self.customized = True
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
 
+        # custom styles
+        if any([self._background != None, self._foreground != None, self._anchor != CENTER, self._font != DEFAULT_FONT]):
+            self.customized = True
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "anchor": self._anchor,
                 "background": self._background or self.themed_color,
                 "font": self._font,
@@ -123,15 +125,37 @@ class Button(Widget, ttk.Button):
 
             if "Outline" in self.style:
                 self._foreground = self._foreground or self.themed_color
-                settings = StylerTTK.style_outline_button(**options)
+                StylerTTK.style_outline_button(**options)
+            
             elif "Link" in self.style:
                 self._foreground = self._foreground or self.themed_color
-                settings = StylerTTK.style_link_button(**options)
+                StylerTTK.style_link_button(**options)
+            
             else:
                 self._background = self._background or self.themed_color
-                settings = StylerTTK.style_button(**options)
+                StylerTTK.style_button(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "style": self.style,
+            }
+            if "Outline" in self.style:
+                options['foreground'] = self.themed_color
+                StylerTTK.style_outline_button(**options)
+
+            elif "Link" in self.style:
+                options['foreground'] = self.themed_color
+                StylerTTK.style_link_button(**options)
+            
+            else:
+                options['background'] = self.themed_color
+                StylerTTK.style_button(**options)
+        
+        self.update_ttk_style(self.settings)
+
 
     @property
     def text(self):
@@ -139,7 +163,7 @@ class Button(Widget, ttk.Button):
         if self.textvariable:
             return self.textvariable.get()
         else:
-            return self['text']
+            return self["text"]
 
     @text.setter
     def text(self, value):
@@ -147,4 +171,4 @@ class Button(Widget, ttk.Button):
         if self.textvariable:
             self.textvariable.set(value=value)
         else:
-            self['text'] = value
+            self["text"] = value

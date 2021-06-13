@@ -2,13 +2,13 @@
     A **ttkbootstrap** styled **Menubutton** widget.
     Created: 2021-05-28
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
-
+from ttkbootstrap.constants import *
 
 
 class Menubutton(Widget, ttk.Menubutton):
@@ -20,7 +20,7 @@ class Menubutton(Widget, ttk.Menubutton):
 
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         compound=None,
         cursor=None,
         direction=None,
@@ -29,7 +29,7 @@ class Menubutton(Widget, ttk.Menubutton):
         menu=None,
         padding=None,
         showarrow=True,
-        state="normal",
+        state=NORMAL,
         takefocus=True,
         textvariable=None,
         text=None,
@@ -96,16 +96,20 @@ class Menubutton(Widget, ttk.Menubutton):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._font != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "font": self._font or DEFAULT_FONT,
@@ -114,12 +118,26 @@ class Menubutton(Widget, ttk.Menubutton):
 
             if "Outline" in self.style:
                 self._foreground = self._foreground or self.themed_color
-                settings = StylerTTK.style_outline_menubutton(**options)
+                StylerTTK.style_outline_menubutton(**options)
             else:
                 self._background = self._background or self.themed_color
-                settings = StylerTTK.style_menubutton(**options)
+                StylerTTK.style_menubutton(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "style": self.style,
+            }
+            if "Outline" in self.style:
+                options['foreground'] = self.themed_color
+                StylerTTK.style_outline_menubutton(**options)
+            else:
+                options['background'] = self.themed_color
+                StylerTTK.style_menubutton(**options)
+
+        self.update_ttk_style(self.settings)
 
     @property
     def text(self):

@@ -5,36 +5,36 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from numbers import Number
 from tkinter import ttk
 from tkinter import StringVar
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Spinbox(Widget, ttk.Spinbox):
-    """A Spinbox widget is an Entry widget with built-in up and down buttons that are used to either modify a numeric 
-    value or to select among a set of values. The widget implements all the features of the Entry widget including 
+    """A Spinbox widget is an Entry widget with built-in up and down buttons that are used to either modify a numeric
+    value or to select among a set of values. The widget implements all the features of the Entry widget including
     support of the textvariable option to link the value displayed by the widget to a tkinter variable."""
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         command=None,
         cursor=None,
         defaultvalue=None,
         defaultindex=None,
         font=None,
-        format='%0.0f',
+        format="%0.0f",
         from_=0,
         increment=1,
         padding=None,
-        state="normal",
+        state=NORMAL,
         style=None,
         takefocus=True,
         textvariable=None,
@@ -44,7 +44,6 @@ class Spinbox(Widget, ttk.Spinbox):
         values=None,
         wrap=False,
         xscrollcommand=None,
-
         # style options
         background=None,
         focuscolor=None,
@@ -93,7 +92,7 @@ class Spinbox(Widget, ttk.Spinbox):
         self._defaultvalue = defaultvalue
         self._defaultindex = defaultindex
         self._values = values
-        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
+        self._bsoptions = ["background", "focuscolor", "foreground", "bootstyle"]
         self._set_variable()
         self._customize_widget()
 
@@ -122,33 +121,49 @@ class Spinbox(Widget, ttk.Spinbox):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
-            settings = StylerTTK.style_spinbox(**options)
+            StylerTTK.style_spinbox(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "focuscolor": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_spinbox(**options)
+
+        self.update_ttk_style(self.settings)
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
         if self._defaultvalue:
-            self.value = self._format % self._defaultvalue if isinstance(self._defaultvalue, Number) else self._defaultvalue
+            self.value = (
+                self._format % self._defaultvalue if isinstance(self._defaultvalue, Number) else self._defaultvalue
+            )
             return
         if self._values and self._defaultindex is not None:
             # override to ensure that the index is a valid
-            item_index = min(max(self._defaultindex, len(self._values)-1), 0)
+            item_index = min(max(self._defaultindex, len(self._values) - 1), 0)
             if isinstance(self._values[item_index], Number):
                 self.value = self._format % self._values[item_index]
             else:

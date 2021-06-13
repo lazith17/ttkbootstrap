@@ -5,55 +5,57 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
+
+HEADER_FONT = "helvetica 10 bold"
+INPUT_FONT = "helvetica 10"
+SHOW = TREE + " " + HEADINGS
 
 
 class Treeview(Widget, ttk.Treeview):
     """The Treeview widget displays a hierarchical collection of items. Each item has a textual label, an optional
-image, and an optional list of data values. The data values are displayed in successive columns after the tree label.
+    image, and an optional list of data values. The data values are displayed in successive columns after the tree label.
 
-The order in which data values are displayed may be controlled by setting the displaycolumns widget option. The tree
-widget can also display column headings. Columns may be accessed by number or by symbolic names listed in the columns
-widget option.
+    The order in which data values are displayed may be controlled by setting the displaycolumns widget option. The tree
+    widget can also display column headings. Columns may be accessed by number or by symbolic names listed in the columns
+    widget option.
 
-Each item is identified by a unique name. The widget will generate item IDs if they are not supplied by the caller.
-There is a distinguished root item, named {}. The root item itself is not displayed; its children appear at the top
-level of the hierarchy.
+    Each item is identified by a unique name. The widget will generate item IDs if they are not supplied by the caller.
+    There is a distinguished root item, named {}. The root item itself is not displayed; its children appear at the top
+    level of the hierarchy.
 
-Each item also has a list of tags, which can be used to associate event bindings with individual items and control the
-appearance of the item.
+    Each item also has a list of tags, which can be used to associate event bindings with individual items and control the
+    appearance of the item.
 
-Treeview widgets support horizontal and vertical scrolling with the standard [xy]scrollcommand options and [xy]view
-widget commands."""
+    Treeview widgets support horizontal and vertical scrolling with the standard [xy]scrollcommand options and [xy]view
+    widget commands."""
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         columns=None,
         cursor=None,
-        displaycolumns='#all',
+        displaycolumns="#all",
         height=None,
         padding=None,
-        selectmode='extended',
-        show='tree headings',
+        selectmode=EXTENDED,
+        show=SHOW,
         takefocus=True,
         xscrollcommand=None,
         yscrollcommand=None,
         style=None,
-
         # custom style options
         headerbackground=None,
-        headerfont='Helvetica 10 bold',
+        headerfont=HEADER_FONT,
         headerforeground=None,
         inputbackground=None,
-        inputfont='Helvetica 10',
+        inputfont=INPUT_FONT,
         inputforeground=None,
         **kw,
     ):
@@ -61,16 +63,16 @@ widget commands."""
         Args:
             master: The parent widget.
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
-            columns (List): A list of column identifiers. 
+            columns (List): A list of column identifiers.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
-            displaycolumns (List): A list of column identifiers (either symbolic names or integer indices) specifying which data columns are displayed and the order in which they appear, or the string #all. If set to #all (the default), all columns are shown in the order given. 
+            displaycolumns (List): A list of column identifiers (either symbolic names or integer indices) specifying which data columns are displayed and the order in which they appear, or the string #all. If set to #all (the default), all columns are shown in the order given.
             height (int): The number of rows which should be visible.
             padding (Any): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
-            selectmode (str): Controls how the built-in class bindings manage the selection. One of `extended`, `browse`, or `none`. If set to extended (the default), multiple items may be selected. If browse, only a single item will be selected at a time. If none, the selection will not be changed. 
+            selectmode (str): Controls how the built-in class bindings manage the selection. One of `extended`, `browse`, or `none`. If set to extended (the default), multiple items may be selected. If browse, only a single item will be selected at a time. If none, the selection will not be changed.
             show (str): A list specifying which tree elements to display. Values can include: `tree`, `headings`. Default is `tree headings`.
             takefocus (bool): Determines whether the widget accepts the focus during keyboard traversal.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
-            xscrollcommmand (func): A reference to ``xscrollbar.set`` method; used to communicate with horizontal scrollbars. 
+            xscrollcommmand (func): A reference to ``xscrollbar.set`` method; used to communicate with horizontal scrollbars.
             yscrollcommmand (func): A reference to ``yscrollbar.set`` method; used to communicate with vertical scrollbars.
             headerbackground (str): The header background color; setting this option will override theme settings.
             headerfont (str): The font used to render text in the widget.
@@ -89,7 +91,15 @@ widget commands."""
         self._inputbackground = inputbackground
         self._inputfont = inputfont
         self._inputforeground = inputforeground
-        self._bsoptions = ['headerbackground', 'headerfont', 'headerforeground', 'inputbackground', 'inputfont', 'inputforeground', 'bootstyle']
+        self._bsoptions = [
+            "headerbackground",
+            "headerfont",
+            "headerforeground",
+            "inputbackground",
+            "inputfont",
+            "inputforeground",
+            "bootstyle",
+        ]
         self._customize_widget()
 
         ttk.Treeview.__init__(
@@ -111,24 +121,30 @@ widget commands."""
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any(
             [
-                self._headerbackground != None, 
-                self._headerforeground != None, 
-                self._headerfont != 'Helvetica 10 bold',
-                self._inputbackground != None, 
-                self._inputfont != DEFAULT_FONT,
-                self._inputforeground != None]):
-            
-            self.customized = True
+                self._headerbackground != None,
+                self._headerforeground != None,
+                self._headerfont != HEADER_FONT,
+                self._inputbackground != None,
+                self._inputfont != INPUT_FONT,
+                self._inputforeground != None,
+            ]
+        ):
 
+            self.customized = True
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "headerbackground": self._headerbackground or self.themed_color,
                 "headerfont": self._headerfont,
                 "headerforeground": self._headerforeground,
@@ -137,6 +153,16 @@ widget commands."""
                 "inputforeground": self._inputforeground,
                 "style": self.style,
             }
-            settings = StylerTTK.style_treeview(**options)
+            StylerTTK.style_treeview(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "headerbackground": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_treeview(**options)
+
+        self.update_ttk_style(self.settings)

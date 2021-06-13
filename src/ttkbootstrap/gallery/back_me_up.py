@@ -3,21 +3,18 @@
     Modified: 2021-06-08
     Adapted for ttkbootstrap from: http://www.leo-backup.com/screenshots.shtml
 """
-from PIL.ImageTk import PhotoImage
 from pathlib import Path
 from datetime import datetime
 from random import choices
 import ttkbootstrap as ttk
-from tkinter.filedialog import askdirectory
-from tkinter.messagebox import showinfo
+from ttkbootstrap.dialog import messagebox, filedialog
 
-class Application(ttk.Window):
+class Application(ttk.Application):
 
     def __init__(self):
         super().__init__(title="Back Me Up")
         self.bmu = BackMeUp(self, padding=2)
         self.bmu.pack(fill='both', expand='yes')
-
 
 class BackMeUp(ttk.Frame):
 
@@ -27,18 +24,18 @@ class BackMeUp(ttk.Frame):
         filepath = Path('./src/ttkbootstrap/gallery/assets')
 
         # images
-        self.img_properties_d = PhotoImage(name='prop-dark', file=filepath / 'icons8_settings_24px.png')
-        self.img_properties_l = PhotoImage(name='prop-light', file=filepath / 'icons8_settings_24px_2.png')
-        self.img_addtobackup_d = PhotoImage(name='add-backup-dark', file=filepath / 'icons8_add_folder_24px.png')
-        self.img_addtobackup_l = PhotoImage(name='add-backup-light', file=filepath / 'icons8_add_book_24px.png')
-        self.img_stopbackup_d = PhotoImage(name='stop-backup-dark', file=filepath / 'icons8_cancel_24px.png')
-        self.img_stopbackup_l = PhotoImage(name='stop-backup-light', file=filepath / 'icons8_cancel_24px_1.png')
-        self.img_play = PhotoImage(name='play', file=filepath / 'icons8_play_24px_1.png')
-        self.img_refresh = PhotoImage(name='refresh', file=filepath / 'icons8_refresh_24px_1.png')
-        self.img_stop_d = PhotoImage(name='stop-dark', file=filepath / 'icons8_stop_24px.png')
-        self.img_stop_l = PhotoImage(name='stop-light', file=filepath / 'icons8_stop_24px_1.png')
-        self.img_opened_folder = PhotoImage(name='opened-folder', file=filepath / 'icons8_opened_folder_24px.png')
-        self.img_logo = PhotoImage(name='logo', file=filepath / 'backup.png')
+        self.img_properties_d = ttk.PhotoImage(name='prop-dark', file=filepath / 'icons8_settings_24px.png')
+        self.img_properties_l = ttk.PhotoImage(name='prop-light', file=filepath / 'icons8_settings_24px_2.png')
+        self.img_addtobackup_d = ttk.PhotoImage(name='add-backup-dark', file=filepath / 'icons8_add_folder_24px.png')
+        self.img_addtobackup_l = ttk.PhotoImage(name='add-backup-light', file=filepath / 'icons8_add_book_24px.png')
+        self.img_stopbackup_d = ttk.PhotoImage(name='stop-backup-dark', file=filepath / 'icons8_cancel_24px.png')
+        self.img_stopbackup_l = ttk.PhotoImage(name='stop-backup-light', file=filepath / 'icons8_cancel_24px_1.png')
+        self.img_play = ttk.PhotoImage(name='play', file=filepath / 'icons8_play_24px_1.png')
+        self.img_refresh = ttk.PhotoImage(name='refresh', file=filepath / 'icons8_refresh_24px_1.png')
+        self.img_stop_d = ttk.PhotoImage(name='stop-dark', file=filepath / 'icons8_stop_24px.png')
+        self.img_stop_l = ttk.PhotoImage(name='stop-light', file=filepath / 'icons8_stop_24px_1.png')
+        self.img_opened_folder = ttk.PhotoImage(name='opened-folder', file=filepath / 'icons8_opened_folder_24px.png')
+        self.img_logo = ttk.PhotoImage(name='logo', file=filepath / 'backup.png')
 
         # ----- buttonbar
         buttonbar = ttk.Frame(self, bootstyle='primary')
@@ -46,27 +43,27 @@ class BackMeUp(ttk.Frame):
 
         ## new backup
         bb_new_backup_btn = ttk.Button(buttonbar, text='New backup set', image='add-backup-light', compound='left')
-        bb_new_backup_btn.configure(command=lambda: showinfo(message='Adding new backup'))
+        bb_new_backup_btn.configure(command=lambda: messagebox.showinfo(message='Adding new backup'))
         bb_new_backup_btn.pack(side='left', ipadx=5, ipady=5, padx=(1, 0), pady=1)
 
         ## backup
         bb_backup_btn = ttk.Button(buttonbar, text='Backup', image='play', compound='left')
-        bb_backup_btn.configure(command=lambda: showinfo(message='Backing up...'))
+        bb_backup_btn.configure(command=lambda: messagebox.showinfo(message='Backing up...'))
         bb_backup_btn.pack(side='left', ipadx=5, ipady=5, padx=0, pady=1)
 
         ## refresh
         bb_refresh_btn = ttk.Button(buttonbar, text='Refresh', image='refresh', compound='left')
-        bb_refresh_btn.configure(command=lambda: showinfo(message='Refreshing...'))
+        bb_refresh_btn.configure(command=lambda: messagebox.showinfo(message='Refreshing...'))
         bb_refresh_btn.pack(side='left', ipadx=5, ipady=5, padx=0, pady=1)
 
         ## stop
         bb_stop_btn = ttk.Button(buttonbar, text='Stop', image='stop-light', compound='left')
-        bb_stop_btn.configure(command=lambda: showinfo(message='Stopping backup.'))
+        bb_stop_btn.configure(command=lambda: messagebox.showwarning(message='Stopping backup.'))
         bb_stop_btn.pack(side='left', ipadx=5, ipady=5, padx=0, pady=1)
 
         ## settings
         bb_settings_btn = ttk.Button(buttonbar, text='Settings', image='prop-light', compound='left')
-        bb_settings_btn.configure(command=lambda: showinfo(message='Changing settings'))
+        bb_settings_btn.configure(command=lambda: messagebox.showinfo(message='Changing settings'))
         bb_settings_btn.pack(side='left', ipadx=5, ipady=5, padx=0, pady=1)
 
         # ----- left panel
@@ -100,12 +97,12 @@ class BackMeUp(ttk.Frame):
 
         ## properties button
         bus_prop_btn = ttk.Button(bus_frm, text='Properties', image='prop-dark', compound='left', bootstyle='link')
-        bus_prop_btn.configure(command=lambda: showinfo(message='Changing properties'))
+        bus_prop_btn.configure(command=lambda: messagebox.showinfo(message='Changing properties'))
         bus_prop_btn.grid(row=4, column=0, columnspan=2, sticky='w')
 
         ## add to backup button
         bus_add_btn = ttk.Button(bus_frm, text='Add to backup', image='add-backup-dark', compound='left', bootstyle='link')
-        bus_add_btn.configure(command=lambda: showinfo(message='Adding to backup'))
+        bus_add_btn.configure(command=lambda: messagebox.showinfo(message='Adding to backup'))
         bus_add_btn.grid(row=5, column=0, columnspan=2, sticky='w')
 
         # ----- backup status (collapsible)
@@ -140,7 +137,7 @@ class BackMeUp(ttk.Frame):
 
         ## stop button
         status_stop_btn = ttk.Button(status_frm, text='Stop', image='stop-backup-dark', compound='left', bootstyle='link')
-        status_stop_btn.configure(command=lambda: showinfo(message='Stopping backup'))
+        status_stop_btn.configure(command=lambda: messagebox.showwarning(message='Stopping backup'))
         status_stop_btn.grid(row=6, column=0, columnspan=2, sticky='w')
 
         ## section separator
@@ -200,7 +197,7 @@ class BackMeUp(ttk.Frame):
     def get_directory(self):
         """Open dialogue to get directory and update directory variable"""
         self.update_idletasks()
-        d = askdirectory()
+        d = filedialog.askdirectory()
         if d:
             self.setvar('folder-path', d)
 
@@ -216,8 +213,8 @@ class CollapsingFrame(ttk.Frame):
         super().__init__(*args, **kwargs)
         self.columnconfigure(0, weight=1)
         self.cumulative_rows = 0
-        self.images = [PhotoImage(name='open', file=filepath / 'icons8_double_up_24px.png'),
-                       PhotoImage(name='closed', file=filepath / 'icons8_double_right_24px.png')]
+        self.images = [ttk.PhotoImage(name='open', file=filepath / 'icons8_double_up_24px.png'),
+                       ttk.PhotoImage(name='closed', file=filepath / 'icons8_double_right_24px.png')]
 
     def add(self, child, title="", bootstyle='primary', **kwargs):
         """Add a child to the collapsible frame

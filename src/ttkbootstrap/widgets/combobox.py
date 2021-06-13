@@ -5,12 +5,13 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Combobox(Widget, ttk.Combobox):
@@ -22,10 +23,9 @@ class Combobox(Widget, ttk.Combobox):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         defaultvalue=None,
         defaultindex=None,
@@ -35,13 +35,12 @@ class Combobox(Widget, ttk.Combobox):
         justify=None,
         padding=None,
         postcommand=None,
-        state="normal",
+        state=NORMAL,
         takefocus=True,
         textvariable=None,
         values=None,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         focuscolor=None,
@@ -83,7 +82,7 @@ class Combobox(Widget, ttk.Combobox):
         self._foreground = foreground
         self._font = font or DEFAULT_FONT
         self._values = values
-        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
+        self._bsoptions = ["background", "focuscolor", "foreground", "bootstyle"]
         self._set_variable()
         self._customize_widget()
 
@@ -108,24 +107,37 @@ class Combobox(Widget, ttk.Combobox):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
-                self.style = f"{self._widget_id}.{self.style}"
+                self.style = f"{self._widget_id}.{self.style}"            
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
-            settings = StylerTTK.style_combobox(**options)
+            StylerTTK.style_combobox(**options)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "focuscolor": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_combobox(**options)
 
-            self.update_ttk_style(settings)
+        self.update_ttk_style(self.settings)
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""
@@ -134,7 +146,7 @@ class Combobox(Widget, ttk.Combobox):
             return
         if self._values and self._defaultindex is not None:
             # override to ensure that the index is a valid
-            item_index = min(max(self._defaultindex, len(self._values)-1), 0)
+            item_index = min(max(self._defaultindex, len(self._values) - 1), 0)
             self.value = self._values[item_index]
 
     @property

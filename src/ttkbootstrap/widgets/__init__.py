@@ -32,5 +32,6 @@ from .scrolledtext import ScrolledText
 Labelframe = LabelFrame
 Panedwindow = PanedWindow
 
-# other useful classes
-from tkinter import StringVar, IntVar, BooleanVar, Variable, DoubleVar, Canvas, PhotoImage
+# other tkitner classes imported as-is
+from tkinter import StringVar, IntVar, BooleanVar, Variable, DoubleVar
+from tkinter import PhotoImage, Menu

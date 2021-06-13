@@ -7,9 +7,9 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Label(Widget, ttk.Label):
@@ -18,18 +18,17 @@ class Label(Widget, ttk.Label):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
         anchor=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         compound=None,
         cursor=None,
         font=None,
         image=None,
         justify=None,
         padding=None,
-        state="normal",
+        state=NORMAL,
         takefocus=False,
         text=None,
         textvariable=None,
@@ -37,7 +36,6 @@ class Label(Widget, ttk.Label):
         width=None,
         wraplength=None,
         style=None,
-
         # custom style options
         background=None,
         foreground=None,
@@ -72,7 +70,7 @@ class Label(Widget, ttk.Label):
         self.textvariable = textvariable
         self._background = background
         self._foreground = foreground
-        self._bsoptions = ['background', 'foreground', 'bootstyle']
+        self._bsoptions = ["background", "foreground", "bootstyle"]
         self._customize_widget()
 
         ttk.Label.__init__(
@@ -98,16 +96,20 @@ class Label(Widget, ttk.Label):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+        
+        # custom styles
         if any([self._background != None, self._foreground != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "style": self.style,
@@ -117,20 +119,33 @@ class Label(Widget, ttk.Label):
                 options["background"] = self._background or self.themed_color
             else:
                 options["foreground"] = self._foreground or self.themed_color
-            settings = StylerTTK.style_label(**options)
-            self.update_ttk_style(settings)
+            StylerTTK.style_label(**options)
+        
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "style": self.style,
+            }
+            if "Inverse" in self.style:
+                options["background"] = self.themed_color
+            else:
+                options["foreground"] = self.themed_color
+            StylerTTK.style_label(**options)
+            
+        self.update_ttk_style(self.settings)
 
     @property
     def text(self):
         if self.textvariable:
             return self.textvariable.get()
         else:
-            return self['text']
+            return self["text"]
 
     @text.setter
     def text(self, value):
         if self.textvariable:
             self.textvariable.set(value)
         else:
-            self['text'] = value
-
+            self["text"] = value

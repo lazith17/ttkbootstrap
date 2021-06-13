@@ -3,40 +3,34 @@ Author: Israel Dryer
 License: MIT
 Copyright (c) 2021 Israel Dryer
 """
-import tkinter
 import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 # for taking screenshots
 from PIL import ImageGrab
 
 
-class Demo(ttk.Style):
+class Demo(ttk.Application):
     """An application class for demonstrating styles"""
 
     def __init__(self):
-        super().__init__()
-        self.theme_use("lumen")
-        self.root = self.master
-        self.root.geometry("500x695")
-        self.root.protocol("WM_DELETE_WINDOW", self.quit)
-        self.root.title("TTK Bootstrap")
-        self.theme_name = tkinter.StringVar()
-        self.theme_name.set(self.theme_use())
+        super().__init__(title="TTK Bootstrap", theme="lumen", size=(500, 695))
+        self.style.build_all_themes()
+        self.theme_name = ttk.StringVar()
+        self.theme_name.set(self.style.current_theme.name)
         self.setup()
-        self.root.eval("tk::PlaceWindow . center")
-        self.root.bind("<Insert>", self.get_bounding_box)
-        self.run()
+        self.bind("<Insert>", self.get_bounding_box)
 
     def __repr__(self):
         return "Demo Application"
 
     def setup(self):
-        sb = ttk.Scrollbar(self.root, bootstyle='rounded')
+        sb = ttk.Scrollbar(self, bootstyle=ROUNDED)
         sb.set(0.1, 0.55)
 
-        sb.pack(side="right", fill="y", padx=1)
-        self.nb = ttk.Notebook(self.root)
-        self.nb.pack(fill="both", expand="yes")
+        sb.pack(side=RIGHT, fill=Y, padx=1)
+        self.nb = ttk.Notebook(self)
+        self.nb.pack(fill=BOTH, expand=YES)
         self.tab = self.create_themed_tab()
         self.nb.add(self.tab, text="Tab 1")
         self.nb.add(ttk.Frame(self.nb), text="Tab 2")
@@ -49,7 +43,7 @@ class Demo(ttk.Style):
         altogether if you're not switch between light and dark themes.
         """
         self.tab.destroy()
-        self.theme_use(new_theme)
+        self.style.theme_use(new_theme)
         self.tab = self.create_themed_tab()
         self.nb.insert(0, self.tab, text="Tab 1")
         self.nb.select(self.nb.tabs()[0])
@@ -62,29 +56,29 @@ class Demo(ttk.Style):
 
         header_frame = ttk.Frame(tab, padding=10)
         header = ttk.Label(header_frame, textvariable=self.theme_name, font="-size 30")
-        header.pack(side="left", fill="x", pady=5)
-        header_frame.pack(fill="x")
+        header.pack(side=LEFT, fill=X, pady=5)
+        header_frame.pack(fill=X)
 
         # Menubutton (select a theme)
         mb = ttk.Menubutton(header_frame, text="Select a theme to preview")
-        mb.pack(side="right", fill="x", pady=5)
-        mb.menu = tkinter.Menu(mb)
+        mb.pack(side=RIGHT, fill=X, pady=5)
+        mb.menu = ttk.Menu(mb)
         mb["menu"] = mb.menu
-        for t in sorted(self.theme_definitions.keys()):
+        for t in sorted(self.style.themes):
             mb.menu.add_command(label=t, command=lambda theme_name=t: self.change_theme(theme_name))
 
         # Separator
-        ttk.Separator(tab).pack(fill="x", pady=(10, 15))
+        ttk.Separator(tab).pack(fill=X, pady=(10, 15))
 
         # Paned Window
         pw = ttk.PanedWindow(tab)
-        pw.pack(fill="x")
+        pw.pack(fill=X)
 
         # Available Colors
         color_frame = ttk.LabelFrame(pw, text="Colors available in this theme", padding=(5, 15))
         for color in colors:
             btn = ttk.Button(color_frame, text=color.title(), bootstyle=color)
-            btn.pack(side="left", fill="x", expand="yes", padx=2, pady=5)
+            btn.pack(side=LEFT, fill=X, expand=YES, padx=2, pady=5)
 
         pw.add(color_frame)
 
@@ -95,57 +89,57 @@ class Demo(ttk.Style):
 
         # Widget images
         widget_frame = ttk.LabelFrame(widget_outer_frame, text="Styled Widgets", padding=10)
-        widget_frame.pack(fill="x")
+        widget_frame.pack(fill=X)
 
         # Label
-        ttk.Label(widget_frame, text="This is a label").pack(side="top", fill="x")
+        ttk.Label(widget_frame, text="This is a label").pack(side=TOP, fill=X)
 
         entry_spin_frame = ttk.Frame(widget_frame)
-        entry_spin_frame.pack(fill="x", pady=5)
+        entry_spin_frame.pack(fill=X, pady=5)
 
         # Entry
         entry = ttk.Entry(entry_spin_frame, text="An entry field")
-        entry.pack(side="left", fill="x", expand="yes")
+        entry.pack(side=LEFT, fill=X, expand=YES)
         entry.text = "An entry field with focus ring"
 
         # Spinbox
         spinner_options = ["Spinner option 1", "Spinner option 2", "Spinner option 3"]
         spinner = ttk.Spinbox(entry_spin_frame, values=spinner_options, wrap=True, defaultindex=0)
-        spinner.pack(side="right", fill="x", expand="yes", padx=(5, 0))
+        spinner.pack(side=RIGHT, fill=X, expand=YES, padx=(5, 0))
 
         # Button
         btn_frame = ttk.Frame(widget_frame)
         b1 = ttk.Button(btn_frame, text="Solid Button")
-        b1.pack(side="left", fill="x", expand="yes", padx=(0, 5))
+        b1.pack(side=LEFT, fill=X, expand=YES, padx=(0, 5))
 
         b2 = ttk.Button(btn_frame, text="Outline Button", bootstyle='outline')
-        b2.pack(side="left", fill="x", expand="yes")
-        btn_frame.pack(fill="x", pady=5)
+        b2.pack(side=LEFT, fill=X, expand=YES)
+        btn_frame.pack(fill=X, pady=5)
 
         # Option Menu
-        om = ttk.OptionMenu(btn_frame, defaultvalue="Choose a theme", values=self.themes)
-        om.pack(side="right", fill="x", padx=(5, 0), pady=5)
+        om = ttk.OptionMenu(btn_frame, defaultvalue="Choose a theme", values=self.style.themes)
+        om.pack(side=RIGHT, fill=X, padx=(5, 0), pady=5)
 
         # Labelframe
         options_frame = ttk.Frame(widget_frame, padding=(0, 10))
-        options_frame.pack(fill="x", pady=5)
+        options_frame.pack(fill=X, pady=5)
 
         # Radio
         r1 = ttk.Radiobutton(options_frame, value=1, group='radio-options', default=True, text="Radio one")
-        r1.pack(side="left", fill="x", expand="yes")
+        r1.pack(side=LEFT, fill=X, expand=YES)
         r2 = ttk.Radiobutton(options_frame, value=2, group='radio-options', text="Radio two")
-        r2.pack(side="left", fill="x", expand="yes")
+        r2.pack(side=LEFT, fill=X, expand=YES)
 
         # Checkbutton
         cb1 = ttk.Checkbutton(options_frame, text="Option 1", default=True)
-        cb1.pack(side="left", fill="x", expand="yes")
+        cb1.pack(side=LEFT, fill=X, expand=YES)
 
         cb2 = ttk.Checkbutton(options_frame, text="Option 2")
-        cb2.pack(side="left", fill="x", expand="yes")
+        cb2.pack(side=LEFT, fill=X, expand=YES)
 
         # Treeview
         tv = ttk.Treeview(widget_frame, height=3)
-        tv.pack(fill="x", pady=5)
+        tv.pack(fill=X, pady=5)
         tv.heading("#0", text="Example heading")
         tv.insert("", "end", "example1", text="Example 1")
         tv.insert("", "end", "example2", text="Example 2")
@@ -156,35 +150,29 @@ class Demo(ttk.Style):
         # Scale
         scale_frame = ttk.Frame(widget_frame)
         scale = ttk.Scale(scale_frame, defaultvalue=25)
-        scale.pack(side="left", fill="x", expand="yes", padx=(0, 2))
-        scale_frame.pack(side="top", fill="x", pady=5)
+        scale.pack(side=LEFT, fill=X, expand=YES, padx=(0, 2))
+        scale_frame.pack(side=TOP, fill=X, pady=5)
         entry = ttk.Entry(scale_frame, textvariable=scale.variable, width=4)
-        entry.pack(side="right")
+        entry.pack(side=RIGHT)
 
         # Combobox
-        cbo = ttk.Combobox(widget_frame, values=colors, defaultvalue='primary')
-        cbo.pack(fill="x", pady=5)
+        cbo = ttk.Combobox(widget_frame, values=colors, defaultvalue=PRIMARY)
+        cbo.pack(fill=X, pady=5)
 
         # Progressbar
-        ttk.Progressbar(widget_frame, variable=scale.variable, bootstyle='striped').pack(fill="x", pady=10)
+        ttk.Progressbar(widget_frame, variable=scale.variable, bootstyle=STRIPED).pack(fill=X, pady=10)
         return tab
-
-    def run(self):
-        self.root.mainloop()
-
-    def quit(self):
-        self.root.destroy()
 
     def get_bounding_box(self, event):
         """Take a screenshot of the current demo window and save to images"""
         # bounding box
         titlebar = 31
-        x1 = self.root.winfo_rootx() - 1
-        y1 = self.root.winfo_rooty() - titlebar
-        x2 = x1 + self.root.winfo_width() + 2
-        y2 = y1 + self.root.winfo_height() + titlebar + 1
+        x1 = self.winfo_rootx() - 1
+        y1 = self.winfo_rooty() - titlebar
+        x2 = x1 + self.winfo_width() + 2
+        y2 = y1 + self.winfo_height() + titlebar + 1
 
-        self.root.after_idle(self.save_screenshot, [x1, y1, x2, y2])
+        self.after_idle(self.save_screenshot, [x1, y1, x2, y2])
 
     def save_screenshot(self, bbox):
         """Save a screenshot"""
@@ -198,4 +186,4 @@ class Demo(ttk.Style):
 
 
 if __name__ == "__main__":
-    Demo()
+    Demo().run()

@@ -1,37 +1,42 @@
 import calendar
 from abc import abstractmethod
 from datetime import datetime
-from ttkbootstrap import Frame, Button, PhotoImage, Label, Radiobutton
-from ttkbootstrap import StringVar, IntVar
-from ttkbootstrap.core import DialogImages, Toplevel
-from ttkbootstrap.core.themes import ThemeColors
+import ttkbootstrap as ttk
+from ttkbootstrap.themes import ThemeColors
+from ttkbootstrap.assets.icon import DialogImages
+from ttkbootstrap.constants import *
+
+# TODO fix the simple dialog so that the buttons are inserted in the same order that the are viewed on the screen.
+#   currently it is the opposite, so it's not intuitive.
 
 
-class Dialog(Toplevel):
+class Dialog(ttk.Toplevel):
     """A class to open dialogs.
 
     This class is intended as a base class for custom dialogs. See ``Toplevel`` for additional keyword options.
     """
 
-    def __init__(self, parent=None, title=None, **kw):
+    def __init__(self, title=None, hide_on_close=True, **kw):
         """Initialize a dialog
 
         Args:
             parent: The parent widget.
             title (str): The dialog title.
+            hide_on_close (bool): Hide the dialog when closed instead of destroying the window.
         """
-        Toplevel.__init__(self, parent=parent, **kw)
-        self.withdraw()
-        self.parent = parent or self.master
-        self.title(title)
-        self.protocol("WM_DELETE_WINDOW", self.cancel)
+        if "resizable" not in kw:
+            kw.update({"resizeable": (False, False)})
+
+        ttk.Toplevel.__init__(self, title=title, **kw)
+        self.parent = kw.get("parent") or self.master
+        self.protocol("WM_DELETE_WINDOW", self.hide if hide_on_close else self.cancel)
         self.result = None
 
         if self.platform == "x11":
             self.attributes("-type", "dialog")
 
         # add body
-        self.main_body = Frame(self)
+        self.main_body = ttk.Frame(self)
         self.main_body.pack(padx=5, pady=5)
         self.themedcolor = self.main_body.themed_color
 
@@ -62,14 +67,6 @@ class Dialog(Toplevel):
         y = int(min(max(m_y + (m_height - w_height) * 0.3, 0), self.parent.winfo_screenheight()))
         self.geometry(f"+{x}+{y}")
 
-        # show window
-        self.update_idletasks()
-        self.deiconify()
-        self.initial_focus.focus_set()
-        self.wait_visibility()
-        self.grab_set()
-        self.wait_window(self)
-
     @abstractmethod
     def body(self, master):
         """Create a dialog body"""
@@ -80,9 +77,9 @@ class Dialog(Toplevel):
 
         Override if you do not want the standard buttons.
         """
-        box = Frame(self)
-        Button(box, text="OK", width=10, command=self.ok).pack(side="right", padx=5, pady=5)
-        Button(box, text="Cancel", width=10, command=self.cancel).pack(side="right", padx=5, pady=5)
+        box = ttk.Frame(self)
+        ttk.Button(box, text="OK", width=10, command=self.ok).pack(side=RIGHT, padx=5, pady=5)
+        ttk.Button(box, text="Cancel", width=10, command=self.cancel).pack(side=RIGHT, padx=5, pady=5)
         self.bind("<Return>", self.ok)
         self.bind("<Escape>", self.cancel)
         box.pack()
@@ -90,7 +87,7 @@ class Dialog(Toplevel):
     def destroy(self):
         """Destroy the window"""
         self.initial_focus = None
-        Toplevel.destroy(self)
+        ttk.Toplevel.destroy(self)
 
     def ok(self, event=None):
         if not self.validate():
@@ -126,11 +123,18 @@ class Dialog(Toplevel):
         """
         pass
 
+    def show(self):
+        self.initial_focus.focus_set()
+        self.deiconify()
+        self.wait_visibility()
+        self.grab_set()
+        self.wait_window(self)
+
 
 class SimpleDialog(Dialog):
     """Pops up a window message box and waits for user input"""
 
-    def __init__(self, parent, title, message, buttons=[], icon=None, default=None, cancel=None, **kw):
+    def __init__(self, title, message, buttons=[], icon=None, default=None, cancel=None, parent=None, **kw):
         """
         Args:
             master: The parent widget.
@@ -140,49 +144,51 @@ class SimpleDialog(Dialog):
             icon (str): The name of the icon to appear on the left side of the message text. Legal values include: `info`, `warning`, `question`, `error`.
             default (int): The index of the default button from the ``buttons`` option. The ``<<Return>>`` event is bound to the default button.
         """
+        self.parent = parent
         self.action = None
+        self.result = None
         self._buttons = buttons
         self._cancel = cancel
         self._default = default
         self._icon = icon
         self._message = message
 
-        super().__init__(parent, title=title, **kw)
+        super().__init__(parent=parent, title=title, **kw)
         if self._default:
             self.bind("<Return>", self.ok)
 
     def body(self, master):
         """Create a message body; override superclass method"""
         # message container
-        self.msg_frame = Frame(master, padding=15)
-        self.msg_frame.pack(side="top", fill="x", expand="yes")
+        self.msg_frame = ttk.Frame(master, padding=15)
+        self.msg_frame.pack(side="top", fill=X, expand=YES)
 
         # message icon
         img = DialogImages.__dict__.get(self._icon)
         if img:
-            self.icon = PhotoImage(data=img)
-            self.icon_lbl = Label(self.msg_frame, image=self.icon)
-            self.icon_lbl.pack(side="left", padx=5, pady=5)
+            self.icon = ttk.PhotoImage(data=img)
+            self.icon_lbl = ttk.Label(self.msg_frame, image=self.icon)
+            self.icon_lbl.pack(side=LEFT, padx=5, pady=5)
 
         # message text
         self.colors = self.msg_frame.colors
-        self.message = Label(self.msg_frame, text=self._message, justify="left", wraplength=350)
+        self.message = ttk.Label(self.msg_frame, text=self._message, justify=LEFT, wraplength=350)
         self.message.pack(padx=5, pady=5)
 
     def button_box(self, master):
         """Create a button box; override superclass method"""
         btn_bg_color = ThemeColors.update_hsv(self.colors.bg, vd=-0.2)
-        self.btn_frame = Frame(master, padding=(10, 5), background=btn_bg_color)
-        self.btn_frame.pack(fill="x")
+        self.btn_frame = ttk.Frame(master, padding=(10, 5), background=btn_bg_color)
+        self.btn_frame.pack(fill=X)
         for index, btn in enumerate(self._buttons):
             btn_text = self._buttons[index]
             command = lambda x=index: self.done(x if index != self._cancel else None)
-            btn = Button(self.btn_frame, text=btn_text, command=command)
-            btn.pack(side="right", padx=2, pady=2)
+            btn = ttk.Button(self.btn_frame, text=btn_text, command=command)
+            btn.pack(side=RIGHT, padx=2, pady=2)
 
     def done(self, action):
         """Collect the action number when an action is completed, and close the window."""
-        self.action = action
+        self.action = self.result = action
         self.cancel()
 
 
@@ -201,21 +207,13 @@ class DateChooserDialog(Dialog):
     week on `Sunday`, which is the widget default.
 
     The widget grabs focus and all screen events until released. If you want to cancel a date selection, you must
-    click on the "X" button at the top-right hand corner of the widget.
+    click on the X button at the top-right hand corner of the widget.
 
     Styles can be applied to the widget by using the `TCalendar` style with the optional colors: 'primary',
     'secondary', 'success', 'info', 'warning', and 'danger'. By default, the `primary.TCalendar` style is applied.
     """
 
-    def __init__(
-        self,
-        parent=None,
-        title="Calendar",
-        firstweekday=6,
-        startdate=None,
-        bootstyle="primary",
-        **kw
-    ):
+    def __init__(self, parent=None, title="Calendar", firstweekday=6, startdate=None, bootstyle=PRIMARY, **kw):
         """
         Args:
             parent: The parent widget.
@@ -233,20 +231,20 @@ class DateChooserDialog(Dialog):
         self.calendar = calendar.Calendar(firstweekday=self.firstweekday)
         self.styles = {"calendar": "TCalendar"}
         self._generate_widget_styles()
-        super().__init__(parent, title=title, minsize=(226, 225), **kw)
+        super().__init__(parent=parent, title=title, minsize=(226, 225), **kw)
 
     def body(self, master):
-        self.calendar_frame = Frame(master, padding=0, borderwidth=1, relief="raised", style=self.styles["frame"])
-        self.title_frame = Frame(self.calendar_frame, style=self.styles["frame"])
-        self.week_frame = Frame(self.calendar_frame)
+        self.calendar_frame = ttk.Frame(master, padding=0, borderwidth=1, relief=RAISED, style=self.styles["frame"])
+        self.title_frame = ttk.Frame(self.calendar_frame, style=self.styles["frame"])
+        self.week_frame = ttk.Frame(self.calendar_frame)
         self.day_frame = None
 
-        self.title_var = StringVar(value=f'{self.date.strftime("%B %Y")}')
-        self.date_var = IntVar()
+        self.title_var = ttk.StringVar(value=f'{self.date.strftime("%B %Y")}')
+        self.date_var = ttk.IntVar()
 
         # remove all padding and expand the toplevel main body
         self.main_body.configure(padding=0)
-        self.main_body.pack_configure(padx=0, pady=0, fill="both", expand="yes")
+        self.main_body.pack_configure(padx=0, pady=0, fill=BOTH, expand=YES)
 
         # setup the calendar widgets
         self._setup()
@@ -311,17 +309,17 @@ class DateChooserDialog(Dialog):
         self.monthdays = self.calendar.monthdayscalendar(self.date.year, self.date.month)
         self.monthdates = self.calendar.monthdatescalendar(self.date.year, self.date.month)
 
-        self.day_frame = Frame(self.calendar_frame)
-        self.day_frame.pack(fill="both", expand="yes")
+        self.day_frame = ttk.Frame(self.calendar_frame)
+        self.day_frame.pack(fill=BOTH, expand=YES)
 
         # calendar days
         for row, wk in enumerate(self.monthdays):
             for col, day in enumerate(wk):
                 self.day_frame.columnconfigure(col, weight=1)
                 if day == 0:
-                    lbl = Label(self.day_frame, text=self.monthdates[row][col].day, anchor="center")
-                    lbl.configure(style="secondary.TLabel", padding=(0, 0, 0, 10))
-                    lbl.grid(row=row, column=col, sticky="nswe")
+                    lbl = ttk.Label(self.day_frame, text=self.monthdates[row][col].day, bootstyle=SECONDARY)
+                    lbl.configure(padding=(0, 0, 0, 10), anchor=CENTER)
+                    lbl.grid(row=row, column=col, sticky=NSEW)
                 else:
                     if all(
                         [
@@ -334,38 +332,38 @@ class DateChooserDialog(Dialog):
                     else:
                         day_style = self.styles["calendar"]
 
-                    rb = Radiobutton(self.day_frame, variable=self.date_var, value=day, text=day, style=day_style)
+                    rb = ttk.Radiobutton(self.day_frame, variable=self.date_var, value=day, text=day, style=day_style)
                     rb.configure(padding=(0, 0, 0, 10), command=lambda x=row, y=col: self.on_date_selected([x, y]))
-                    rb.grid(row=row, column=col, sticky="nswe")
+                    rb.grid(row=row, column=col, sticky=NSEW)
 
     def _draw_titlebar(self):
         """Create the title bar"""
         # previous month button
-        self.btn_prev = Button(self.title_frame, text="«", style=self.styles["chevron"], command=self.on_prev_month)
+        self.btn_prev = ttk.Button(self.title_frame, text="«", style=self.styles["chevron"], command=self.on_prev_month)
         self.btn_prev.bind("<Button-3>", self.on_prev_year, "+")
-        self.btn_prev.pack(side="left")
+        self.btn_prev.pack(side=LEFT)
 
         # month and year title
-        self.title_label = Label(
+        self.title_label = ttk.Label(
             self.title_frame,
             textvariable=self.title_var,
-            anchor="center",
+            anchor=CENTER,
         )
         self.title_label.configure(style=self.styles["title"], font="helvetica 11")
-        self.title_label.pack(side="left", fill="x", expand="yes")
+        self.title_label.pack(side=LEFT, fill=X, expand=YES)
         self.title_label.bind("<Button-1>", self.on_reset_date)
 
         # next month button
-        self.btn_next = Button(self.title_frame, text="»", command=self.on_next_month, style=self.styles["chevron"])
+        self.btn_next = ttk.Button(self.title_frame, text="»", command=self.on_next_month, style=self.styles["chevron"])
         self.btn_next.bind("<Button-3>", self.on_next_year, "+")
-        self.btn_next.pack(side="left")
+        self.btn_next.pack(side=LEFT)
 
         # days of the week header
         for wd in self._weekday_header():
-            wd_lbl = Label(
-                self.week_frame, text=wd, anchor="center", padding=(0, 5, 0, 10), bootstyle="secondary inverse"
+            wd_lbl = ttk.Label(
+                self.week_frame, text=wd, anchor=CENTER, padding=(0, 5, 0, 10), bootstyle=SECONDARY + INVERSE
             )
-            wd_lbl.pack(side="left", fill="x", expand="yes")
+            wd_lbl.pack(side=LEFT, fill=X, expand=YES)
 
     def _generate_widget_styles(self):
         """Generate all the styles required for this widget from the ``base_style``."""
@@ -381,9 +379,9 @@ class DateChooserDialog(Dialog):
 
     def _setup(self):
         """Setup the calendar widget"""
-        self.calendar_frame.pack(fill="both", expand="yes")
-        self.title_frame.pack(fill="x")
-        self.week_frame.pack(fill="x")
+        self.calendar_frame.pack(fill=BOTH, expand=YES)
+        self.title_frame.pack(fill=X)
+        self.week_frame.pack(fill=X)
 
         # setup the top level window
         self.update_idletasks()  # actualize the geometry

@@ -7,8 +7,9 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Separator(Widget, ttk.Separator):
@@ -16,18 +17,16 @@ class Separator(Widget, ttk.Separator):
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
-        orient='horizontal',
+        orient=HORIZONTAL,
         takefocus=False,
         style=None,
-
         # style options
         sashcolor=None,
-        sashthickness = 1,
+        sashthickness=1,
         **kw,
     ):
         """
@@ -38,10 +37,10 @@ class Separator(Widget, ttk.Separator):
             orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the separator.
             takefocus (bool): Adds or removes the widget from focus traversal.
             style (str): A ttk style api. Use ``bootstyle`` if possible.
-            sashcolor (str): The normal color to use on the separator when displaying the widget. Setting 
+            sashcolor (str): The normal color to use on the separator when displaying the widget. Setting
                 this option will override all other style-based background settings.
             sashthickness (int): The thickness of the separator line in pixels. Default is 1.
-        
+
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TSeparator", master=master, bootstyle=bootstyle, orient=orient, style=style)
@@ -49,7 +48,7 @@ class Separator(Widget, ttk.Separator):
         self._sashcolor = sashcolor
         self._sashthickness = sashthickness
         self._orient = orient
-        self._bsoptions = ['sashcolor', 'sashthickness', 'bootstyle']
+        self._bsoptions = ["sashcolor", "sashthickness", "bootstyle"]
         self._customize_widget()
 
         ttk.Separator.__init__(
@@ -63,6 +62,11 @@ class Separator(Widget, ttk.Separator):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._sashcolor != None, self._sashthickness != 1]):
             self.customized = True
 
@@ -70,13 +74,23 @@ class Separator(Widget, ttk.Separator):
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "sashcolor": self._sashcolor or self.themed_color,
                 "sashthickness": self._sashthickness,
                 "style": self.style,
             }
-            settings = StylerTTK.style_separator(**options)
+            StylerTTK.style_separator(**options)
 
-            self.update_ttk_style(settings)
+        # ttkboostrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "sashcolor": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_separator(**options)
+
+        self.update_ttk_style(self.settings)

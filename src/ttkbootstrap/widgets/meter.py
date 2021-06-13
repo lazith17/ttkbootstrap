@@ -5,14 +5,15 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
+import math
 from uuid import uuid4
-from tkinter import IntVar, StringVar
-from ttkbootstrap.core import StylerTTK
-from ttkbootstrap.core.themes import ThemeColors
-from ttkbootstrap.widgets import Frame, Label
 from PIL import Image, ImageDraw
 from PIL.ImageTk import PhotoImage
-import math
+from tkinter import IntVar, StringVar
+from ttkbootstrap.style import StylerTTK
+from ttkbootstrap.themes import ThemeColors
+from ttkbootstrap.widgets import Frame, Label
+
 
 DEFAULT_TEXT = "helvetica 25 bold"
 DEFAULT_LABEL = "helvetica 10 bold"
@@ -328,24 +329,37 @@ class Meter(Frame):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._labelcolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
                 "background": self._background,
                 "foreground": self._foreground or self.themed_color,
                 "style": self.style,
             }
-            settings = StylerTTK.style_meter(**options)
+            StylerTTK.style_meter(**options)
 
-            self.update_ttk_style(settings)
-            
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "foreground": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_meter(**options)
+
+        self.update_ttk_style(self.settings)
+
     def step(self, delta=1):
         """Increase the indicator value by ``delta``.
         The default increment is 1. The indicator will reverse direction and count down once it reaches the maximum

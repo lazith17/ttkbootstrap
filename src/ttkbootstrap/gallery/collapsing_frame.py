@@ -4,7 +4,7 @@
 """
 import ttkbootstrap as ttk
 
-class Application(ttk.Window):
+class Application(ttk.Application):
 
     def __init__(self):
         super().__init__(title="Collapsing Frame", minsize=(400, 0))

@@ -6,7 +6,7 @@
 import ttkbootstrap as ttk
 
 
-class Application(ttk.Window):
+class Application(ttk.Application):
     def __init__(self):
         super().__init__(title="Timer")
         self.timer = TimerWidget(self)

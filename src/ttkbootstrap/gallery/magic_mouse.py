@@ -3,11 +3,13 @@
     Modified: 2021-06-08
     Adapted for ttkbootstrap from: https://magicutilities.net/magic-mouse/features
 """
-from tkinter.messagebox import showinfo
+#from tkinter.messagebox import showinfo
 import ttkbootstrap as ttk
+from ttkbootstrap.dialog.inputbox import askdate
+from ttkbootstrap.dialog.messagebox import askquestion
 
 
-class Application(ttk.Window):
+class Application(ttk.Application):
     def __init__(self):
         super().__init__(title="Magic Mouse", theme="lumen")
         self.window = ttk.Frame(self)
@@ -250,7 +252,8 @@ class MouseUtilities(ttk.Frame):
 
     def callback(self):
         """Demo callback"""
-        showinfo(title="Button callback", message="You pressed a button.")
+        #showinfo(title="Button callback", message="You pressed a button.")
+        askdate(removetitlebar=True)
 
 
 if __name__ == "__main__":

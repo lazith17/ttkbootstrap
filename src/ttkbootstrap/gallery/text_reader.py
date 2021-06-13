@@ -5,7 +5,7 @@
 import ttkbootstrap as ttk
 from tkinter.filedialog import askopenfilename
 
-class Application(ttk.Window):
+class Application(ttk.Application):
 
     def __init__(self):
         super().__init__(title="Text Reader")

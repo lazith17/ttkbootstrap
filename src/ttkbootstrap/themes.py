@@ -6,8 +6,6 @@ import colorsys
 from PIL import ImageColor
 
 COLOR_PATTERN = re.compile(r"primary|secondary|success|info|warning|danger")
-COLORMAP = json.loads(importlib.resources.read_text("ttkbootstrap.core.files", "colormap.json"))
-
 
 class ThemeColors:
     """A class that contains the theme colors as well as several helper methods for manipulating colors.
@@ -205,7 +203,7 @@ class ThemeColors:
         if bootscolor and theme_colors:
             return theme_colors.get(color)
         
-        if '#' not in color and color in COLORMAP:
+        if '#' not in color:
             rgb = ImageColor.getrgb(color)
             return ThemeColors.rgb_to_hex(*rgb)
 
@@ -291,7 +289,7 @@ class ThemeDefinition:
             dict: theme defintions for all ttkbootstrap themes
         """
         # pre-defined themes
-        json_data = importlib.resources.read_text("ttkbootstrap.core.files", "themes.json")
+        json_data = importlib.resources.read_text("ttkbootstrap.assets", "themes.json")
         builtin_themes = json.loads(json_data)
 
         # application-defined or user-defined themes

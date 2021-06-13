@@ -5,10 +5,10 @@
 """
 import ttkbootstrap as ttk
 
-class Application(ttk.Window):
+class Application(ttk.Application):
 
     def __init__(self):
-        super().__init__(title="Media Player", theme="minty")
+        super().__init__(title="Media Player", theme="minty", position=(0, 0, NW))
         self.player = Player(self)
         self.player.pack(fill='both', expand='yes')
 
@@ -65,4 +65,4 @@ class Player(ttk.Frame):
 
 
 if __name__ == '__main__':
-    Application().mainloop()
+    Application().run()

@@ -7,8 +7,9 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Frame(Widget, ttk.Frame):
@@ -16,17 +17,15 @@ class Frame(Widget, ttk.Frame):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         height=None,
         padding=None,
         takefocus=False,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         **kw,
@@ -46,13 +45,13 @@ class Frame(Widget, ttk.Frame):
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         try:
-            _wc = kw.pop('widgetclass')
+            _wc = kw.pop("widgetclass")
         except KeyError:
-            _wc = 'TFrame'
+            _wc = "TFrame"
         Widget.__init__(self, widgetclass=_wc, master=master, bootstyle=bootstyle, style=style)
 
         self._background = background
-        self._bsoptions = ['background', 'bootstyle']
+        self._bsoptions = ["background", "bootstyle"]
         self._customize_widget()
 
         ttk.Frame.__init__(
@@ -68,20 +67,33 @@ class Frame(Widget, ttk.Frame):
         )
 
     def _customize_widget(self):
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
 
+        # custom styles
         if self._background != None:
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background or self.themed_color,
                 "style": self.style,
             }
-            settings = StylerTTK.style_frame(**options)
+            StylerTTK.style_frame(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "background": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_frame(**options)
+
+        self.update_ttk_style(self.settings)

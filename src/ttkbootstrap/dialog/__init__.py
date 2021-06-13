@@ -1,2 +1,2 @@
 from tkinter import filedialog
-from .dialog import Dialog, DialogImages, SimpleDialog, DateChooserDialog
+from .dialog import Dialog, SimpleDialog, DateChooserDialog

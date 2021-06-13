@@ -5,26 +5,26 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Radiobutton(Widget, ttk.Radiobutton):
-    """A Radiobutton widget is used in groups to show or change a set of mutually-exclusive options. Radiobuttons are 
-    linked to a variable and have an associated value; when a radiobutton is clicked, it sets the variable to its 
+    """A Radiobutton widget is used in groups to show or change a set of mutually-exclusive options. Radiobuttons are
+    linked to a variable and have an associated value; when a radiobutton is clicked, it sets the variable to its
     associated value.
     """
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         command=None,
         compound=None,
         cursor=None,
@@ -32,7 +32,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         group=None,
         image=None,
         padding=None,
-        state=False,
+        state=NORMAL,
         takefocus=True,
         text=None,
         textvariable=None,
@@ -41,7 +41,6 @@ class Radiobutton(Widget, ttk.Radiobutton):
         value=None,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         font=None,
@@ -55,12 +54,12 @@ class Radiobutton(Widget, ttk.Radiobutton):
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             command (func): A function that is called when the radiobutton is invoked.
             compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
-            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.  
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             default (bool): Sets the value of this element as the default selected widget in the group.
             group (str): Specifies the name of the radiobutton group. This name will be assigned to an internal tkinter variable that is bound to each radiobutton in the group. This group name will be ignored if a variable is assigned to the ``variable`` option. If no variable is assigned and no group is provided, one will be generated automatically. If placed in a group, each Radiobutton must be given a value with the ``value`` option.
             image (PhotoImage): An image to display on the radiobutton. The position of the image is controlled by the ``compound`` option.
             value (Any): The value to store in the associated variable when the widget is selected.
-            padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            
+            padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
             state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
             takefocus (bool): Adds or removes the radiobutton from focus traversal.
             text (str): The text to display in the radiobutton label.
@@ -86,7 +85,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         self._foreground = foreground
         self._group = group
         self._indicatorcolor = indicatorcolor
-        self._bsoptions = ['background', 'font', 'foreground', 'indicatorcolor', 'bootstyle']
+        self._bsoptions = ["background", "font", "foreground", "indicatorcolor", "bootstyle"]
         self._set_variable(value)
         self._customize_widget()
 
@@ -122,7 +121,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
 
     def _set_variable(self, value=1):
         """Create a group variable if not existing; and set default value if requested.
-        
+
         Args:
             value (Any): The default value of the widget when selected (Default is 1).
         """
@@ -139,16 +138,20 @@ class Radiobutton(Widget, ttk.Radiobutton):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "indicatorcolor": self._indicatorcolor,
@@ -157,12 +160,29 @@ class Radiobutton(Widget, ttk.Radiobutton):
             }
 
             if "Outline.Toolbutton" in self.style:
-                options.pop('foreground')
-                settings = StylerTTK.style_outline_toolbutton(**options)
+                options.pop("foreground")
+                StylerTTK.style_outline_toolbutton(**options)
             elif "Toolbutton" in self.style:
-                options.pop('background')
-                settings = StylerTTK.style_toolbutton(**options)
+                options.pop("background")
+                StylerTTK.style_toolbutton(**options)
             else:
-                options.pop('background')
-                settings = StylerTTK.style_radiobutton(**options)                
-            self.update_ttk_style(settings)
+                options.pop("background")
+                StylerTTK.style_radiobutton(**options)
+
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "indicatorcolor": self.themed_color,
+                "style": self.style,
+            }
+
+            if "Outline.Toolbutton" in self.style:
+                StylerTTK.style_outline_toolbutton(**options)
+            elif "Toolbutton" in self.style:
+                StylerTTK.style_toolbutton(**options)
+            else:
+                StylerTTK.style_radiobutton(**options)
+
+        self.update_ttk_style(self.settings)

@@ -30,8 +30,8 @@
     .. _Bootswatch: https://bootswatch.com/
 
 """
-from ttkbootstrap.core.style import Style
-from ttkbootstrap.core.window import Window
-from ttkbootstrap.core.toplevel import Toplevel
-from ttkbootstrap.widgets import *
-
+from .style import Style
+from .window import Application
+from .toplevel import Toplevel
+from .widgets import *
+from .import dialog

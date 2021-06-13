@@ -8,18 +8,19 @@
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+
+# TODO add mouse scroll event to increase or decrease the value.
 
 
 class Scale(Widget, ttk.Scale):
-    """A Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over 
-    some range. A scale displays a slider that can be moved along over a trough, with the relative position of the 
+    """A Scale widget is typically used to control the numeric value of a linked variable that varies uniformly over
+    some range. A scale displays a slider that can be moved along over a trough, with the relative position of the
     slider over the trough indicating the value of the variable."""
 
     def __init__(
         self,
-
         # widget options
         master=None,
         bootstyle="default",
@@ -28,12 +29,11 @@ class Scale(Widget, ttk.Scale):
         defaultvalue=None,
         from_=0,
         length=None,
-        orient='horizontal',
+        orient="horizontal",
         style=None,
         takefocus=False,
         to=100,
         variable=None,
-
         # custom style options
         slidercolor=None,
         troughcolor=None,
@@ -46,7 +46,7 @@ class Scale(Widget, ttk.Scale):
             command (func): A function to invoke whenever the scale's value is changed.
             cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             defaultvalue (float): Specifies the current and default floating-point value of the variable. If ``variable`` is set to an existing variable, specifying ``value`` has no effect (the variable value takes precedence).
-            from_ (float): A real value corresponding to the left or top end of the scale. 
+            from_ (float): A real value corresponding to the left or top end of the scale.
             length (int): Specifies the desired long dimension of the scale in screen units.
             orient (str): One of 'horizontal' or 'vertical'.  Specifies the orientation of the Scale.
             takefocus (bool): Adds or removes the widget from focus traversal.
@@ -60,13 +60,13 @@ class Scale(Widget, ttk.Scale):
         """
         Widget.__init__(self, "TScale", master=master, bootstyle=bootstyle, orient=orient, style=style)
 
-        self.variable = variable or Variable(value=defaultvalue or kw.get('value') or from_)
+        self.variable = variable or Variable(value=defaultvalue or kw.get("value") or from_)
         self._from = from_
         self._slidercolor = slidercolor
         self._to = to
         self._troughcolor = troughcolor
         self._orient = orient
-        self._bsoptions = ['slidercolor', 'troughcolor', 'bootstyle']
+        self._bsoptions = ["slidercolor", "troughcolor", "bootstyle"]
         self._customize_widget()
 
         ttk.Scale.__init__(
@@ -96,21 +96,36 @@ class Scale(Widget, ttk.Scale):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._troughcolor != None, self._slidercolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "slidercolor": self._slidercolor or self.themed_color,
                 "troughcolor": self._troughcolor,
                 "orient": self._orient,
                 "style": self.style,
             }
-            settings = StylerTTK.style_scale(**options)
+            StylerTTK.style_scale(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "slidercolor": self.themed_color,
+                "orient": self._orient,
+                "style": self.style,
+            }
+            StylerTTK.style_scale(**options)
+
+        self.update_ttk_style(self.settings)

@@ -5,11 +5,15 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
+
+# TODO the background color affects the tab color only. Is this the desired behavior?
+# TODO the tabs are not working on theme changes
 
 
 class Notebook(Widget, ttk.Notebook):
@@ -18,17 +22,15 @@ class Notebook(Widget, ttk.Notebook):
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         height=None,
         padding=None,
         takefocus=True,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         foreground=None,
@@ -53,7 +55,7 @@ class Notebook(Widget, ttk.Notebook):
 
         self._background = background
         self._foreground = foreground
-        self._bsoptions = ['background', 'foreground', 'bootstyle']
+        self._bsoptions = ["background", "foreground", "bootstyle"]
         self._customize_widget()
 
         ttk.Notebook.__init__(
@@ -70,20 +72,34 @@ class Notebook(Widget, ttk.Notebook):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "style": self.style,
             }
-            settings = StylerTTK.style_notebook(**options)
+            StylerTTK.style_notebook(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "background": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_notebook(**options)
+
+        self.update_ttk_style(self.settings)

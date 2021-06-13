@@ -7,32 +7,30 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class PanedWindow(Widget, ttk.PanedWindow):
-    """A PanedWindow widget displays a number of subwindows, stacked either vertically or horizontally. The user may 
+    """A PanedWindow widget displays a number of subwindows, stacked either vertically or horizontally. The user may
     adjust the relative sizes of the subwindows by dragging the sash between panes."""
 
     def __init__(
         self,
-
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         height=None,
-        orient='vertical',
+        orient=VERTICAL,
         padding=None,
         takefocus=False,
         width=None,
         style=None,
-
         # style options
         sashcolor=None,
         sashthickness=5,
-
         **kw,
     ):
         """
@@ -55,7 +53,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
 
         self._sashcolor = sashcolor
         self._sashthickness = sashthickness
-        self._bsoptions = ['sashcolor', 'sashthickness', 'bootstyle']
+        self._bsoptions = ["sashcolor", "sashthickness", "bootstyle"]
         self._customize_widget()
 
         ttk.PanedWindow.__init__(
@@ -73,20 +71,34 @@ class PanedWindow(Widget, ttk.PanedWindow):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._sashcolor != None, self._sashthickness != 5]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "sashcolor": self._sashcolor or self.themed_color,
                 "sashthickness": self._sashthickness,
                 "style": self.style,
             }
-            settings = StylerTTK.style_panedwindow(**options)
+            StylerTTK.style_panedwindow(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "sashcolor": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_panedwindow(**options)
+
+        self.update_ttk_style(self.settings)

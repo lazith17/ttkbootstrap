@@ -1,10 +1,13 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.dialog import Dialog
+from ttkbootstrap.dialog import DateChooserDialog
 from ttkbootstrap.dialog import messagebox
+from ttkbootstrap.constants import *
+
 
 class QueryDialog(Dialog):
-
-    def __init__(self, parent, title, prompt, initialvalue=None, minvalue=None, maxvalue=None, errormessage=None, vartype=None):
+    def __init__(
+        self, title, prompt, initialvalue=None, minvalue=None, maxvalue=None, errormessage=None, vartype=None, parent=None):
         self.prompt = prompt
         self.minvalue = minvalue
         self.maxvalue = maxvalue
@@ -18,12 +21,12 @@ class QueryDialog(Dialog):
         Dialog.destroy(self)
 
     def body(self, master):
-        ttk.Label(master, text=self.prompt, justify='left').grid(row=0, padx=5, pady=1, sticky='w')
+        ttk.Label(master, text=self.prompt, justify=LEFT).grid(row=0, padx=5, pady=1, sticky=W)
         self.entry = ttk.Entry(master, name="entry", text=self.initialvalue)
-        self.entry.grid(row=1, padx=5, sticky="we")
-        self.entry.select_range(0, 'end')
+        self.entry.grid(row=1, padx=5, sticky=EW)
+        self.entry.select_range(0, END)
         return self.entry
-    
+
     def validate(self):
         try:
             if self.vartype == int:
@@ -42,28 +45,30 @@ class QueryDialog(Dialog):
         if self.minvalue is not None and self.result < self.minvalue:
             self.bell()
             messagebox.showwarning(
-                parent=self, 
-                title="Too small", 
-                message=f"The allowed minimum value is {self.minvalue}. Please try again.")
+                parent=self,
+                title="Too small",
+                message=f"The allowed minimum value is {self.minvalue}. Please try again.",
+            )
             return 0
-        
+
         if self.maxvalue is not None and self.result > self.maxvalue:
             self.bell()
             messagebox.showwarning(
-                parent=self, 
-                title="Too large", 
-                message=f"The allowed maximum value is {self.maxvalue}. Please try again.")
+                parent=self,
+                title="Too large",
+                message=f"The allowed maximum value is {self.maxvalue}. Please try again.",
+            )
             return 0
         return 1
 
 
-#---------CONVENIENCE METHODS------------------------------------------------------------------------------------------
+# ---------CONVENIENCE METHODS------------------------------------------------------------------------------------------
 
-def askinteger(parent, title, prompt, **kw):
+
+def askinteger(title, prompt, **kw):
     """Get an integer from the user.
 
     Args:
-        parent: The parent widget.
         title (str): The dialog title.
         prompt (str): The label text.
         **kw: See the SimpleDialog and QueryDialog classes
@@ -71,15 +76,15 @@ def askinteger(parent, title, prompt, **kw):
     Returns:
         int: an integer value
     """
-    i = QueryDialog(parent, title, prompt, errormessage="Not an integer", vartype=int, **kw)
+    i = QueryDialog(title, prompt, errormessage="Not an integer", vartype=int, **kw)
+    i.show()
     return i.result
 
 
-def askfloat(parent, title, prompt, **kw):
+def askfloat(title, prompt, **kw):
     """Get an integer from the user.
 
     Args:
-        parent: The parent widget.
         title (str): The dialog title.
         prompt (str): The label text.
         **kw: See the SimpleDialog class
@@ -87,14 +92,15 @@ def askfloat(parent, title, prompt, **kw):
     Returns:
         float: a float value.
     """
-    i = QueryDialog(parent, title, prompt, errormessage="Not a float", vartype=float, **kw)
+    i = QueryDialog(title, prompt, errormessage="Not a float", vartype=float, **kw)
+    i.show()
     return i.result
 
-def askstring(parent, title, prompt, **kw):
+
+def askstring(title, prompt, **kw):
     """Get an integer from the user.
 
     Args:
-        parent: The parent widget.
         title (str): The dialog title.
         prompt (str): The label text.
         **kw: See the SimpleDialog class
@@ -102,9 +108,17 @@ def askstring(parent, title, prompt, **kw):
     Returns:
         str: a string.
     """
-    i = QueryDialog(parent, title, prompt, errormessage="Not a string", vartype=str, **kw)
+    i = QueryDialog(title, prompt, errormessage="Not a string", vartype=str, **kw)
+    i.show()
     return i.result
 
 
 # TODO When a message is shown from a top level that already exists... the <Return> bind does not seem
 #   to transfer to the new toplevel.
+
+
+def askdate(**kw):
+    """Get a date from the user"""
+    d = DateChooserDialog(**kw)
+    d.show()
+    return d.date_selected

@@ -5,12 +5,13 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Checkbutton(Widget, ttk.Checkbutton):
@@ -20,10 +21,9 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         command=None,
         compound=None,
         cursor=None,
@@ -32,7 +32,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         offvalue=0,
         onvalue=1,
         padding=None,
-        state="normal",
+        state=NORMAL,
         takefocus=True,
         textvariable=None,
         text=None,
@@ -40,7 +40,6 @@ class Checkbutton(Widget, ttk.Checkbutton):
         variable=None,
         width=None,
         style=None,
-
         # custom style options
         background=None,
         font=None,
@@ -54,12 +53,12 @@ class Checkbutton(Widget, ttk.Checkbutton):
             bootstyle (str): A string of keywords that controls the widget style; this short-hand API should be preferred over the tkinter ``style`` option, which is still available.
             command (func): A function that is called when the checkbutton is invoked.
             compound (str): Controls the position of the text and image when both are displayed. Legal values include: `none`, `bottom`, `top`, `left`, `right`, `center`.
-            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.  
+            cursor (str): The `mouse cursor`_ used for the widget. Names and values will vary according to OS.
             default (bool): Sets the initial widget value to ``True`` or ``False``, which corresponds to ``selected`` or ``deselected``.
-            image (PhotoImage): An image to display on the checkbutton. The position of the image is controlled by the ``compound`` option.            
+            image (PhotoImage): An image to display on the checkbutton. The position of the image is controlled by the ``compound`` option.
             offvalue (Any): The value of the checkbutton when in the (unchecked) state. Default is 0.
             onvalue (Any): The value of the checkbutton when in the (checked) state. Default is 1.
-            padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.            
+            padding (str): Sets the internal widget padding: (left, top, right, bottom), (horizontal, vertical), (left, vertical, right), a single number pads all sides.
             state (str): Either `normal` or `disabled`. A disabled state will prevent user input.
             takefocus (bool): Adds or removes the checkbutton from focus traversal.
             text (str): The text to display in the checkbutton label.
@@ -82,7 +81,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         self._font = font
         self._foreground = foreground
         self._indicatorcolor = indicatorcolor
-        self._bsoptions = ['background', 'font', 'foreground', 'indicatorcolor', 'bootstyle']
+        self._bsoptions = ["background", "font", "foreground", "indicatorcolor", "bootstyle"]
         self._customize_widget()
 
         ttk.Checkbutton.__init__(
@@ -118,16 +117,20 @@ class Checkbutton(Widget, ttk.Checkbutton):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "indicatorcolor": self._indicatorcolor,
@@ -136,16 +139,36 @@ class Checkbutton(Widget, ttk.Checkbutton):
             }
 
             if "Roundtoggle" in self.style:
-                settings = StylerTTK.style_roundtoggle(**options)
+                StylerTTK.style_roundtoggle(**options)
             elif "Squaretoggle" in self.style:
-                settings = StylerTTK.style_squaretoggle(**options)                
+                StylerTTK.style_squaretoggle(**options)
             elif "Outline.Toolbutton" in self.style:
-                options.pop('foreground')
-                settings = StylerTTK.style_outline_toolbutton(**options)                
+                options.pop("foreground")
+                StylerTTK.style_outline_toolbutton(**options)
             elif "Toolbutton" in self.style:
-                options.pop('background')
-                settings = StylerTTK.style_toolbutton(**options)                
+                options.pop("background")
+                StylerTTK.style_toolbutton(**options)
             else:
-                settings = StylerTTK.style_checkbutton(**options)
+                StylerTTK.style_checkbutton(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "indicatorcolor": self.themed_color,
+                "style": self.style,
+            }
+
+            if "Roundtoggle" in self.style:
+                StylerTTK.style_roundtoggle(**options)
+            elif "Squaretoggle" in self.style:
+                StylerTTK.style_squaretoggle(**options)
+            elif "Outline.Toolbutton" in self.style:
+                StylerTTK.style_outline_toolbutton(**options)
+            elif "Toolbutton" in self.style:
+                StylerTTK.style_toolbutton(**options)
+            else:
+                StylerTTK.style_checkbutton(**options)
+
+        self.update_ttk_style(self.settings)

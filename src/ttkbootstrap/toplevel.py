@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import PhotoImage
-from ttkbootstrap.core import ICON
-from ttkbootstrap.core import Style, Window
+from ttkbootstrap.style import Style
+from ttkbootstrap.assets.icon import ICON
 
 from sys import platform
 
@@ -19,18 +19,19 @@ class Toplevel(tk.Toplevel):
     def __init__(
         self,
         parent=None,
-        title="ttkbootstrap",
+        title=None,
         theme=DEFAULT_THEME,
         size=(None, None),
-        maxsize=(None, None),
-        minsize=(None, None),
+        max_size=(None, None),
+        min_size=(None, None),
         resizeable=(True, True),
-        offset=(None, None),
+        position=(0, 0, 'relative'),
         fullscreen=False,
         topmost=False,
         alpha=1.0,
         icon=None,
-        removetitlebar=False,
+        remove_titlebar=False,
+        hide_on_close=False,
         **kw,
     ):
         """
@@ -39,38 +40,40 @@ class Toplevel(tk.Toplevel):
             title (str): The application name to appear on the title bar.
             theme (str): The **ttkbootstrap** theme to apply to the window; the toplevel theme CAN be different than the parent.
             size (Tuple[int, int]): The absolute (height, width) of the application window.
-            maxsize (Tuple[int, int]): The maximum permissable size of the window (width, height).
-            minsize (Tuple[int, int]): The minimum permissable size of the window (width, height).
+            max_size (Tuple[int, int]): The maximum permissable size of the window (width, height).
+            min_size (Tuple[int, int]): The minimum permissable size of the window (width, height).
             resizeable (Tuple[bool, bool]): Indicates whether the screen is resizable on the `horizontal` or `vertical` axis. The tuple represents (`horizontal`, `vertical`).
-            offset (Tuple[int, int]): The (x-offset, y-offset) of the application window relative to the 'northwest' corner of the screen.
+            position (Tuple[int, int, str]): A tuple that specifies where to place the topside window. The first two items are x and y position. The last item is the type of position. The position type options include: `absolute`, `relative`, and `offset`. Absolute position uses the absolute values of x and y coordinates starting from the Northwest corner of the screen as (0, 0). Relative position are floating point values between 0 and 1. Finally, offset positions are the number of pixels to offset from the parent or master window's northwest corner.
             fullscreen (bool): Places the window in a mode that takes up the entire screen and has no borders. Default is ``False``.
             topmost (bool): Specifies whether to place this window above all other windows. Default is ``False``.
             alpha (float): The transparency level of the window. Accepts a range between 0.0 (transparent) and 1.0 (opaque).
             icon (str): The filename of an image to use as the application icon.
-            removetitlebar (bool): Calls the `overrideredirect` method and removes all native window decoration.
+            remove_titlebar (bool): Calls the `overrideredirect` method and removes all native window decoration.
+            hide_on_close (bool): Hide the window on close instead of destroying it.
         """
         tk.Toplevel.__init__(self, **kw)
+        self.withdraw()  # remain hidden until using ``show`` or ``deiconify``
+        self.protocol("WM_DELETE_WINDOW", self.hide if hide_on_close else self.destroy)
         self.platform = platform
-        self.parent = parent
-
+        self.position = position
         if parent:
-            self.transient(parent)
-            parent_style = self.parent.__dict__.get("style")
-            parent_theme = parent_style.theme.name
-            top_theme = parent_theme if theme == DEFAULT_THEME else theme
-            self.style = parent_style if parent_theme == top_theme else Style(master=self.parent, themename=top_theme)
+            self.parent = parent
+            self.style = parent.style
         else:
+            self.parent = self.master
             self.style = Style(master=self, themename=theme)
-
+        
+        # set window options
+        self.transient(self.parent)
         self.attributes("-topmost", topmost)
         self.attributes("-alpha", alpha)
-        self.minsize(*minsize)
-        self.maxsize(*maxsize)
+        self.minsize(*min_size)
+        self.maxsize(*max_size)
         self.resizable(*resizeable)
         self.title(title)
 
-        if removetitlebar:
-            self.overrideredirect(removetitlebar)
+        if remove_titlebar:
+            self.overrideredirect(remove_titlebar)
             self.attributes("-topmost", True)
             self.bind("<Escape>", lambda _: self.destroy())
 
@@ -87,18 +90,37 @@ class Toplevel(tk.Toplevel):
         else:
             self.attributes("-zoomed", fullscreen)
 
-        # build geometry from parameters
-        height, width = size
-        geometry = ""
-        if all([height, width]):
-            geometry = f"{height}x{width}"
-        xpos, ypos = offset
-        geometry += f"+{xpos or 0}+{ypos or 0}"
-        self.geometry(geometry)
+    def set_position(self):
+        """Set the geometry of the widget"""
+        self.update_idletasks()
+        w_width = self.winfo_reqwidth()
+        w_height = self.winfo_reqheight()
+        wx, wy, pos_type = self.position
+
+        p_width = self.parent.winfo_width()
+        p_height = self.parent.winfo_height()
+        px = self.parent.winfo_x()
+        py = self.parent.winfo_y()
+
+        if pos_type == 'relative':
+            x = int(px + (p_width - w_width) * wx)
+            y = int(py + (p_height - w_height) * wy)
+        elif pos_type == 'offset':
+            x = int(px + wx)
+            y = int(py + wy)
+        else:
+            x = int(wx)
+            y = int(wy)
+        self.geometry(f"+{x}+{y}")
+
+    def show(self):
+        """Update and display the window"""
+        self.update_idletasks()
+        self.set_position()
+        self.deiconify()
+
+    def hide(self):
+        """Hide the window from view"""
+        self.withdraw()
 
 
-if __name__ == "__main__":
-
-    root = Window(theme="minty")
-    top = Toplevel(root, title="Testing")
-    root.mainloop()

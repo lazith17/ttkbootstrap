@@ -4,7 +4,7 @@
 """
 import ttkbootstrap as ttk
 
-class Application(ttk.Window):
+class Application(ttk.Application):
 
     def __init__(self):
         super().__init__(title="Simple data entry form", theme="minty")

@@ -5,11 +5,12 @@
     Author: Israel Dryer, israel.dryer@gmail.com
 
 """
-from src.ttkbootstrap.core.themes import DEFAULT_FONT
 from uuid import uuid4
 from tkinter import Variable, ttk
-from ttkbootstrap.core import StylerTTK
+from ttkbootstrap.themes import DEFAULT_FONT
+from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.widgets import Widget
+from ttkbootstrap.constants import *
 
 
 class Entry(Widget, ttk.Entry):
@@ -19,10 +20,9 @@ class Entry(Widget, ttk.Entry):
 
     def __init__(
         self,
-        
         # widget options
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         cursor=None,
         exportselection=False,
         font=None,
@@ -30,7 +30,7 @@ class Entry(Widget, ttk.Entry):
         justify=None,
         padding=None,
         show=None,
-        state="normal",
+        state=NORMAL,
         takefocus=True,
         text=None,
         textvariable=None,
@@ -39,7 +39,6 @@ class Entry(Widget, ttk.Entry):
         width=None,
         xscrollcommand=None,
         style=None,
-
         # style options
         background=None,
         focuscolor=None,
@@ -70,7 +69,7 @@ class Entry(Widget, ttk.Entry):
             background (str): The entry field background color; setting this options will override theme settings.
             focuscolor (str): The color of the focus ring when the widget has focus; setting this option will override theme settings.
             foreground (str): The entry text color; setting this option will override theme settings.
-        
+
         .. _`mouse cursor`: https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
         """
         Widget.__init__(self, "TEntry", master=master, bootstyle=bootstyle, style=style)
@@ -80,7 +79,7 @@ class Entry(Widget, ttk.Entry):
         self._focuscolor = focuscolor
         self._foreground = foreground
         self._font = font or DEFAULT_FONT
-        self._bsoptions = ['background', 'focuscolor', 'foreground', 'bootstyle']
+        self._bsoptions = ["background", "focuscolor", "foreground", "bootstyle"]
         self._customize_widget()
 
         ttk.Entry.__init__(
@@ -106,24 +105,38 @@ class Entry(Widget, ttk.Entry):
 
     def _customize_widget(self):
 
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        # custom styles
         if any([self._background != None, self._foreground != None, self._focuscolor != None]):
             self.customized = True
-
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
                 self.style = f"{self._widget_id}.{self.style}"
 
-        if self.customized:
             options = {
                 "theme": self.theme,
+                "settings": self.settings,
                 "background": self._background,
                 "foreground": self._foreground,
                 "focuscolor": self._focuscolor or self.themed_color,
                 "style": self.style,
             }
-            settings = StylerTTK.style_entry(**options)
+            StylerTTK.style_entry(**options)
 
-            self.update_ttk_style(settings)
+        # ttkbootstrap styles
+        else:
+            options = {
+                "theme": self.theme,
+                "settings": self.settings,
+                "focuscolor": self.themed_color,
+                "style": self.style,
+            }
+            StylerTTK.style_entry(**options)
+
+        self.update_ttk_style(self.settings)
 
     @property
     def text(self):

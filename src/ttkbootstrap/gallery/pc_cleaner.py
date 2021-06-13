@@ -6,7 +6,7 @@
 import ttkbootstrap as ttk
 from pathlib import Path
 
-class Application(ttk.Window):
+class Application(ttk.Application):
     def __init__(self):
         super().__init__(title="PC Cleaner", theme="journal")
         self.cleaner = Cleaner(self)
