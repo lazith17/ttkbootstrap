@@ -71,7 +71,7 @@ class Label(Widget, ttk.Label):
         self._background = background
         self._foreground = foreground
         self._bsoptions = ["background", "foreground", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Label.__init__(
             self,
@@ -94,12 +94,8 @@ class Label(Widget, ttk.Label):
             **kw,
         )
 
-    def _customize_widget(self):
+    def style_widget(self):
 
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
-        
         # custom styles
         if any([self._background != None, self._foreground != None]):
             self.customized = True
@@ -134,8 +130,6 @@ class Label(Widget, ttk.Label):
                 options["foreground"] = self.themed_color
             StylerTTK.style_label(**options)
             
-        self.update_ttk_style(self.settings)
-
     @property
     def text(self):
         if self.textvariable:

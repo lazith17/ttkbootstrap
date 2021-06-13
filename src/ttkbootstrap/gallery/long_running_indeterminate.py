@@ -1,46 +1,43 @@
-import tkinter
 from queue import Queue
 from random import randint
 from threading import Thread
 from time import sleep
-from tkinter import ttk
-from tkinter.messagebox import showinfo
-from ttkbootstrap import Style
+import ttkbootstrap as ttk
+from ttkbootstrap.dialog import messagebox
+from ttkbootstrap.constants import *
 
 
-class Application(tkinter.Tk):
-
+class Application(ttk.Application):
     def __init__(self):
-        super().__init__()
-        self.title('Long Running Operation - Indeterminate')
-        self.style = Style('lumen')
+        super().__init__(title="Long Running Operation - Indeterminate", theme="lumen")
 
         # set the main background color to primary, then add 10px padding to create a thick border effect
-        self.configure(background=self.style.colors.primary)
         self.lr = LongRunning(self)
-        self.lr.pack(fill='both', expand='yes', padx=10, pady=10)
+        self.lr.pack(fill=BOTH, expand=YES, padx=10, pady=10)
 
 
 class LongRunning(ttk.Frame):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.configure(padding=20)
         self.task_queue = Queue()
 
         # instructions
-        lbl = ttk.Label(self, text="Click the START button to begin a \n"
-                                   "long-running task that will last \n"
-                                   "approximately 5 and 10 seconds", justify='left')
-        lbl.pack(fill='x', pady=10)
+        lbl = ttk.Label(
+            self,
+            text="Click the START button to begin a long-running task that will last approximately 5 and 10 seconds",
+            justify=LEFT,
+            wraplength=275
+        )
+        lbl.pack(fill=X)
 
         # start button
         self.btn = ttk.Button(self, text="START", command=self.start_task)
-        self.btn.pack(pady=10)
+        self.btn.pack(pady=(5, 10))
 
         # indeterminate progressbar
-        self.progressbar = ttk.Progressbar(self, mode='indeterminate', style='info.Horizontal.TProgressbar')
-        self.progressbar.pack(fill='x')
+        self.progressbar = ttk.Progressbar(self, mode=INDETERMINATE, style=INFO)
+        self.progressbar.pack(fill=X)
 
     def simulated_blocking_io_task(self):
         """A simulated IO operation to run for a random time interval between 5 and 10 seconds"""
@@ -52,18 +49,18 @@ class LongRunning(ttk.Frame):
         """Start the progressbar and run the task in another thread"""
         self.progressbar.start(10)  # ``start`` accepts a speed argument (in milliseconds)
         self.task_queue.put(Thread(target=self.simulated_blocking_io_task, daemon=True).start())
-        self.btn.configure(state='disabled')
+        self.btn.configure(state=DISABLED)
         self.listen_for_complete_task()
 
     def listen_for_complete_task(self):
         """Check to see if task is complete; if so, stop the progressbar and show and alert"""
         if self.task_queue.unfinished_tasks == 0:
             self.progressbar.stop()
-            showinfo(title='alert', message="process complete")
-            self.btn.configure(state='normal')
+            messagebox.showinfo(title="alert", message="process complete")
+            self.btn.configure(state=NORMAL)
             return
         self.after(500, self.listen_for_complete_task)
 
 
-if __name__ == '__main__':
-    Application().mainloop()
+if __name__ == "__main__":
+    Application().run()

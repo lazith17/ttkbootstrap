@@ -56,7 +56,7 @@ class Notebook(Widget, ttk.Notebook):
         self._background = background
         self._foreground = foreground
         self._bsoptions = ["background", "foreground", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Notebook.__init__(
             self,
@@ -70,11 +70,7 @@ class Notebook(Widget, ttk.Notebook):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None]):
@@ -101,5 +97,3 @@ class Notebook(Widget, ttk.Notebook):
                 "style": self.style,
             }
             StylerTTK.style_notebook(**options)
-
-        self.update_ttk_style(self.settings)

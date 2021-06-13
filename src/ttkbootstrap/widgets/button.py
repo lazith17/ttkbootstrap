@@ -79,7 +79,7 @@ class Button(Widget, ttk.Button):
         self._font = font
         self._foreground = foreground
         self._bsoptions = ["anchor", "background", "font", "foreground", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Button.__init__(
             self,
@@ -100,14 +100,12 @@ class Button(Widget, ttk.Button):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
-        if any([self._background != None, self._foreground != None, self._anchor != CENTER, self._font != DEFAULT_FONT]):
+        if any(
+            [self._background != None, self._foreground != None, self._anchor != CENTER, self._font != DEFAULT_FONT]
+        ):
             self.customized = True
             if not self._widget_id:
                 self._widget_id = uuid4() if self._widget_id == None else self._widget_id
@@ -126,11 +124,11 @@ class Button(Widget, ttk.Button):
             if "Outline" in self.style:
                 self._foreground = self._foreground or self.themed_color
                 StylerTTK.style_outline_button(**options)
-            
+
             elif "Link" in self.style:
                 self._foreground = self._foreground or self.themed_color
                 StylerTTK.style_link_button(**options)
-            
+
             else:
                 self._background = self._background or self.themed_color
                 StylerTTK.style_button(**options)
@@ -143,19 +141,16 @@ class Button(Widget, ttk.Button):
                 "style": self.style,
             }
             if "Outline" in self.style:
-                options['foreground'] = self.themed_color
+                options["foreground"] = self.themed_color
                 StylerTTK.style_outline_button(**options)
 
             elif "Link" in self.style:
-                options['foreground'] = self.themed_color
+                options["foreground"] = self.themed_color
                 StylerTTK.style_link_button(**options)
-            
-            else:
-                options['background'] = self.themed_color
-                StylerTTK.style_button(**options)
-        
-        self.update_ttk_style(self.settings)
 
+            else:
+                options["background"] = self.themed_color
+                StylerTTK.style_button(**options)
 
     @property
     def text(self):

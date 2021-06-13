@@ -147,3 +147,7 @@ INFO = 'info'  # duplicate
 WARNING = 'warning' # duplicate
 QUESTION = 'question'
 ERROR = 'error'
+
+# meter options
+FULL = 'full'
+SEMI = 'semi'

@@ -97,7 +97,7 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         self._thickness = size[1] if orient == "vertical" else size[0]
         self._troughcolor = troughcolor
         self._bsoptions = ["barcolor", "troughcolor", "foreground", "font", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Progressbar.__init__(
             self,
@@ -137,11 +137,7 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
         """Set the current value of the widget"""
         self.variable.set(value)
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any(
@@ -181,8 +177,6 @@ class Floodgauge(Widget, ttk.Progressbar, ttk.Label):
                 "style": self.style,
             }
             StylerTTK.style_floodgauge(**options)
-
-        self.update_ttk_style(self.settings)
 
     def _textvariable_write(self, *args):
         """Callback to update the label text when there is a `write` action on the variable

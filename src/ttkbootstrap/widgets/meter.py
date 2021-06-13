@@ -13,10 +13,13 @@ from tkinter import IntVar, StringVar
 from ttkbootstrap.style import StylerTTK
 from ttkbootstrap.themes import ThemeColors
 from ttkbootstrap.widgets import Frame, Label
+from ttkbootstrap.constants import *
 
 
 DEFAULT_TEXT = "helvetica 25 bold"
 DEFAULT_LABEL = "helvetica 10 bold"
+
+# TODO the `style_widget` method does not appear to get called here.
 
 
 class Meter(Frame):
@@ -46,7 +49,7 @@ class Meter(Frame):
     def __init__(
         self,
         master=None,
-        bootstyle="default",
+        bootstyle=DEFAULT,
         amounttotal=100,
         amountused=0,
         arcoffset=None,
@@ -60,7 +63,7 @@ class Meter(Frame):
         labeltext=None,
         metersize=200,
         meterthickness=10,
-        metertype="full",
+        metertype=FULL,
         padding=None,
         showvalue=True,
         stripethickness=0,
@@ -134,7 +137,7 @@ class Meter(Frame):
         self.textvariable = textvariable or StringVar(value=text) if not showvalue else self.variable
         self.variable.trace_add("write", self._draw_meter)
 
-        if metertype == "semi":
+        if metertype == SEMI:
             self._arcoffset = arcoffset or 135
             self._arcrange = arcrange or 270
         else:  # full
@@ -157,11 +160,11 @@ class Meter(Frame):
         textprepend = Label(
             self._textcontainer,
             text=self._textprepend,
-            bootstyle="secondary",
+            bootstyle=SECONDARY,
             foreground=labelcolor,
             font=labelfont,
             padding=(0, 5),
-            anchor="s",
+            anchor=S,
         )
         text = Label(
             self._textcontainer,
@@ -175,23 +178,23 @@ class Meter(Frame):
             text=self._textappend,
             font=self._labelfont,
             foreground=self._labelcolor,
-            anchor="s",
+            anchor=S,
             padding=(0, 5),
         )
-        supplemental_label = Label(self.inner, text=self._labeltext, bootstyle="secondary", font=self._labelfont)
+        supplemental_label = Label(self.inner, text=self._labeltext, bootstyle=SECONDARY, font=self._labelfont)
 
         # position the text container based on whether or not there is a supplemental label
         if self._labeltext:
             # TODO find a more accurate method for distributing these items inside the widget.
-            self._textcontainer.place(relx=0.5, rely=0.43, anchor="center")
+            self._textcontainer.place(relx=0.5, rely=0.43, anchor=CENTER)
         else:
-            self._textcontainer.place(relx=0.5, rely=0.5, anchor="center")
+            self._textcontainer.place(relx=0.5, rely=0.5, anchor=CENTER)
         if self._textprepend:
-            textprepend.pack(side="left", fill="y")
-        text.pack(side="left", fill="y")
+            textprepend.pack(side=LEFT, fill=Y)
+        text.pack(side=LEFT, fill=Y)
         if self._textappend:
-            textappend.pack(side="left", fill="y")
-        supplemental_label.place(relx=0.5, rely=0.6, anchor="center")
+            textappend.pack(side=LEFT, fill=Y)
+        supplemental_label.place(relx=0.5, rely=0.6, anchor=CENTER)
 
     @property
     def value(self):
@@ -327,11 +330,7 @@ class Meter(Frame):
         else:
             self.value = amountused
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._labelcolor != None]):
@@ -357,8 +356,6 @@ class Meter(Frame):
                 "style": self.style,
             }
             StylerTTK.style_meter(**options)
-
-        self.update_ttk_style(self.settings)
 
     def step(self, delta=1):
         """Increase the indicator value by ``delta``.

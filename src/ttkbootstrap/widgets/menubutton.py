@@ -73,7 +73,7 @@ class Menubutton(Widget, ttk.Menubutton):
         self._font = font
         self._foreground = foreground
         self._bsoptions = ['background', 'foreground', 'bootstyle']
-        self._customize_widget()
+        self.register_style()
 
         ttk.Menubutton.__init__(
             self,
@@ -94,11 +94,7 @@ class Menubutton(Widget, ttk.Menubutton):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._font != None]):
@@ -136,8 +132,6 @@ class Menubutton(Widget, ttk.Menubutton):
             else:
                 options['background'] = self.themed_color
                 StylerTTK.style_menubutton(**options)
-
-        self.update_ttk_style(self.settings)
 
     @property
     def text(self):

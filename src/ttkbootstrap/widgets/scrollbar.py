@@ -7,7 +7,7 @@
 """
 from uuid import uuid4
 from tkinter import ttk
-from ttkbootstrap.style import StylerTTK
+from ttkbootstrap.style import Style, StylerTTK
 from ttkbootstrap.widgets import Widget
 from ttkbootstrap.constants import *
 
@@ -55,7 +55,7 @@ class Scrollbar(Widget, ttk.Scrollbar):
         self._thumbcolor = thumbcolor
         self._troughcolor = troughcolor
         self._bsoptions = ["showarrows", "thumbcolor", "troughcolor", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Scrollbar.__init__(
             self,
@@ -68,11 +68,8 @@ class Scrollbar(Widget, ttk.Scrollbar):
             **kw,
         )
 
-    def _customize_widget(self):
+    def style_widget(self):
         """Create a custom widget style if custom settings are used"""
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
 
         # custom styles
         if any([self._troughcolor != None, self._thumbcolor != None, not self._showarrows]):
@@ -102,5 +99,3 @@ class Scrollbar(Widget, ttk.Scrollbar):
                 "style": self.style,
             }
             StylerTTK.style_scrollbar(**options)
-
-        self.update_ttk_style(self.settings)

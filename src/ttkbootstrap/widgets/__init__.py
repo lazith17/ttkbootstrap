@@ -34,4 +34,4 @@ Panedwindow = PanedWindow
 
 # other tkitner classes imported as-is
 from tkinter import StringVar, IntVar, BooleanVar, Variable, DoubleVar
-from tkinter import PhotoImage, Menu
+from tkinter import PhotoImage, Menu, Canvas

@@ -39,9 +39,10 @@ class Style(ttk.Style):
     """
 
     current_theme = None
+    registered_styles = dict()
     theme_definitions = ThemeDefinition.load_themes()
-    themes = set()
-    theme_objects = dict()
+    themes = set() # unique theme names
+    theme_objects = dict()  # container to store images for image-based elements
 
     def __init__(self, themename=THEME, master=None):
         super().__init__(master=master)
@@ -68,6 +69,26 @@ class Style(ttk.Style):
                 theme = Style.theme_definitions.get(t)
                 Style.theme_objects[theme] = StylerTTK(self, theme)
             print(i, t)
+
+    @staticmethod
+    def register_style(theme, style):
+        """Register a created style in a given theme
+
+        Args:
+            theme (str): The theme name
+            style (str): The style name
+        """
+        if theme not in Style.registered_styles:
+            Style.registered_styles[theme] = set()
+        Style.registered_styles[theme].add(style)
+
+    @staticmethod
+    def style_is_registered(theme, style):
+        theme_styles = Style.registered_styles.get(theme)
+        if not theme_styles:
+            return
+        else:
+            return style in theme_styles
 
     def theme_use(self, themename=None):
         """Changes the theme used in rendering the application widgets.
@@ -742,8 +763,8 @@ class StylerTTK:
         if orient.lower() == HORIZONTAL:
             settings.update(
                 {
-                    f"{element}.Horizontal.Scale.track": {"element create": ("image", img_trough, {"border": 5})},
-                    f"{element}.Horizontal.Scale.slider": {
+                    f"{element}.track": {"element create": ("image", img_trough, {"border": 5})},
+                    f"{element}.slider": {
                         "element create": (
                             "image",
                             img_normal,
@@ -760,8 +781,8 @@ class StylerTTK:
                                     "expand": "1",
                                     "sticky": "nswe",
                                     "children": [
-                                        (f"{element}.Horizontal.Scale.track", {"sticky": "we"}),
-                                        (f"{element}.Horizontal.Scale.slider", {"side": "left", "sticky": ""}),
+                                        (f"{element}.track", {"sticky": "we"}),
+                                        (f"{element}.slider", {"side": "left", "sticky": ""}),
                                     ],
                                 },
                             )
@@ -773,8 +794,8 @@ class StylerTTK:
         else:
             settings.update(
                 {
-                    f"{element}.Vertical.Scale.track": {"element create": ("image", img_trough, {"border": 5})},
-                    f"{element}.Vertical.Scale.slider": {
+                    f"{element}.track": {"element create": ("image", img_trough, {"border": 5})},
+                    f"{element}.slider": {
                         "element create": (
                             "image",
                             img_normal,
@@ -791,8 +812,8 @@ class StylerTTK:
                                     "expand": "1",
                                     "sticky": "nswe",
                                     "children": [
-                                        (f"{element}.Vertical.Scale.track", {"sticky": "ns"}),
-                                        (f"{element}.Vertical.Scale.slider", {"side": "top", "sticky": ""}),
+                                        (f"{element}.track", {"sticky": "ns"}),
+                                        (f"{element}.slider", {"side": "top", "sticky": ""}),
                                     ],
                                 },
                             )

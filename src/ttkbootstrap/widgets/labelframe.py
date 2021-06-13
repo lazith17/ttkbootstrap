@@ -61,11 +61,14 @@ class LabelFrame(Widget, ttk.Label):
         """
         Widget.__init__(self, "TLabelframe", master=master, bootstyle=bootstyle, style=style)
 
+        # colors
         self._background = background
         self._bordercolor = bordercolor
-        self._foreground = foreground or DEFAULT_COLORS.fg if bootstyle == DEFAULT else DEFAULT_COLORS.selectfg
+        default_fg = self.colors.fg if self.theme.type == LIGHT else self.colors.selectfg
+        self._foreground = foreground or default_fg if bootstyle == DEFAULT else self.colors.selectfg
+        
         self._bsoptions = ["background", "bordercolor", "foreground", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Labelframe.__init__(
             self,
@@ -83,12 +86,8 @@ class LabelFrame(Widget, ttk.Label):
             **kw,
         )
 
-    def _customize_widget(self):
+    def style_widget(self):
 
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
-        
         # custom styles
         if any([self._background != None, self._foreground != None, self._bordercolor != None]):
             self.customized = True
@@ -116,5 +115,3 @@ class LabelFrame(Widget, ttk.Label):
                 "style": self.style,
             }
             StylerTTK.style_labelframe(**options)
-
-        self.update_ttk_style(self.settings)

@@ -14,7 +14,7 @@ class Demo(ttk.Application):
     """An application class for demonstrating styles"""
 
     def __init__(self):
-        super().__init__(title="TTK Bootstrap", theme="lumen", size=(500, 695))
+        super().__init__(title="TTK Bootstrap", theme="solar", size=(500, 695))
         self.style.build_all_themes()
         self.theme_name = ttk.StringVar()
         self.theme_name.set(self.style.current_theme.name)

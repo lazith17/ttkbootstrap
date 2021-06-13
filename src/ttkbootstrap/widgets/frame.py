@@ -52,7 +52,7 @@ class Frame(Widget, ttk.Frame):
 
         self._background = background
         self._bsoptions = ["background", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Frame.__init__(
             self,
@@ -66,10 +66,7 @@ class Frame(Widget, ttk.Frame):
             **kw,
         )
 
-    def _customize_widget(self):
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if self._background != None:
@@ -95,5 +92,3 @@ class Frame(Widget, ttk.Frame):
                 "style": self.style,
             }
             StylerTTK.style_frame(**options)
-
-        self.update_ttk_style(self.settings)

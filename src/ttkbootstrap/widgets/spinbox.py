@@ -94,7 +94,7 @@ class Spinbox(Widget, ttk.Spinbox):
         self._values = values
         self._bsoptions = ["background", "focuscolor", "foreground", "bootstyle"]
         self._set_variable()
-        self._customize_widget()
+        self.register_style()
 
         ttk.Spinbox.__init__(
             self,
@@ -119,11 +119,7 @@ class Spinbox(Widget, ttk.Spinbox):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._focuscolor != None]):
@@ -151,8 +147,6 @@ class Spinbox(Widget, ttk.Spinbox):
                 "style": self.style,
             }
             StylerTTK.style_spinbox(**options)
-
-        self.update_ttk_style(self.settings)
 
     def _set_variable(self):
         """Set initial variable value upon instantiation"""

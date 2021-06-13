@@ -82,7 +82,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         self._foreground = foreground
         self._indicatorcolor = indicatorcolor
         self._bsoptions = ["background", "font", "foreground", "indicatorcolor", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Checkbutton.__init__(
             self,
@@ -115,11 +115,7 @@ class Checkbutton(Widget, ttk.Checkbutton):
         """Set the current value of the ``variable``"""
         self.variable.set(value)
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
@@ -170,5 +166,3 @@ class Checkbutton(Widget, ttk.Checkbutton):
                 StylerTTK.style_toolbutton(**options)
             else:
                 StylerTTK.style_checkbutton(**options)
-
-        self.update_ttk_style(self.settings)

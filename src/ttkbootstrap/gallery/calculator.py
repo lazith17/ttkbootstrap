@@ -3,6 +3,7 @@
     Modified: 2021-06-07
 """
 import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 
 class Application(ttk.Application):
@@ -10,7 +11,7 @@ class Application(ttk.Application):
         super().__init__(title="Calculator", theme="flatly")
         self.style.configure(".", font="TkFixedFont 16")
         self.calc = Calculator(self)
-        self.calc.pack(fill=ttk.BOTH, expand=ttk.YES)
+        self.calc.pack(fill=BOTH, expand=YES)
 
 
 class Calculator(ttk.Frame):
@@ -19,8 +20,8 @@ class Calculator(ttk.Frame):
         self.configure(padding=1)
 
         # number display
-        self.display = ttk.Label(self, text=0, font="TkFixedFont 20", anchor=ttk.E)
-        self.display.grid(row=0, column=0, columnspan=4, sticky=ttk.EW, pady=15, padx=10)
+        self.display = ttk.Label(self, text=0, font="TkFixedFont 20", anchor=E)
+        self.display.grid(row=0, column=0, columnspan=4, sticky=EW, pady=15, padx=10)
 
         # button layout
         button_matrix = [("%", "C", "CE", "/"), (7, 8, 9, "*"), (4, 5, 6, "-"), (1, 2, 3, "+"), ("±", 0, ".", "=")]
@@ -29,12 +30,12 @@ class Calculator(ttk.Frame):
         for i, row in enumerate(button_matrix):
             for j, lbl in enumerate(row):
                 if isinstance(lbl, int):
-                    btn = ttk.Button(self, text=lbl, width=2, bootstyle="primary")
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle=PRIMARY)
                 elif lbl == "=":
-                    btn = ttk.Button(self, text=lbl, width=2, bootstyle="success")
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle=SUCCESS)
                 else:
-                    btn = ttk.Button(self, text=lbl, width=2, bootstyle="secondary")
-                btn.grid(row=i + 1, column=j, sticky=ttk.NSEW, padx=1, pady=1, ipadx=10, ipady=10)
+                    btn = ttk.Button(self, text=lbl, width=2, bootstyle=SECONDARY)
+                btn.grid(row=i + 1, column=j, sticky=NSEW, padx=1, pady=1, ipadx=10, ipady=10)
 
                 # bind button press
                 btn.bind("<Button-1>", self.press_button)
@@ -81,4 +82,4 @@ class Calculator(ttk.Frame):
 
 
 if __name__ == "__main__":
-    Application().mainloop()
+    Application().run()

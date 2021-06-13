@@ -1,28 +1,18 @@
 # https://dribbble.com/shots/1237618--Gif-Spinner
-import tkinter
 from itertools import cycle
-from tkinter import ttk
+import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 from PIL import Image, ImageTk, ImageSequence
 
 
-class AnimatedGif(tkinter.Tk):
+class AnimatedGif(ttk.Application):
 
     def __init__(self):
-        super().__init__()
-        self.geometry('400x300')
-
-        # remove the window decorations, titlebar, etc...
-        self.overrideredirect(True)
-
-        # center the window in the center of the screen
-        self.eval('tk::PlaceWindow . center')
-
-        # bind the escape key to exit the application
-        self.bind('<Escape>', lambda _: self.quit())
+        super().__init__(size=(400, 300), theme='superhero')
 
         # open the GIF and create a cycle iterator
-        with Image.open('images/spinners.gif') as im:
+        with Image.open(r'C:\Users\us43060\Desktop\ttkbootstrap\src\ttkbootstrap\gallery\images\spinners.gif') as im:
             # create a sequence
             sequence = ImageSequence.Iterator(im)
 
@@ -33,7 +23,7 @@ class AnimatedGif(tkinter.Tk):
             self.framerate = im.info['duration']
 
         self.image_container = ttk.Label(self, image=next(self.image_cycle))
-        self.image_container.pack(fill='both', expand='yes')
+        self.image_container.pack(fill=BOTH, expand=YES)
         self.after(self.framerate, self.next_frame)
 
     def next_frame(self):
@@ -43,4 +33,4 @@ class AnimatedGif(tkinter.Tk):
 
 
 if __name__ == '__main__':
-    Animation().mainloop()
+    AnimatedGif().run()

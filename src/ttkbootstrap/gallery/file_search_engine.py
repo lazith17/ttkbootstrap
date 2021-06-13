@@ -1,6 +1,6 @@
 """
     Author: Israel Dryer
-    Modified: 2021-04-09
+    Modified: 2021-06-13
     Adapted for ttkbootstrap from: https://github.com/israel-dryer/File-Search-Engine-Tk
 """
 import csv
@@ -10,13 +10,14 @@ from queue import Queue
 from threading import Thread
 import ttkbootstrap as ttk
 from ttkbootstrap.dialog import filedialog
+from ttkbootstrap.constants import *
 
 
 class Application(ttk.Application):
     def __init__(self):
         super().__init__(title="File Search Engine", theme="journal")
         self.search = SearchEngine(self, padding=10)
-        self.search.pack(fill="both", expand="yes")
+        self.search.pack(fill=BOTH, expand=YES)
 
 
 class SearchEngine(ttk.Frame):
@@ -27,42 +28,42 @@ class SearchEngine(ttk.Frame):
 
         # container for user input
         input_labelframe = ttk.Labelframe(self, text="Complete the form to begin your search", padding=(20, 10, 10, 5))
-        input_labelframe.pack(side="top", fill="x")
+        input_labelframe.pack(side=TOP, fill=X)
         input_labelframe.columnconfigure(1, weight=1)
 
         # file path input
-        ttk.Label(input_labelframe, text="Path").grid(row=0, column=0, padx=10, pady=2, sticky="ew")
+        ttk.Label(input_labelframe, text="Path").grid(row=0, column=0, padx=10, pady=2, sticky=EW)
         self.search_path = ttk.Entry(input_labelframe, text=pathlib.Path().absolute())
-        self.search_path.grid(row=0, column=1, sticky="ew", padx=10, pady=2)
+        self.search_path.grid(row=0, column=1, sticky=EW, padx=10, pady=2)
         b1 = ttk.Button(input_labelframe, text="Browse", command=self.on_browse)
-        b1.grid(row=0, column=2, sticky="ew", pady=2, ipadx=10)
+        b1.grid(row=0, column=2, sticky=EW, pady=2, ipadx=10)
 
         # search term input
-        ttk.Label(input_labelframe, text="Term").grid(row=1, column=0, padx=10, pady=2, sticky="ew")
+        ttk.Label(input_labelframe, text="Term").grid(row=1, column=0, padx=10, pady=2, sticky=EW)
         self.search_term = ttk.Entry(input_labelframe, text="txt")
-        self.search_term.grid(row=1, column=1, sticky="ew", padx=10, pady=2)
-        b2 = ttk.Button(input_labelframe, text="Search", command=self.on_search, bootstyle="outline")
-        b2.grid(row=1, column=2, sticky="ew", pady=2)
+        self.search_term.grid(row=1, column=1, sticky=EW, padx=10, pady=2)
+        b2 = ttk.Button(input_labelframe, text="Search", command=self.on_search, bootstyle=OUTLINE)
+        b2.grid(row=1, column=2, sticky=EW, pady=2)
 
         # search type selection
-        ttk.Label(input_labelframe, text="Type").grid(row=2, column=0, padx=10, pady=2, sticky="ew")
+        ttk.Label(input_labelframe, text="Type").grid(row=2, column=0, padx=10, pady=2, sticky=EW)
         option_frame = ttk.Frame(input_labelframe, padding=(15, 10, 0, 10))
-        option_frame.grid(row=2, column=1, columnspan=2, sticky="ew")
+        option_frame.grid(row=2, column=1, columnspan=2, sticky=EW)
         self.search_type = ttk.Radiobutton(option_frame, text="Contains", value="contains", group="search-type")
-        self.search_type.pack(side="left", fill="x", pady=2, padx=10)
+        self.search_type.pack(side=LEFT, fill=X, pady=2, padx=10)
         r2 = ttk.Radiobutton(option_frame, text="StartsWith", value="startswith", group="search-type")
-        r2.pack(side="left", fill="x", pady=2, padx=10)
+        r2.pack(side=LEFT, fill=X, pady=2, padx=10)
         r3 = ttk.Radiobutton(option_frame, text="EndsWith", value="endswith", group="search-type", default=True)
-        r3.pack(side="left", fill="x", pady=2, padx=10)
+        r3.pack(side=LEFT, fill=X, pady=2, padx=10)
 
         # search results tree
-        self.tree = ttk.Treeview(self, bootstyle="info")
-        self.tree.pack(fill="both", pady=5)
+        self.tree = ttk.Treeview(self, bootstyle=INFO)
+        self.tree.pack(fill=BOTH, expand=YES)
         self.tree["columns"] = ("modified", "type", "size", "path")
         self.tree.column("#0", width=400)
-        self.tree.column("modified", width=150, stretch=False, anchor="e")
-        self.tree.column("type", width=50, stretch=False, anchor="e")
-        self.tree.column("size", width=50, stretch=False, anchor="e")
+        self.tree.column("modified", width=150, stretch=False, anchor=E)
+        self.tree.column("type", width=50, stretch=False, anchor=E)
+        self.tree.column("size", width=50, stretch=False, anchor=E)
         self.tree.heading("#0", text="Name")
         self.tree.heading("modified", text="Modified date")
         self.tree.heading("type", text="Type")
@@ -70,8 +71,8 @@ class SearchEngine(ttk.Frame):
         self.tree.heading("path", text="Path")
 
         # progress bar
-        self.progressbar = ttk.Progressbar(self, mode="indeterminate", bootstyle="success")
-        self.progressbar.pack(fill="x", pady=5)
+        self.progressbar = ttk.Progressbar(self, mode="indeterminate", bootstyle=SUCCESS)
+        self.progressbar.pack(fill=X, pady=5)
 
         # right-click menu for treeview
         self.menu = ttk.Menu(self, tearoff=False)
@@ -104,11 +105,11 @@ class SearchEngine(ttk.Frame):
         except IndexError:
             return
         if id.startswith("I"):
-            self.menu.entryconfigure("Export results to csv", state="disabled")
-            self.menu.entryconfigure("Reveal in file manager", state="normal")
+            self.menu.entryconfigure("Export results to csv", state=DISABLED)
+            self.menu.entryconfigure("Reveal in file manager", state=NORMAL)
         else:
-            self.menu.entryconfigure("Export results to csv", state="normal")
-            self.menu.entryconfigure("Reveal in file manager", state="disabled")
+            self.menu.entryconfigure("Export results to csv", state=NORMAL)
+            self.menu.entryconfigure("Reveal in file manager", state=DISABLED)
         self.menu.post(event.x_root, event.y_root)
 
     def on_search(self):
@@ -121,7 +122,7 @@ class SearchEngine(ttk.Frame):
         Thread(target=SearchEngine.file_search, args=(search_term, search_path, search_type), daemon=True).start()
         self.progressbar.start(10)
         self.search_count += 1
-        id = self.tree.insert("", "end", self.search_count, text=f"Search {self.search_count}")
+        id = self.tree.insert("", END, self.search_count, text=f"Search {self.search_count}")
         self.tree.item(id, open=True)
         self.check_queue(id)
 
@@ -247,4 +248,4 @@ class SearchEngine(ttk.Frame):
 if __name__ == "__main__":
     file_queue = Queue()
     searching = False
-    Application().mainloop()
+    Application().run()

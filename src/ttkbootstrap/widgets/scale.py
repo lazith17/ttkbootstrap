@@ -8,7 +8,7 @@
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import Variable
-from ttkbootstrap.style import StylerTTK
+from ttkbootstrap.style import Style, StylerTTK
 from ttkbootstrap.widgets import Widget
 
 # TODO add mouse scroll event to increase or decrease the value.
@@ -67,7 +67,7 @@ class Scale(Widget, ttk.Scale):
         self._troughcolor = troughcolor
         self._orient = orient
         self._bsoptions = ["slidercolor", "troughcolor", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Scale.__init__(
             self,
@@ -94,12 +94,8 @@ class Scale(Widget, ttk.Scale):
         """Set the current value of the spinbox widget. Alias for ``Scale.set``"""
         self.variable.set(value)
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
-
+    def style_widget(self):
+        
         # custom styles
         if any([self._troughcolor != None, self._slidercolor != None]):
             self.customized = True
@@ -127,5 +123,3 @@ class Scale(Widget, ttk.Scale):
                 "style": self.style,
             }
             StylerTTK.style_scale(**options)
-
-        self.update_ttk_style(self.settings)

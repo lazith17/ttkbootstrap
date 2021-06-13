@@ -8,7 +8,7 @@
 from uuid import uuid4
 from tkinter import ttk
 from tkinter import IntVar, DoubleVar
-from ttkbootstrap.style import StylerTTK
+from ttkbootstrap.style import Style, StylerTTK
 from ttkbootstrap.widgets import Widget
 from ttkbootstrap.constants import *
 
@@ -66,7 +66,7 @@ class Progressbar(Widget, ttk.Progressbar):
         self._barcolor = barcolor
         self._troughcolor = troughcolor
         self._bsoptions = ["barcolor", "troughcolor", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Progressbar.__init__(
             self,
@@ -84,6 +84,11 @@ class Progressbar(Widget, ttk.Progressbar):
         )
 
     @property
+    def maximum(self):
+        """Get the maximum value of the widget"""
+        return self['maximum']
+
+    @property
     def value(self):
         """Get the current value of the widget"""
         return self.variable.get()
@@ -93,11 +98,7 @@ class Progressbar(Widget, ttk.Progressbar):
         """Set the current value of the widget"""
         self.variable.set(value)
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._barcolor != None, self._troughcolor != None]):
@@ -126,5 +127,3 @@ class Progressbar(Widget, ttk.Progressbar):
                 "style": self.style,
             }
             StylerTTK.style_progressbar(**options)
-
-        self.update_ttk_style(self.settings)

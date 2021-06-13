@@ -4,13 +4,14 @@
 """
 from random import randint
 import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 
 class Application(ttk.Application):
     def __init__(self):
         super().__init__(title="Equalizer")
         self.eq = Equalizer(self)
-        self.eq.pack(fill="both", expand="yes")
+        self.eq.pack(fill=BOTH, expand=YES)
 
 
 class Equalizer(ttk.Frame):
@@ -27,18 +28,18 @@ class Equalizer(ttk.Frame):
 
             # container
             frame = ttk.Frame(self, padding=5)
-            frame.pack(side="left", fill="y", padx=10)
+            frame.pack(side=LEFT, fill=Y, padx=10)
 
             # header
-            ttk.Label(frame, text=c, anchor="center", font=("Helvetica 10 bold")).pack(side="top", fill="x", pady=10)
+            ttk.Label(frame, text=c, anchor=CENTER, font=("Helvetica 10 bold")).pack(side=TOP, fill=X, pady=10)
 
             # slider
-            scale = ttk.Scale(frame, orient="vertical", from_=99, to=1, defaultvalue=value)
-            scale.pack(fill="y")
+            scale = ttk.Scale(frame, orient=VERTICAL, from_=99, to=1, defaultvalue=value)
+            scale.pack(fill=Y)
             scale.configure(command=lambda val, name=c: self.setvar(name, f"{float(val):.0f}"))
 
             # set slider style
-            scale.configure(bootstyle="success" if c in ["VOL", "GAIN"] else "info")
+            scale.configure(bootstyle=SUCCESS if c in ["VOL", "GAIN"] else INFO)
 
             # slider value label
             ttk.Label(frame, textvariable=c).pack(pady=10)

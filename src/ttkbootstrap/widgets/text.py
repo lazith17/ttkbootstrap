@@ -115,7 +115,7 @@ class Text(Widget, tkinter.Text):
             **self._settings,
             **kw,
         )
-        self._customize_widget()
+        self.register_style()
         self.bind("<Leave>", self._on_leave)
         self.bind("<Enter>", self._on_enter)
 
@@ -152,7 +152,7 @@ class Text(Widget, tkinter.Text):
         }
         return settings
 
-    def _customize_widget(self):
+    def style_widget(self):
         self.customized = True
         self._widget_id = uuid4() if self._widget_id == None else self._widget_id
         self.style = f"{self._widget_id}"

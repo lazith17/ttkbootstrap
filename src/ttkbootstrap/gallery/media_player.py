@@ -1,16 +1,17 @@
 """
     Author: Israel Dryer
-    Modified: 2021-06-08
+    Modified: 2021-06-13
     Adapted for ttkbootstrap from: https://github.com/israel-dryer/Mini-VLC-Player
 """
 import ttkbootstrap as ttk
+from ttkbootstrap.constants import *
 
 class Application(ttk.Application):
 
     def __init__(self):
-        super().__init__(title="Media Player", theme="minty", position=(0, 0, NW))
+        super().__init__(title="Media Player", theme="minty")
         self.player = Player(self)
-        self.player.pack(fill='both', expand='yes')
+        self.player.pack(fill=BOTH, expand=YES)
 
 class Player(ttk.Frame):
     """
@@ -32,26 +33,26 @@ class Player(ttk.Frame):
 
         # track information header
         self.setvar('track-info', 'Open a file to begin playback')
-        header = ttk.Label(self, textvariable='track-info', padding=10, font='Helvetica 12', background='border')
-        header.pack(fill='x', padx=2)
+        header = ttk.Label(self, textvariable='track-info', padding=10, font='Helvetica 12', background=self.colors.border)
+        header.pack(fill=X, padx=2)
 
         # media container
         self.container = ttk.Label(self, image=self.background)
-        self.container.pack(fill='both', expand='yes')
+        self.container.pack(fill=BOTH, expand=YES)
 
         # progress bar
         progress_frame = ttk.Frame(self, padding=10)
-        progress_frame.pack(fill='x', expand='yes')
+        progress_frame.pack(fill=X, expand=YES)
         self.time_elapsed = ttk.Label(progress_frame, text='00:00', font='Helvetica 12')
-        self.time_scale = ttk.Scale(progress_frame, bootstyle='info')
-        self.time_scale.pack(side='left', fill='x', expand='yes', padx=10)
-        self.time_elapsed.pack(side='left')
+        self.time_scale = ttk.Scale(progress_frame, bootstyle=INFO)
+        self.time_scale.pack(side=LEFT, fill=X, expand=YES, padx=10)
+        self.time_elapsed.pack(side=LEFT)
         self.time_remaining = ttk.Label(progress_frame, text='00:00', font='Helvetica 12')
-        self.time_remaining.pack(side='right')
+        self.time_remaining.pack(side=RIGHT)
 
         # button controls
         control_frame = ttk.Frame(self)
-        control_frame.pack(fill='x', expand='yes')
+        control_frame.pack(fill=X, expand=YES)
         self.buttons = {
             'play': ttk.Button(control_frame, text=self.controls['play']),
             'skip-previous': ttk.Button(control_frame, text=self.controls['skip-previous']),
@@ -61,7 +62,7 @@ class Player(ttk.Frame):
             'open-file': ttk.Button(control_frame, text=self.controls['open-file'], bootstyle='secondary')}
         for button in ['skip-previous', 'play', 'skip-next', 'pause', 'stop', 'open-file']:
             self.buttons[button].pack(
-                side='left', fill='x', expand='yes', ipadx=5, ipady=5, padx=2, pady=2)
+                side=LEFT, fill=X, expand=YES, ipadx=5, ipady=5, padx=2, pady=2)
 
 
 if __name__ == '__main__':

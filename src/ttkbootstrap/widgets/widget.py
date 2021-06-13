@@ -9,6 +9,7 @@ import re
 from abc import ABC, abstractmethod
 
 from tkinter import ttk
+from ttkbootstrap.style import Style
 from ttkbootstrap.themes import DEFINITIONS, COLOR_PATTERN
 
 
@@ -68,13 +69,14 @@ class Widget(ttk.Widget, ABC):
         self.tk = self.master.tk
         self.style = style
         self.theme = DEFINITIONS.get(self.tk.call("ttk::style", "theme", "use"))
+        self.themed_color = None
+        self.customized = False
+        self.settings = dict()
         try:
             self.colors = self.theme.colors
         except AttributeError:
             # not a ttkbootstrap theme
             pass
-        self.customized = False
-        self.settings = dict()
         self._bootstyle = bootstyle.lower()
         self._widget_id = None
         self._orient = orient
@@ -87,7 +89,7 @@ class Widget(ttk.Widget, ABC):
         self.config = self.configure
 
     @abstractmethod
-    def _customize_widget(self):
+    def style_widget(self):
         """Apply color customizations"""
         return NotImplementedError
 
@@ -113,7 +115,7 @@ class Widget(ttk.Widget, ABC):
                 self.__dict__[f"_{k}"] = w
             if "bootstyle" in bsoptions:
                 self.get_bootstyle()
-            self._customize_widget()
+            self.register_style()
 
             # adjust standard ttk options
             ttkoptions = {k: w for k, w in kw.items() if k not in options}
@@ -131,11 +133,9 @@ class Widget(ttk.Widget, ABC):
         self.theme = DEFINITIONS.get(theme_name)
         try:
             self.colors = self.theme.colors
-        except AttributeError:
-            # Not a ttkbootstrap theme
+        except AttributeError:  # Not a ttkbootstrap theme
             return
-        if not self.style_exists(self.style):
-            self._customize_widget()
+        self.register_style()
 
     def update_ttk_style(self, settings):
         """Update a ttk theme using the settings dictionary.
@@ -148,6 +148,7 @@ class Widget(ttk.Widget, ABC):
         self.theme = DEFINITIONS.get(theme_name)
         self.colors = self.theme.colors
         self.tk.call("ttk::style", "theme", "settings", self.theme.name, script)
+        self.settings = dict()
 
     def style_exists(self, style):
         """Query a style configuration and return if true, else return an empty string.
@@ -226,3 +227,15 @@ class Widget(ttk.Widget, ABC):
         o = "" if not widget_orient else widget_orient.title() + "."
         t = self.widgetclass if not widget_type else WIDGET_LOOKUP.get(widget_type) or self.widgetclass
         self.style = f"{c}{s}{o}{t}"
+
+    def register_style(self):
+
+        if not self.theme:
+            # not a ttkbootstrap theme; use ttk styling.
+            return
+
+        self.style_widget()
+
+        if not Style.style_is_registered(self.theme.name, self.style):
+            self.update_ttk_style(self.settings)
+            Style.register_style(self.theme.name, self.style)

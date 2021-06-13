@@ -15,6 +15,8 @@ HEADER_FONT = "helvetica 10 bold"
 INPUT_FONT = "helvetica 10"
 SHOW = TREE + " " + HEADINGS
 
+# TODO indicator style is not working.
+
 
 class Treeview(Widget, ttk.Treeview):
     """The Treeview widget displays a hierarchical collection of items. Each item has a textual label, an optional
@@ -100,7 +102,7 @@ class Treeview(Widget, ttk.Treeview):
             "inputforeground",
             "bootstyle",
         ]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Treeview.__init__(
             self,
@@ -119,11 +121,7 @@ class Treeview(Widget, ttk.Treeview):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any(
@@ -164,5 +162,3 @@ class Treeview(Widget, ttk.Treeview):
                 "style": self.style,
             }
             StylerTTK.style_treeview(**options)
-
-        self.update_ttk_style(self.settings)

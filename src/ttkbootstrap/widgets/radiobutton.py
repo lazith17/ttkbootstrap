@@ -87,7 +87,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         self._indicatorcolor = indicatorcolor
         self._bsoptions = ["background", "font", "foreground", "indicatorcolor", "bootstyle"]
         self._set_variable(value)
-        self._customize_widget()
+        self.register_style()
 
         ttk.Radiobutton.__init__(
             self,
@@ -136,11 +136,7 @@ class Radiobutton(Widget, ttk.Radiobutton):
         if self._default:
             self.value = value
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._font != None, self._indicatorcolor != None]):
@@ -184,5 +180,3 @@ class Radiobutton(Widget, ttk.Radiobutton):
                 StylerTTK.style_toolbutton(**options)
             else:
                 StylerTTK.style_radiobutton(**options)
-
-        self.update_ttk_style(self.settings)

@@ -80,7 +80,7 @@ class Entry(Widget, ttk.Entry):
         self._foreground = foreground
         self._font = font or DEFAULT_FONT
         self._bsoptions = ["background", "focuscolor", "foreground", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.Entry.__init__(
             self,
@@ -103,11 +103,7 @@ class Entry(Widget, ttk.Entry):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._background != None, self._foreground != None, self._focuscolor != None]):
@@ -135,8 +131,6 @@ class Entry(Widget, ttk.Entry):
                 "style": self.style,
             }
             StylerTTK.style_entry(**options)
-
-        self.update_ttk_style(self.settings)
 
     @property
     def text(self):

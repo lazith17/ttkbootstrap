@@ -54,7 +54,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
         self._sashcolor = sashcolor
         self._sashthickness = sashthickness
         self._bsoptions = ["sashcolor", "sashthickness", "bootstyle"]
-        self._customize_widget()
+        self.register_style()
 
         ttk.PanedWindow.__init__(
             self,
@@ -69,11 +69,7 @@ class PanedWindow(Widget, ttk.PanedWindow):
             **kw,
         )
 
-    def _customize_widget(self):
-
-        if not self.theme:
-            # not a ttkbootstrap theme; use ttk styling.
-            return
+    def style_widget(self):
 
         # custom styles
         if any([self._sashcolor != None, self._sashthickness != 5]):
@@ -100,5 +96,3 @@ class PanedWindow(Widget, ttk.PanedWindow):
                 "style": self.style,
             }
             StylerTTK.style_panedwindow(**options)
-
-        self.update_ttk_style(self.settings)
